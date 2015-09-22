@@ -40,8 +40,16 @@ var ExampleApplication = React.createClass({
         this.setState({currentInput: newCurrentInput});
       }
     } else if (e.keyCode == 13) {
-      var newCommands = this.state.commands.concat([{query: this.state.currentInput, result: ""}]);
-      this.setState({commands: newCommands, currentInput: ""});
+      if (this.state.currentInput.length == 0) {
+        console.log("empty");
+        var newCommands = this.state.commands.concat([{query: this.state.currentInput, result: ""}]);
+        this.setState({commands: newCommands, currentInput: ""});
+      } else if (this.state.currentInput == "clear") {
+        this.setState({commands: [], currentInput: ""});
+      } else {
+        var newCommands = this.state.commands.concat([{query: this.state.currentInput, result: "Dummy output schema: ()\n-----\n-----\nTotal number of rows: 0"}]);
+        this.setState({commands: newCommands, currentInput: ""});
+      }
     }
 
     scrollDown();
