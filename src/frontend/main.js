@@ -26,10 +26,29 @@ var ExampleApplication = React.createClass({
     };
   },
 
-  handleKeyPress: function(e) {
-    var newCurrentInput = this.state.currentInput + String.fromCharCode(e.which);
-    console.log(String.fromCharCode(e.charCode));
+  handleStrangeKeys: function(e) {
+    if (e.keyCode == 8) {
+      //Prevent browser from going back on backspace
+      e.preventDefault();
+
+      if (this.state.currentInput.length > 0) {
+        newCurrentInput = this.state.currentInput.slice(0, -1);
+        this.setState({currentInput: newCurrentInput});
+      }
+    }
+  },
+
+  //Annoyingly, onkeypress mostly only works with printable keys (i.e. not backspace)
+  handleNormalKeys: function(e) {
+    var keyCode = e.keyCode;
+    var newCurrentInput;
+    newCurrentInput = this.state.currentInput + String.fromCharCode(keyCode);
     this.setState({currentInput: newCurrentInput});
+  },
+
+  componentDidMount: function() {
+    document.onkeypress = this.handleNormalKeys;
+    window.onkeydown = this.handleStrangeKeys;
   },
 
   render: function() {
@@ -39,7 +58,7 @@ var ExampleApplication = React.createClass({
     });
     renderedLines.push(<CurrentInput input={this.state.currentInput} />);
 
-    return <pre tabIndex="0" onKeyDown={this.handleKeyPress}>{renderedLines}</pre>;
+    return <pre>{renderedLines}</pre>;
   }
 });
 
