@@ -35,11 +35,18 @@ var ExampleApplication = React.createClass({
         newCurrentInput = this.state.currentInput.slice(0, -1);
         this.setState({currentInput: newCurrentInput});
       }
+    } else if (e.keyCode == 13) {
+      var newCommands = this.state.commands.concat([{query: this.state.currentInput, result: ""}]);
+      this.setState({commands: newCommands, currentInput: ""});
     }
   },
 
   //Annoyingly, onkeypress mostly only works with printable keys (i.e. not backspace)
   handleNormalKeys: function(e) {
+    if (e.keyCode == 13) {
+      return;
+    }
+
     var keyCode = e.keyCode;
     var newCurrentInput;
     newCurrentInput = this.state.currentInput + String.fromCharCode(keyCode);
