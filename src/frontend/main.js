@@ -1,19 +1,37 @@
 var ExampleApplication = React.createClass({
-  render: function() {
-    var elapsed = Math.round(this.props.elapsed  / 100);
-    var seconds = elapsed / 10 + (elapsed % 10 ? '' : '.0' );
-    var message =
-      'React has been successfully running for ' + seconds + ' seconds.';
+  getInitialState: function() {
+    return {
+      commands: [
+        {
+          query: "\\select_{bar = 'James Joyce Pub'} Frequents;",
+          result: "Output schema: (drinker varchar, bar varchar, times_a_week int2)\n"
+          + "-----\n"
+          + "Eve|James Joyce Pub|2\n"
+          + "Dan|James Joyce Pub|1\n"
+          + "Amy|James Joyce Pub|2\n"
+          + "Ben|James Joyce Pub|1\n"
+          + "-----\n"
+          + "Total number of rows: 4\n"
+        },
+        {
+          query: "\\select_{bar = 'Some other pub'} Frequents)",
+          result: "drinker1\ndrinker2\ndrinker3"
+        }
+      ]
+    };
+  },
 
-    return <p>{message}</p>;
+  render: function() {
+    var answer = "";
+    this.state.commands.forEach(function(x) {
+      answer += x.query + "\n" + x.result;
+    });
+
+    return <pre>{answer}</pre>;
   }
 });
 
-var start = new Date().getTime();
-
-setInterval(function() {
-  React.render(
-    <ExampleApplication elapsed={new Date().getTime() - start} />,
-    document.getElementById('container')
-  );
-}, 50);
+React.render(
+  <ExampleApplication />,
+  document.getElementById('container')
+);
