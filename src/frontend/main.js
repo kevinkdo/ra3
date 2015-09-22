@@ -18,6 +18,10 @@ function getDefaultCommandData() {
   ];
 }
 
+function scrollDown() {
+  document.body.scrollTop = document.body.scrollHeight;
+}
+
 var ExampleApplication = React.createClass({
   getInitialState: function() {
     return {
@@ -39,6 +43,8 @@ var ExampleApplication = React.createClass({
       var newCommands = this.state.commands.concat([{query: this.state.currentInput, result: ""}]);
       this.setState({commands: newCommands, currentInput: ""});
     }
+
+    scrollDown();
   },
 
   //Annoyingly, onkeypress mostly only works with printable keys (i.e. not backspace)
