@@ -42,8 +42,8 @@ var ExampleApplication = React.createClass({
   },
 
   //Annoyingly, onkeypress mostly only works with printable keys (i.e. not backspace)
-  handleNormalKeys: function(e) {
-    if (e.keyCode == 13) {
+  handlePrintableKeys: function(e) {
+    if (e.keyCode < 20 || e.keyCode > 176) {
       return;
     }
 
@@ -54,7 +54,7 @@ var ExampleApplication = React.createClass({
   },
 
   componentDidMount: function() {
-    document.onkeypress = this.handleNormalKeys;
+    document.onkeypress = this.handlePrintableKeys;
     window.onkeydown = this.handleStrangeKeys;
   },
 
