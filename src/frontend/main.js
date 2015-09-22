@@ -17,17 +17,24 @@ var ExampleApplication = React.createClass({
           query: "\\select_{bar = 'Some other pub'} Frequents)",
           result: "drinker1\ndrinker2\ndrinker3"
         }
-      ]
+      ],
+      currentInput: ""
     };
   },
 
   render: function() {
-    var answer = "";
+    var renderedCommands = [];
     this.state.commands.forEach(function(x) {
-      answer += x.query + "\n" + x.result;
+      renderedCommands.push(<QueryResultPair query={x.query} result={x.result} />);//x.query + "\n" + x.result;
     });
 
-    return <pre>{answer}</pre>;
+    return <pre>{renderedCommands}</pre>;
+  }
+});
+
+var QueryResultPair = React.createClass({
+  render: function() {
+    return <span><span className="raprompt">ra&gt; </span>{this.props.query}{"\n"}{this.props.result}</span>;
   }
 });
 
