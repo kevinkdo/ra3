@@ -1,3 +1,6 @@
+var BACKSPACE = 8;
+var ENTER = 13;
+
 function getDefaultCommandData() {
   return [
     {
@@ -31,18 +34,17 @@ var ExampleApplication = React.createClass({
   },
 
   handleStrangeKeys: function(e) {
-    if (e.keyCode == 8) {
-      //Prevent browser from going back on backspace
+    if (e.keyCode == BACKSPACE) {
+      //Prevent browser from going back
       e.preventDefault();
 
       if (this.state.currentInput.length > 0) {
         newCurrentInput = this.state.currentInput.slice(0, -1);
         this.setState({currentInput: newCurrentInput});
       }
-    } else if (e.keyCode == 13) {
+    } else if (e.keyCode == ENTER) {
       if (this.state.currentInput.length == 0) {
-        console.log("empty");
-        var newCommands = this.state.commands.concat([{query: this.state.currentInput, result: ""}]);
+        var newCommands = this.state.commands.concat([{query: "", result: ""}]);
         this.setState({commands: newCommands, currentInput: ""});
       } else if (this.state.currentInput == "clear") {
         this.setState({commands: [], currentInput: ""});
