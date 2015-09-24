@@ -1,5 +1,6 @@
 var BACKSPACE = 8;
 var ENTER = 13;
+var TAB = 9;
 
 function getDefaultCommandData() {
   return [
@@ -67,6 +68,27 @@ var ExampleApplication = React.createClass({
     return false;
   },
 
+  autoComplete: function(raComm) {
+    console.log("this is autocomplete: " + raComm);
+    //raComm = raComm.substring(1);
+    var raCommands = ["project_{", "join", "select_{", "cross", "union", "diff", "intersect", "rename_{"];
+    for (var i = 0; i < raCommands.length; i++) {
+      if (raCommands[i].charAt(0) == raComm.charAt(0)) {
+        return raCommands[i];
+      }
+    }
+    return false;
+  },
+
+  findPlaceOfTab: function(raComm) {
+    for (var i = 0; i < raComm.length; i++) {
+      if (raComm[i] == "\\") {
+        return i;
+      }
+    }
+    return -1;
+  }, 
+
   handleStrangeKeys: function(e) {
     if (e.keyCode == BACKSPACE) {
       //Prevent browser from going back
@@ -88,6 +110,16 @@ var ExampleApplication = React.createClass({
         var newCommands = this.state.commands.concat([{query: this.state.currentInput, result: "Dummy output schema: ()\n-----\n-----\nTotal number of rows: 0"}]);
         this.setState({commands: newCommands, currentInput: ""});
       }
+    } else if (e.keyCode == TAB) {
+        e.preventDefault();
+        var tabIndex = this.findPlaceOfTab(this.state.currentInput);
+        var toBeCompleted = this.state.currentInput.substring(tabIndex + 1);
+        var raCommand = this.autoComplete(toBeCompleted)
+        if (raCommand == false) {
+          raCommand = toBeCompleted;
+        }
+        console.log(raCommand);
+        this.setState({currentInput: this.state.currentInput.substring(0, tabIndex) + "\\" + raCommand});
     }
 
     scrollDown();
@@ -125,7 +157,8 @@ var ExampleApplication = React.createClass({
 
 var CurrentInput = React.createClass({
   render: function() {
-    return <span><span id = "raprompt" style={{color: this.props.color}}>ra&gt; </span>{this.props.input}</span>;
+    var obj = {color: this.props.color, background: "#fff"};
+    return <span><span id = "raprompt" style={obj}>ra&gt; </span>{this.props.input}</span>;
   }
 });
 
