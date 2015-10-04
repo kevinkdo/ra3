@@ -24,7 +24,7 @@ function getDefaultCommandData() {
 }
 
 function scrollDown() {
-  document.body.scrollTop = document.body.scrollHeight;
+  document.getElementById('leftpane').scrollTop = document.getElementById('leftpane').scrollHeight;
 }
 
 var ExampleApplication = React.createClass({
