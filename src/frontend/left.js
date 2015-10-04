@@ -207,5 +207,5 @@ var QueryResultPair = React.createClass({
 
 React.render(
   <ExampleApplication />,
-  document.getElementById('container')
+  document.getElementById('leftpane')
 );
