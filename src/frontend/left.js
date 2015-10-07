@@ -1,3 +1,4 @@
+// ===== Globals =====
 var BACKSPACE = 8;
 var ENTER = 13;
 var TAB = 9;
@@ -6,19 +7,8 @@ var raCommands = ["project_{", "join", "select_{", "cross", "union", "diff", "in
 function getDefaultCommandData() {
   return [
     {
-      query: "\\select_{bar = 'James Joyce Pub'} Frequents;",
-      result: "Output schema: (drinker varchar, bar varchar, times_a_week int2)\n"
-      + "-----\n"
-      + "Eve|James Joyce Pub|2\n"
-      + "Dan|James Joyce Pub|1\n"
-      + "Amy|James Joyce Pub|2\n"
-      + "Ben|James Joyce Pub|1\n"
-      + "-----\n"
-      + "Total number of rows: 4"
-    },
-    {
-      query: "\\select_{bar = 'Some other pub'} Frequents)",
-      result: "drinker1\ndrinker2\ndrinker3"
+      query: "help --verbose",
+      result: "Michael, please type up a short help statement and a long help statement for help --verbose"
     }
   ];
 }
@@ -27,11 +17,26 @@ function scrollDown() {
   document.getElementById('leftpane').scrollTop = document.getElementById('leftpane').scrollHeight;
 }
 
+// ===== (Global) Parser =====
+var parser = PEG.buildParser("start = ('a' / 'b')+");
+
+function passToParser(string) {
+  var answer;
+  try {
+    answer = parser.parse(string);
+  }
+  catch (err) {
+    return err.message;
+  }
+  return answer;
+}
+
+// ===== React classes =====
 var ExampleApplication = React.createClass({
   getInitialState: function() {
     return {
       commands: getDefaultCommandData(),
-      currentInput: "this is what I'm typing",
+      currentInput: "",
       color: "#0f0"
     };
   },
@@ -138,7 +143,8 @@ var ExampleApplication = React.createClass({
       } else if (this.colourNameToHex(this.state.currentInput)) {
         this.setState({currentInput: "", color: this.colourNameToHex(this.state.currentInput)});
       } else {
-        var newCommands = this.state.commands.concat([{query: this.state.currentInput, result: "Dummy output schema: ()\n-----\n-----\nTotal number of rows: 0"}]);
+        
+        var newCommands = this.state.commands.concat([{query: this.state.currentInput, result: passToParser(this.state.currentInput)}]);
         this.setState({commands: newCommands, currentInput: ""});
       }
     } else if (e.keyCode == TAB) {
@@ -205,6 +211,8 @@ var QueryResultPair = React.createClass({
   }
 });
 
+
+// ===== React render statements =====
 React.render(
   <ExampleApplication />,
   document.getElementById('leftpane')
