@@ -8,7 +8,7 @@ function getDefaultCommandData() {
   return [
     {
       query: "help --verbose",
-      result: "Michael, please type up a short help statement and a long help statement for help --verbose"
+      result: "Michael, please type up a short help statement and a long help statement for 'help --verbose'"
     }
   ];
 }
@@ -18,12 +18,15 @@ function scrollDown() {
 }
 
 // ===== (Global) Parser =====
-var parser = PEG.buildParser("start = ('a' / 'b')+");
+var parser = PEG.buildParser(
+  'table "table" =  "\\\\select_{" condition "}"\n' +
+  'condition "condition" = "a"\n'
+);
 
 function passToParser(string) {
   var answer;
   try {
-    answer = parser.parse(string);
+    answer = parser.parse(string.replace(/ /g,''));
   }
   catch (err) {
     return err.message;
@@ -144,7 +147,7 @@ var ExampleApplication = React.createClass({
         this.setState({currentInput: "", color: this.colourNameToHex(this.state.currentInput)});
       } else {
         
-        var newCommands = this.state.commands.concat([{query: this.state.currentInput, result: passToParser(this.state.currentInput)}]);
+        var newCommands = this.state.commands.concat([{query: this.state.currentInput, result: "sample result"}]);
         this.setState({commands: newCommands, currentInput: ""});
       }
     } else if (e.keyCode == TAB) {

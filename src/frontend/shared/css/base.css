@@ -1,5 +1,5 @@
 html {
-	height: 100%;
+  height: 100%;
 }
 
 body {
@@ -18,25 +18,42 @@ body {
 }
 
 #leftpane {
-	background: #000;
-	color: #fff;
-	float: left;
-	width: 50%;
-	padding: 0;
-	border: 0;
-	margin: 0;
-	height: 100%;
-	overflow-y: scroll;
-	word-wrap: break-word;
+  background: #000;
+  color: #fff;
+  float: left;
+  width: 50%;
+  padding: 0;
+  border: 0;
+  margin: 0;
+  height: 100%;
+  overflow-y: scroll;
+  word-wrap: break-word;
 }
 
 #rightpane {
-	background: #ddd;
-	color: #000;
-	float: right;
-	width: 50%;
-	padding: 0;
-	border: 0;
-	margin: 0;
-	height: 100%;
+  background: #ddd;
+  color: #000;
+  float: right;
+  width: 50%;
+  padding: 0;
+  border: 0;
+  margin: 0;
+  height: 100%;
+}
+
+.node circle {
+  fill: #fff;
+  stroke: #4682b4;
+  stroke-width: 3px;
+}
+
+.node text {
+  font-family: "Bitstream Vera Sans Mono", Consolas, Courier, monospace;
+  font-size: 12px;
+}
+
+.link {
+  fill: none;
+  stroke: #999;
+  stroke-width: 2px;
 }
