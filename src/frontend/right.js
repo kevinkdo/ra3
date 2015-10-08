@@ -1,42 +1,52 @@
 var d3Tree = {};
 
 d3Tree.create = function(el, state) {
-  var svg = d3.select(el).append('svg')
+  this.svg = d3.select(el).append('svg')
       .attr('class', 'd3')
       .attr('width', 400)
-      .attr('height', 600);
+      .attr('height', 600)
+      .attr('margin', 20);
 
-/*  this.update(el, state);
+  this.update(el, state);
 };
 
-d3Tree.update = function(el, state) {*/
+d3Tree.update = function(el, state) {
   // Compute the new tree layout.
   var tree = d3.layout.tree().size([300, 300]);
   var diagonal = d3.svg.diagonal();
+  var line = d3.svg.line().x(function(d) { return d.x; })
+    .y(function(d) { return d.y; })
+    .interpolate("basis");
   var nodes = tree.nodes(state);
 
-  var node = svg.selectAll(".node")
+  var node = this.svg.selectAll(".node")
     .data(nodes)
     .enter().append("svg:g")
     .attr("class", "node")
     .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
 
-  node.append("svg:rect")
+  /*node.append("svg:rect")
     .attr("width", 10)
     .attr("height", 10)
-    .style("fill", "blue");
+    .style("fill", "blue");*/
 
   node.append("svg:text")
     .attr("x", 0)
-    .attr("dy", "2em")
+    .attr("dy", ".5em")
     .text(function(d) { return d.name; });
 
-  var link = svg.selectAll("path.link")
-    .data(tree.links(nodes));
+  var link = this.svg.selectAll("path.link")
+    .data(tree.links(nodes))
+    .enter().append("svg:g")
+    .attr("class", "link");
+;
 
-  link.enter().insert("path", "g")
+  link.append("line")
     .attr("class", "link")
-    .attr("d", diagonal);
+    .attr("x1", function(d) { return d.source.x; })
+    .attr("y1", function(d) { return d.source.y + 10; })
+    .attr("x2", function(d) { return d.target.x; })
+    .attr("y2", function(d) { return d.target.y - 5; });
 };
 
 d3Tree.destroy = function(el) {};
@@ -60,10 +70,10 @@ var Tree = React.createClass({
   getInitialState: function() {
     return {
         d3treestate: {
-          "name": "join",
+          "name": "—",
           "children": [
             {
-              "name": "select_{name='Bill'}",
+              "name": "select_{name='Billπ'}",
               "children": [
                 {
                   "name": "Drinker",
@@ -86,7 +96,7 @@ var Tree = React.createClass({
   },
 
   render: function() {
-    return <div className="tree"></div>;
+    return <div><br /><div className="tree"></div></div>;
   }
 });
 
