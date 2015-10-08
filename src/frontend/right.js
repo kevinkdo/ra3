@@ -25,14 +25,14 @@ d3Tree.update = function(el, state) {
     .attr("class", "node")
     .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
 
-  /*node.append("svg:rect")
+  node.append("svg:rect")
     .attr("width", 10)
     .attr("height", 10)
-    .style("fill", "blue");*/
+    .style("fill", "blue");
 
   node.append("svg:text")
-    .attr("x", 0)
-    .attr("dy", ".5em")
+    .attr("x", 15)
+    .attr("dy", "1em")
     .text(function(d) { return d.name; });
 
   var link = this.svg.selectAll("path.link")
@@ -43,10 +43,10 @@ d3Tree.update = function(el, state) {
 
   link.append("line")
     .attr("class", "link")
-    .attr("x1", function(d) { return d.source.x; })
+    .attr("x1", function(d) { return d.source.x + 5; })
     .attr("y1", function(d) { return d.source.y + 10; })
-    .attr("x2", function(d) { return d.target.x; })
-    .attr("y2", function(d) { return d.target.y - 5; });
+    .attr("x2", function(d) { return d.target.x + 5; })
+    .attr("y2", function(d) { return d.target.y; });
 };
 
 d3Tree.destroy = function(el) {};
