@@ -28,7 +28,7 @@ d3Tree.update = function(el, state) {
   node.append("svg:rect")
     .attr("width", 10)
     .attr("height", 10)
-    .style("fill", "blue");
+    .style("fill", function(d) { return d.selected ? "green" : "blue"});
 
   node.append("svg:text")
     .attr("x", 15)
@@ -70,23 +70,26 @@ var Tree = React.createClass({
   getInitialState: function() {
     return {
         d3treestate: {
-          "name": "—",
-          "children": [
+          name: "—",
+          selected: false,
+          children: [
             {
-              "name": "select_{name='Billπ'}",
-              "children": [
+              name: "select_{name='Billπ'}",
+              selected: true,
+              children: [
                 {
-                  "name": "Drinker",
-                  "children": []
+                  name: "Drinker",
+                  children: []
                 }
               ]
             },
             {
-              "name": "select_{name='John'",
-              "children": [
+              name: "select_{name='John'}",
+              selected: false,
+              children: [
                 {
-                  "name": "Drinker",
-                  "children": []
+                  name: "Drinker",
+                  children: []
                 }
               ]
             }

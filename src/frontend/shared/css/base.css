@@ -31,7 +31,7 @@ body {
 }
 
 #rightpane {
-  background: #000;
+  background: #fff;
   color: #fff;
   float: right;
   width: 50%;
@@ -49,7 +49,6 @@ body {
 
 .node text {
   font-family: "Bitstream Vera Sans Mono", Consolas, Courier, monospace;
-  fill: #fff;
   font-size: 12px;
 }
 
