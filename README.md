@@ -3,6 +3,7 @@ Relational Algebra v3.0 (CS 316 Final Project)
 
 # Proposal
 We propose to implement an improved version of RA. The major improvements will be
+
 1. Improved SQL query generation by limiting ourselves to PostgreSQL
 2. Terminal emulation in the browser so users can just visit a webpage
 3. Graphical relational algebra query generation in the browser
