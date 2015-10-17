@@ -269,10 +269,14 @@ d3Tree.update = function(el, state) {
     }).on("dragend", function(d) {
         domNode = this;
         d3.selectAll('.ghostCircle').attr('class', 'ghostCircle noshow');
+        d3Tree.update(el, state);
     });
 
-  var nodeEnter = this.svg.selectAll(".node")
-    .data(nodes)
+  // Nodes
+  var node = this.svg.selectAll(".node").data(nodes)
+
+  // Node Enter
+  var nodeEnter = node
     .enter().append("svg:g")
     .call(dragListener)
     .attr("class", "node")
@@ -296,6 +300,17 @@ d3Tree.update = function(el, state) {
     .attr("opacity", 0.2)
     .style("fill", "green");
 
+  // Node update
+  var nodeUpdate = node.transition()
+    .duration(500)
+    .attr("transform", function(d) {
+        return "translate(" + d.x + "," + d.y + ")";
+    });
+
+  nodeUpdate.select("text")
+    .style("fill-opacity", 1);
+
+  // Link
   var link = this.svg.selectAll("path.link")
     .data(tree.links(nodes))
     .enter().append("svg:g")
