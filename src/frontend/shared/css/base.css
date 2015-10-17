@@ -52,6 +52,17 @@ body {
   font-size: 12px;
 }
 
+.commandnode circle {
+  fill: #fff;
+  stroke: #4682b4;
+  stroke-width: 3px;
+}
+
+.commandnode text {
+  font-family: "Bitstream Vera Sans Mono", Consolas, Courier, monospace;
+  font-size: 12px;
+}
+
 .link {
   fill: none;
   stroke: #999;

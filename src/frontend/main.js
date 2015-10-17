@@ -230,12 +230,30 @@ React.render(
 // ===== Right pane =====
 var d3Tree = {};
 
+d3Tree.commandNodes = [
+  {
+    name: "\\project",
+    x: 0,
+    y: 400
+  },
+  {
+    name: "\\join",
+    x: 0,
+    y: 450
+  },
+  {
+    name: "\\cross",
+    x: 0,
+    y: 500
+  },
+];
+
 d3Tree.create = function(el, state) {
   this.svg = d3.select(el).append('svg')
-      .attr('class', 'd3')
-      .attr('width', 400)
-      .attr('height', 600)
-      .attr('margin', 20);
+    .attr('class', 'd3')
+    .attr('width', 400)
+    .attr('height', 600)
+    .attr('margin', 20);
 
   this.update(el, state);
 };
@@ -255,6 +273,7 @@ d3Tree.update = function(el, state) {
     .on("dragstart", function(d) {
         dragStarted = true;
         d3.event.sourceEvent.stopPropagation();
+        d3.select(this).attr('pointer-events', 'none');
     })
     .on("drag", function(d) {
         if (dragStarted) {
@@ -269,6 +288,7 @@ d3Tree.update = function(el, state) {
     }).on("dragend", function(d) {
         domNode = this;
         d3.selectAll('.ghostCircle').attr('class', 'ghostCircle noshow');
+        d3.select(this).attr('pointer-events', '');
         d3Tree.update(el, state);
     });
 
@@ -278,7 +298,6 @@ d3Tree.update = function(el, state) {
   // Node Enter
   var nodeEnter = node
     .enter().append("svg:g")
-    .call(dragListener)
     .attr("class", "node")
     .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
 
@@ -298,7 +317,17 @@ d3Tree.update = function(el, state) {
     .attr("cx", 5)
     .attr("cy", 5)
     .attr("opacity", 0.2)
-    .style("fill", "green");
+    .style("fill", "green")
+    .attr('pointer-events', 'mouseover')
+    .on("mouseover", function(node) {
+      selectedNode = node;
+      d3.select(this).style("fill", "blue");
+    })
+    .on("mouseout", function(node) {
+      selectedNode = null;
+      d3.select(this).style("fill", "green");
+    });
+
 
   // Node update
   var nodeUpdate = node.transition()
@@ -309,6 +338,36 @@ d3Tree.update = function(el, state) {
 
   nodeUpdate.select("text")
     .style("fill-opacity", 1);
+
+  // Command Nodes
+  var commandNode = this.svg.selectAll(".commandnode").data(d3Tree.commandNodes);
+
+  // Command Node Enter
+  var nodeEnter = commandNode
+    .enter().append("svg:g")
+    .call(dragListener)
+    .attr("class", "commandnode")
+    .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+
+  nodeEnter.append("svg:rect")
+    .attr("width", 10)
+    .attr("height", 10)
+    .style("fill", "blue");
+
+  nodeEnter.append("svg:text")
+    .attr("x", 15)
+    .attr("dy", "1em")
+    .text(function(d) { return d.name; });
+
+  // Command Node update
+  /*var nodeUpdate = node.transition()
+    .duration(500)
+    .attr("transform", function(d) {
+        return "translate(" + d.x + "," + d.y + ")";
+    });
+
+  nodeUpdate.select("text")
+    .style("fill-opacity", 1);*/
 
   // Link
   var link = this.svg.selectAll("path.link")
