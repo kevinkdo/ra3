@@ -242,7 +242,6 @@ d3Tree.create = function(el, state) {
 
 d3Tree.update = function(el, state) {
   var tree = d3.layout.tree().size([300, 300]);
-  var diagonal = d3.svg.diagonal();
   var line = d3.svg.line().x(function(d) { return d.x; })
     .y(function(d) { return d.y; })
     .interpolate("basis");
@@ -253,16 +252,11 @@ d3Tree.update = function(el, state) {
 
   dragListener = d3.behavior.drag()
     .on("dragstart", function(d) {
-      dragStarted = true;
       d3.event.sourceEvent.stopPropagation();
       d3.select(this).attr('pointer-events', 'none');
       draggingNode = d;
     })
     .on("drag", function(d) {
-      if (dragStarted) {
-          domNode = this;
-          //initiateDrag(d, domNode);
-      }
       d.x += d3.event.dx;
       d.y += d3.event.dy;
       var node = d3.select(this);
@@ -279,10 +273,8 @@ d3Tree.update = function(el, state) {
 
       if (selectedNode) {
         if (draggingNode.name === "\\project") {
-          // TODO THIS DOESNT WORK
           selectedNode.name = "\\project";
           selectedNode.children = [];
-          console.log("hi");
         }
       }
       selectedNode = null;
@@ -291,7 +283,9 @@ d3Tree.update = function(el, state) {
     });
 
   // Nodes
-  var node = this.svg.selectAll(".node").data(nodes)
+  var node = this.svg.selectAll(".node").data(nodes);
+  d3.selectAll(".nodelabel").remove();
+  d3.selectAll(".noderect").remove();
 
   // Node Enter
   var nodeEnter = node
@@ -299,17 +293,13 @@ d3Tree.update = function(el, state) {
     .attr("class", "node")
     .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
 
-  nodeEnter.append("svg:rect")
+  node.append("svg:rect")
+    .attr("class", "noderect")
     .attr("width", 16)
     .attr("height", 16)
     .style("fill", "blue");
 
-  nodeEnter.append("svg:text")
-    .attr("x", 20)
-    .attr("dy", "1em")
-    .text(function(d) { return d.name; });
-
-  nodeEnter.append("circle")
+  node.append("circle")
     .attr('class', 'ghostCircle noshow')
     .attr("r", 30)
     .attr("cx", 8)
@@ -333,8 +323,11 @@ d3Tree.update = function(el, state) {
         return "translate(" + d.x + "," + d.y + ")";
     });
 
-  nodeUpdate.select("text")
-    .style("fill-opacity", 1);
+  node.append("svg:text")
+    .attr("class", "nodelabel")
+    .attr("x", 20)
+    .attr("dy", "1em")
+    .text(function(d) { return d.name; });
 
   // Command Nodes
   var commandNode = this.svg.selectAll(".commandnode").data(state.commands);
@@ -363,16 +356,14 @@ d3Tree.update = function(el, state) {
         return "translate(" + d.x + "," + d.y + ")";
     });
 
-  commandNodeUpdate.select("text")
-    .style("fill-opacity", 1);
-
   // Link
-  var link = this.svg.selectAll("path.link")
+  d3.selectAll(".link").remove();
+  var linkEnter = this.svg.selectAll("path.link")
     .data(tree.links(nodes))
     .enter().append("svg:g")
     .attr("class", "link");
 
-  link.append("line")
+  linkEnter.append("line")
     .attr("class", "link")
     .attr("x1", function(d) { return d.source.x + 8; })
     .attr("y1", function(d) { return d.source.y + 16; })
