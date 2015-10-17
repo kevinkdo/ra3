@@ -253,41 +253,41 @@ d3Tree.update = function(el, state) {
 
   dragListener = d3.behavior.drag()
     .on("dragstart", function(d) {
-        dragStarted = true;
-        d3.event.sourceEvent.stopPropagation();
-        d3.select(this).attr('pointer-events', 'none');
-        draggingNode = d;
+      dragStarted = true;
+      d3.event.sourceEvent.stopPropagation();
+      d3.select(this).attr('pointer-events', 'none');
+      draggingNode = d;
     })
     .on("drag", function(d) {
-        if (dragStarted) {
-            domNode = this;
-            //initiateDrag(d, domNode);
-        }
-        d.x += d3.event.dx;
-        d.y += d3.event.dy;
-        var node = d3.select(this);
-        node.attr("transform", "translate(" + d.x + "," + d.y + ")");
-        d3.selectAll('.ghostCircle').attr('class', 'ghostCircle show');
+      if (dragStarted) {
+          domNode = this;
+          //initiateDrag(d, domNode);
+      }
+      d.x += d3.event.dx;
+      d.y += d3.event.dy;
+      var node = d3.select(this);
+      node.attr("transform", "translate(" + d.x + "," + d.y + ")");
+      d3.selectAll('.ghostCircle').attr('class', 'ghostCircle show');
     }).on("dragend", function(d) {
-        domNode = this;
-        d3.selectAll('.ghostCircle').attr('class', 'ghostCircle noshow');
-        d3.select(this).attr('pointer-events', '');
-        state.commands.forEach(function(commandNode) {
-          commandNode.x = commandNode.x0;
-          commandNode.y = commandNode.y0;
-        });
+      domNode = this;
+      d3.selectAll('.ghostCircle').attr('class', 'ghostCircle noshow');
+      d3.select(this).attr('pointer-events', '');
+      state.commands.forEach(function(commandNode) {
+        commandNode.x = commandNode.x0;
+        commandNode.y = commandNode.y0;
+      });
 
-        if (selectedNode) {
-          if (draggingNode.name === "\\project") {
-            // TODO THIS DOESNT WORK
-            selectedNode.name = "\\project";
-            selectedNode.children = [];
-            console.log("hi");
-          }
+      if (selectedNode) {
+        if (draggingNode.name === "\\project") {
+          // TODO THIS DOESNT WORK
+          selectedNode.name = "\\project";
+          selectedNode.children = [];
+          console.log("hi");
         }
-        selectedNode = null;
-        draggingNode = null;
-        d3Tree.update(el, state);
+      }
+      selectedNode = null;
+      draggingNode = null;
+      d3Tree.update(el, state);
     });
 
   // Nodes
