@@ -57,3 +57,16 @@ body {
   stroke: #999;
   stroke-width: 2px;
 }
+
+.ghostcircle {
+  fill: green;
+  opacity: .2;
+}
+
+.noshow {
+  display: none;
+}
+
+.show {
+  display:block;
+}

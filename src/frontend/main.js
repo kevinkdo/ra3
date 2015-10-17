@@ -254,9 +254,7 @@ d3Tree.update = function(el, state) {
   dragListener = d3.behavior.drag()
     .on("dragstart", function(d) {
         dragStarted = true;
-        nodes = tree.nodes(d);
         d3.event.sourceEvent.stopPropagation();
-        // it's important that we suppress the mouseover event on the node being dragged. Otherwise it will absorb the mouseover event and the underlying node will not detect it d3.select(this).attr('pointer-events', 'none');
     })
     .on("drag", function(d) {
         if (dragStarted) {
@@ -267,8 +265,10 @@ d3Tree.update = function(el, state) {
         d.y += d3.event.dy;
         var node = d3.select(this);
         node.attr("transform", "translate(" + d.x + "," + d.y + ")");
+        d3.selectAll('.ghostCircle').attr('class', 'ghostCircle show');
     }).on("dragend", function(d) {
         domNode = this;
+        d3.selectAll('.ghostCircle').attr('class', 'ghostCircle noshow');
     });
 
   var nodeEnter = this.svg.selectAll(".node")
@@ -287,6 +287,14 @@ d3Tree.update = function(el, state) {
     .attr("x", 15)
     .attr("dy", "1em")
     .text(function(d) { return d.name; });
+
+  nodeEnter.append("circle")
+    .attr('class', 'ghostCircle noshow')
+    .attr("r", 30)
+    .attr("cx", 5)
+    .attr("cy", 5)
+    .attr("opacity", 0.2)
+    .style("fill", "green");
 
   var link = this.svg.selectAll("path.link")
     .data(tree.links(nodes))
