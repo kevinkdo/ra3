@@ -230,24 +230,6 @@ React.render(
 // ===== Right pane =====
 var d3Tree = {};
 
-d3Tree.commandNodes = [
-  {
-    name: "\\project",
-    x: 0,
-    y: 400
-  },
-  {
-    name: "\\join",
-    x: 0,
-    y: 450
-  },
-  {
-    name: "\\cross",
-    x: 0,
-    y: 500
-  },
-];
-
 d3Tree.create = function(el, state) {
   this.svg = d3.select(el).append('svg')
     .attr('class', 'd3')
@@ -264,7 +246,7 @@ d3Tree.update = function(el, state) {
   var line = d3.svg.line().x(function(d) { return d.x; })
     .y(function(d) { return d.y; })
     .interpolate("basis");
-  var nodes = tree.nodes(state);
+  var nodes = tree.nodes(state.tree);
 
   var selectedNode = null;
   var draggingNode = null;
@@ -274,6 +256,7 @@ d3Tree.update = function(el, state) {
         dragStarted = true;
         d3.event.sourceEvent.stopPropagation();
         d3.select(this).attr('pointer-events', 'none');
+        draggingNode = d;
     })
     .on("drag", function(d) {
         if (dragStarted) {
@@ -289,6 +272,21 @@ d3Tree.update = function(el, state) {
         domNode = this;
         d3.selectAll('.ghostCircle').attr('class', 'ghostCircle noshow');
         d3.select(this).attr('pointer-events', '');
+        state.commands.forEach(function(commandNode) {
+          commandNode.x = commandNode.x0;
+          commandNode.y = commandNode.y0;
+        });
+
+        if (selectedNode) {
+          if (draggingNode.name === "\\project") {
+            // TODO THIS DOESNT WORK
+            selectedNode.name = "\\project";
+            selectedNode.children = [];
+            console.log("hi");
+          }
+        }
+        selectedNode = null;
+        draggingNode = null;
         d3Tree.update(el, state);
     });
 
@@ -302,20 +300,20 @@ d3Tree.update = function(el, state) {
     .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
 
   nodeEnter.append("svg:rect")
-    .attr("width", 10)
-    .attr("height", 10)
-    .style("fill", function(d) { return d.selected ? "green" : "blue"});
+    .attr("width", 16)
+    .attr("height", 16)
+    .style("fill", "blue");
 
   nodeEnter.append("svg:text")
-    .attr("x", 15)
+    .attr("x", 20)
     .attr("dy", "1em")
     .text(function(d) { return d.name; });
 
   nodeEnter.append("circle")
     .attr('class', 'ghostCircle noshow')
     .attr("r", 30)
-    .attr("cx", 5)
-    .attr("cy", 5)
+    .attr("cx", 8)
+    .attr("cy", 8)
     .attr("opacity", 0.2)
     .style("fill", "green")
     .attr('pointer-events', 'mouseover')
@@ -328,7 +326,6 @@ d3Tree.update = function(el, state) {
       d3.select(this).style("fill", "green");
     });
 
-
   // Node update
   var nodeUpdate = node.transition()
     .duration(500)
@@ -340,34 +337,34 @@ d3Tree.update = function(el, state) {
     .style("fill-opacity", 1);
 
   // Command Nodes
-  var commandNode = this.svg.selectAll(".commandnode").data(d3Tree.commandNodes);
+  var commandNode = this.svg.selectAll(".commandnode").data(state.commands);
 
   // Command Node Enter
-  var nodeEnter = commandNode
+  var commandNodeEnter = commandNode
     .enter().append("svg:g")
     .call(dragListener)
     .attr("class", "commandnode")
     .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
 
-  nodeEnter.append("svg:rect")
-    .attr("width", 10)
-    .attr("height", 10)
+  commandNodeEnter.append("svg:rect")
+    .attr("width", 16)
+    .attr("height", 16)
     .style("fill", "blue");
 
-  nodeEnter.append("svg:text")
-    .attr("x", 15)
+  commandNodeEnter.append("svg:text")
+    .attr("x", 20)
     .attr("dy", "1em")
     .text(function(d) { return d.name; });
 
   // Command Node update
-  /*var nodeUpdate = node.transition()
+  var commandNodeUpdate = commandNode.transition()
     .duration(500)
     .attr("transform", function(d) {
         return "translate(" + d.x + "," + d.y + ")";
     });
 
-  nodeUpdate.select("text")
-    .style("fill-opacity", 1);*/
+  commandNodeUpdate.select("text")
+    .style("fill-opacity", 1);
 
   // Link
   var link = this.svg.selectAll("path.link")
@@ -377,9 +374,9 @@ d3Tree.update = function(el, state) {
 
   link.append("line")
     .attr("class", "link")
-    .attr("x1", function(d) { return d.source.x + 5; })
-    .attr("y1", function(d) { return d.source.y + 10; })
-    .attr("x2", function(d) { return d.target.x + 5; })
+    .attr("x1", function(d) { return d.source.x + 8; })
+    .attr("y1", function(d) { return d.source.y + 16; })
+    .attr("x2", function(d) { return d.target.x + 8; })
     .attr("y2", function(d) { return d.target.y; });
 };
 
@@ -388,12 +385,12 @@ d3Tree.destroy = function(el) {};
 var Tree = React.createClass({
   componentDidMount: function() {
     var el = this.getDOMNode();
-    d3Tree.create(el, this.state.d3treestate);
+    d3Tree.create(el, this.state.d3state);
   },
 
   componentDidUpdate: function() {
     var el = this.getDOMNode();
-    d3Chart.update(el, this.state.d3treestate);
+    d3Chart.update(el, this.state.d3state);
   },
 
   componentWillUnmount: function() {
@@ -403,13 +400,12 @@ var Tree = React.createClass({
 
   getInitialState: function() {
     return {
-        d3treestate: {
+      d3state: {
+        tree: {
           name: "—",
-          selected: false,
           children: [
             {
               name: "select_{name='Billπ'}",
-              selected: true,
               children: [
                 {
                   name: "Drinker",
@@ -419,7 +415,6 @@ var Tree = React.createClass({
             },
             {
               name: "select_{name='John'}",
-              selected: false,
               children: [
                 {
                   name: "Drinker",
@@ -428,7 +423,31 @@ var Tree = React.createClass({
               ]
             }
           ]
-        }
+        },
+        commands: [
+          {
+            name: "\\project",
+            x0: 0,
+            y0: 400,
+            x: 0,
+            y: 400
+          },
+          {
+            name: "\\join",
+            x0: 0,
+            y0: 450,
+            x: 0,
+            y: 450
+          },
+          {
+            name: "\\cross",
+            x0: 0,
+            y0: 500,
+            x: 0,
+            y: 500
+          }
+        ]
+      }
     };
   },
 
