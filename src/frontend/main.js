@@ -1,3 +1,13 @@
+// Table of contents
+// Globals
+// Parser
+// React classes
+//   TerminalEmulator
+//   CurrentInput
+//   QueryResultPair
+//   RaTree
+// React render statements
+
 // ===== Globals =====
 var BACKSPACE = 8;
 var ENTER = 13;
@@ -17,7 +27,7 @@ function scrollDown() {
   document.getElementById('leftpane').scrollTop = document.getElementById('leftpane').scrollHeight;
 }
 
-// ===== (Global) Parser =====
+// ===== Parser =====
 var parser = PEG.buildParser(
   'table "table" =  "\\\\select_{" condition "}"\n' +
   'condition "condition" = "a"\n'
@@ -35,7 +45,8 @@ function passToParser(string) {
 }
 
 // ===== React classes =====
-var ExampleApplication = React.createClass({
+// ----- TerminalEmulator -----
+var TerminalEmulator = React.createClass({
   getInitialState: function() {
     return {
       commands: getDefaultCommandData(),
@@ -200,6 +211,7 @@ var ExampleApplication = React.createClass({
   }
 });
 
+// ----- CurrentInput -----
 var CurrentInput = React.createClass({
   render: function() {
     var obj = {color: this.props.color, background: "#fff"};
@@ -207,248 +219,121 @@ var CurrentInput = React.createClass({
   }
 });
 
+// ----- QueryResultPair -----
 var QueryResultPair = React.createClass({
   render: function() {
-
     return <span><span className="raprompt" style={{color: this.props.color}}>ra&gt; </span>{this.props.query}{"\n"}{this.props.result}{"\n"}</span>;
   }
 });
 
-
-// ===== React render statements =====
-React.render(
-  <ExampleApplication />,
-  document.getElementById('leftpane')
-);
-
-
-
-
-
-
-
-// ===== Right pane =====
-var d3Tree = {};
-
-d3Tree.create = function(el, state) {
-  this.svg = d3.select(el).append('svg')
-    .attr('class', 'd3')
-    .attr('width', 400)
-    .attr('height', 600)
-    .attr('margin', 20);
-
-  this.update(el, state);
-};
-
-d3Tree.update = function(el, state) {
-  var tree = d3.layout.tree().size([300, 300]);
-  var line = d3.svg.line().x(function(d) { return d.x; })
-    .y(function(d) { return d.y; })
-    .interpolate("basis");
-  var nodes = tree.nodes(state.tree);
-
-  var selectedNode = null;
-  var draggingNode = null;
-
-  dragListener = d3.behavior.drag()
-    .on("dragstart", function(d) {
-      d3.event.sourceEvent.stopPropagation();
-      d3.select(this).attr('pointer-events', 'none');
-      draggingNode = d;
-    })
-    .on("drag", function(d) {
-      d.x += d3.event.dx;
-      d.y += d3.event.dy;
-      var node = d3.select(this);
-      node.attr("transform", "translate(" + d.x + "," + d.y + ")");
-      d3.selectAll('.ghostCircle').attr('class', 'ghostCircle show');
-    }).on("dragend", function(d) {
-      domNode = this;
-      d3.selectAll('.ghostCircle').attr('class', 'ghostCircle noshow');
-      d3.select(this).attr('pointer-events', '');
-      state.commands.forEach(function(commandNode) {
-        commandNode.x = commandNode.x0;
-        commandNode.y = commandNode.y0;
-      });
-
-      if (selectedNode) {
-        if (draggingNode.name === "\\project") {
-          selectedNode.name = "\\project";
-          selectedNode.children = [];
-        }
-      }
-      selectedNode = null;
-      draggingNode = null;
-      d3Tree.update(el, state);
-    });
-
-  // Nodes
-  var node = this.svg.selectAll(".node").data(nodes);
-  d3.selectAll(".nodelabel").remove();
-  d3.selectAll(".noderect").remove();
-
-  // Node Enter
-  var nodeEnter = node
-    .enter().append("svg:g")
-    .attr("class", "node")
-    .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
-
-  node.append("svg:rect")
-    .attr("class", "noderect")
-    .attr("width", 16)
-    .attr("height", 16)
-    .style("fill", "blue");
-
-  node.append("circle")
-    .attr('class', 'ghostCircle noshow')
-    .attr("r", 30)
-    .attr("cx", 8)
-    .attr("cy", 8)
-    .attr("opacity", 0.2)
-    .style("fill", "green")
-    .attr('pointer-events', 'mouseover')
-    .on("mouseover", function(node) {
-      selectedNode = node;
-      d3.select(this).style("fill", "blue");
-    })
-    .on("mouseout", function(node) {
-      selectedNode = null;
-      d3.select(this).style("fill", "green");
-    });
-
-  // Node update
-  var nodeUpdate = node.transition()
-    .duration(500)
-    .attr("transform", function(d) {
-        return "translate(" + d.x + "," + d.y + ")";
-    });
-
-  node.append("svg:text")
-    .attr("class", "nodelabel")
-    .attr("x", 20)
-    .attr("dy", "1em")
-    .text(function(d) { return d.name; });
-
-  // Command Nodes
-  var commandNode = this.svg.selectAll(".commandnode").data(state.commands);
-
-  // Command Node Enter
-  var commandNodeEnter = commandNode
-    .enter().append("svg:g")
-    .call(dragListener)
-    .attr("class", "commandnode")
-    .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
-
-  commandNodeEnter.append("svg:rect")
-    .attr("width", 16)
-    .attr("height", 16)
-    .style("fill", "blue");
-
-  commandNodeEnter.append("svg:text")
-    .attr("x", 20)
-    .attr("dy", "1em")
-    .text(function(d) { return d.name; });
-
-  // Command Node update
-  var commandNodeUpdate = commandNode.transition()
-    .duration(500)
-    .attr("transform", function(d) {
-        return "translate(" + d.x + "," + d.y + ")";
-    });
-
-  // Link
-  d3.selectAll(".link").remove();
-  var linkEnter = this.svg.selectAll("path.link")
-    .data(tree.links(nodes))
-    .enter().append("svg:g")
-    .attr("class", "link");
-
-  linkEnter.append("line")
-    .attr("class", "link")
-    .attr("x1", function(d) { return d.source.x + 8; })
-    .attr("y1", function(d) { return d.source.y + 16; })
-    .attr("x2", function(d) { return d.target.x + 8; })
-    .attr("y2", function(d) { return d.target.y; });
-};
-
-d3Tree.destroy = function(el) {};
-
-var Tree = React.createClass({
-  componentDidMount: function() {
-    var el = this.getDOMNode();
-    d3Tree.create(el, this.state.d3state);
-  },
-
-  componentDidUpdate: function() {
-    var el = this.getDOMNode();
-    d3Chart.update(el, this.state.d3state);
-  },
-
-  componentWillUnmount: function() {
-    var el = this.getDOMNode();
-    d3Chart.destroy(el);
-  },
-
+// ----- RaTree -----
+var RaTree = React.createClass({
   getInitialState: function() {
     return {
-      d3state: {
-        tree: {
-          name: "—",
-          children: [
-            {
-              name: "select_{name='Billπ'}",
-              children: [
-                {
-                  name: "Drinker",
-                  children: []
-                }
-              ]
-            },
-            {
-              name: "select_{name='John'}",
-              children: [
-                {
-                  name: "Drinker",
-                  children: []
-                }
-              ]
-            }
-          ]
-        },
-        commands: [
+      selectedElement: null,
+      currentX: 0,
+      currentY: 0,
+      dragging: true,
+      tree: {
+        name: "—",
+        selected: false,
+        children: [
           {
-            name: "\\project",
-            x0: 0,
-            y0: 400,
-            x: 0,
-            y: 400
+            name: "\\select_{name='Billπ'}",
+            selected: false,
+            children: [
+              {
+                name: "Drinker",
+                selected: false,
+                children: []
+              }
+            ]
           },
           {
-            name: "\\join",
-            x0: 0,
-            y0: 450,
-            x: 0,
-            y: 450
-          },
-          {
-            name: "\\cross",
-            x0: 0,
-            y0: 500,
-            x: 0,
-            y: 500
+            name: "\\select_{name='John'}",
+            selected: true,
+            children: [
+              {
+                name: "Drinker",
+                selected: false,
+                children: []
+              }
+            ]
           }
         ]
-      }
+      },
+      prenodes: [
+        {
+          name: "\\project",
+          x0: 0,
+          y0: 400,
+          x: 0,
+          y: 400
+        },
+        {
+          name: "\\join",
+          x0: 0,
+          y0: 450,
+          x: 0,
+          y: 450
+        },
+        {
+          name: "\\cross",
+          x0: 0,
+          y0: 500,
+          x: 0,
+          y: 500
+        }
+      ]
     };
   },
 
+  svgForNode: function(node) {
+    var rect = <rect className="noderect" width="16" height="16" fill="blue" x={node.x} y={node.y}></rect>;
+    var circle = <circle className={this.state.dragging ? "ghostCircle show" : "ghostCircle noshow"} r="30" cx={node.x + 8} cy={node.y + 8} opacity="0.2" fill="blue" onMouseOver={function(evt) {evt.target.setAttribute('fill', 'green');}} onMouseOut={function(evt) {evt.target.setAttribute('fill', 'blue');}}></circle>;
+    var text = <text className="nodelabel" x={node.x + 20} y={node.y + 13}>{node.name}</text>;
+    return <g>{rect}{text}{circle}</g>;
+  },
+
+  svgForLink: function(l) {
+    return <line className="link" x1={l.source.x+8} y1={l.source.y+16} x2={l.target.x+8} y2={l.target.y}></line>;
+  },
+
+  selectElement: function(evt) {
+    var newstate = {
+      selectedElement: evt.target,
+      currentX: evt.clientX,
+      currentY: evt.clientY,
+      dragging: true
+    };
+    this.setState(newstate);
+  },
+
+  moveElement: function(evt) {
+  },
+
+  svgForPrenode: function(node) {
+    var rect = <rect className="noderect" width="16" height="16" fill="blue" x={node.x} y={node.y}></rect>;
+    var text = <text className="nodelabel" x={node.x + 20} y={node.y + 13}>{node.name}</text>;
+    return <g className="draggable" onMouseDown={this.selectElement} onMouseMove={this.state.dragging ? this.moveElement : null}>{rect}{text}</g>;
+  },
+
   render: function() {
-    return <div><br /><div className="tree"></div></div>;
+    var tree = d3.layout.tree().size([300, 300]);
+    var nodes = tree.nodes(this.state.tree);
+    var links = tree.links(nodes);
+    var svg = <svg width="400" height="600">{nodes.map(this.svgForNode)}{links.map(this.svgForLink)}{this.state.prenodes.map(this.svgForPrenode)}</svg>;
+    return svg;
   }
 });
 
+// ===== React render statements =====
 React.render(
-  <Tree />,
-  document.getElementById('rightpane')
+  <TerminalEmulator />,
+  document.getElementById('leftpane')
 );
 
+React.render(
+  <RaTree />,
+  document.getElementById('rightpane')
+);
