@@ -230,7 +230,7 @@ var QueryResultPair = React.createClass({
 var TreeNode = React.createClass({
   render: function() {
     var rect = <rect className="noderect" width="16" height="16" fill="blue" x={this.props.x} y={this.props.y}></rect>;
-    var circle = <circle className={this.props.dragging ? "ghostCircle show" : "ghostCircle noshow"} r="30" cx={this.props.x + 8} cy={this.props.y + 8} opacity="0.2" fill="blue" onMouseOver={function(evt) {evt.target.setAttribute('fill', 'green');}} onMouseOut={function(evt) {evt.target.setAttribute('fill', 'blue');}}></circle>;
+    var circle = <circle className={this.props.showCircle ? "ghostCircle show" : "ghostCircle noshow"} r="30" cx={this.props.x + 8} cy={this.props.y + 8} opacity="0.2" fill="blue" onMouseOver={function(evt) {evt.target.setAttribute('fill', 'green');}} onMouseOut={function(evt) {evt.target.setAttribute('fill', 'blue');}}></circle>;
     var text = <text className="nodelabel" x={this.props.x + 20} y={this.props.y + 13}>{this.props.name}</text>;
     return <g>{rect}{text}{circle}</g>;
   }
@@ -247,7 +247,6 @@ var TreeLink = React.createClass({
 var Prenode = React.createClass({
   getInitialState: function() {
     return {
-      dragging: false,
       x: this.props.x0,
       y: this.props.y0,
       xOffset: 0,
@@ -354,7 +353,7 @@ var RaTree = React.createClass({
     var links = tree.links(nodes);
 
     var renderedNodes = nodes.map(function(node) {
-      return <TreeNode x={node.x} y={node.y} name={node.name} dragging={me.state.moveElement ? true : false} />;
+      return <TreeNode x={node.x} y={node.y} name={node.name} showCircle={me.state.moveElement ? true : false} />;
     });
 
     var renderedLinks = links.map(function(link) {
