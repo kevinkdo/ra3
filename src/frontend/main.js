@@ -273,12 +273,12 @@ var Prenode = React.createClass({
   render: function() {
     var rect = <rect className="noderect" width="16" height="16" fill="blue" x={this.state.x} y={this.state.y}></rect>;
     var text = <text className="nodelabel" x={this.state.x + 20} y={this.state.y + 13}>{this.props.name}</text>;
-    return <g className="draggable" onMouseDown={this.startDrag}>{rect}{text}</g>;
+    return <g className={this.props.dragging ? "draggable nopointer" : "draggable yespointer"} onMouseDown={this.startDrag}>{rect}{text}</g>;
   }
 });
 
 // ----- RaTree -----
-var RaTree = React.createClass({
+var RaTree = React.createClass({ 
   getInitialState: function() {
     return {
       moveElement: null,
@@ -363,7 +363,7 @@ var RaTree = React.createClass({
     var i = -1;
     var renderedPrenodes = this.state.prenodes.map(function(prenode) {
       i++;
-      return <Prenode name={prenode.name} x0={0} y0={i * 50 + 400} setMoveElement={me.setMoveElement} />;
+      return <Prenode name={prenode.name} x0={0} y0={i * 50 + 400} setMoveElement={me.setMoveElement} dragging={me.state.moveElement ? true : false}/>;
     });
 
     var svg = <svg id="mysvg" width="400" height="600" onMouseMove={this.state.moveElement ? this.state.moveElement : null} onMouseUp={this.endDrag}>{renderedNodes}{renderedLinks}{renderedPrenodes}</svg>;

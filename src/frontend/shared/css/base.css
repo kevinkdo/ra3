@@ -39,6 +39,12 @@ body {
   border: 0;
   margin: 0;
   height: 100%;
+  cursor: default;
+  -moz-user-select: -moz-none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 .node circle {
@@ -79,4 +85,12 @@ body {
 
 .draggable {
   cursor: move;
+}
+
+.yespointer {
+  pointer-events: all;
+}
+
+.nopointer {
+  pointer-events: none;
 }
