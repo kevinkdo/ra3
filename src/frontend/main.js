@@ -257,11 +257,10 @@ var Prenode = React.createClass({
 
   startDrag: function(evt) {
     this.setState({
-      dragging: true,
       xOffset: evt.clientX - this.state.x,
       yOffset: evt.clientY - this.state.y
     });
-    this.props.setUpperState(true, this.moveElement);
+    this.props.setMoveElement(this.moveElement);
   },
 
   moveElement: function(evt) {
@@ -272,17 +271,10 @@ var Prenode = React.createClass({
     this.setState(newstate);
   },
 
-  endDrag: function(evt) {
-    this.setState({
-      dragging: false,
-    });
-    this.props.setDragging(false);
-  },
-
   render: function() {
     var rect = <rect className="noderect" width="16" height="16" fill="blue" x={this.state.x} y={this.state.y}></rect>;
     var text = <text className="nodelabel" x={this.state.x + 20} y={this.state.y + 13}>{this.props.name}</text>;
-    return <g className="draggable" onMouseDown={this.startDrag} onMouseMove={this.state.dragging ? this.moveElement : null} onMouseUp={this.state.dragging ? this.endDrag : null}>{rect}{text}</g>;
+    return <g className="draggable" onMouseDown={this.startDrag}>{rect}{text}</g>;
   }
 });
 
@@ -290,10 +282,7 @@ var Prenode = React.createClass({
 var RaTree = React.createClass({
   getInitialState: function() {
     return {
-      selectedElement: null,
-      currentX: 0,
-      currentY: 0,
-      dragging: false,
+      moveElement: null,
       tree: {
         name: "—",
         selected: false,
@@ -348,11 +337,14 @@ var RaTree = React.createClass({
     };
   },
 
-  setUpperState: function(newval, moveElement) {
+  setMoveElement: function(moveElement) {
     this.setState({
-      dragging: newval,
       moveElement: moveElement
     });
+  },
+
+  endDrag: function() {
+    this.setMoveElement(null);
   },
 
   render: function() {
@@ -362,7 +354,7 @@ var RaTree = React.createClass({
     var links = tree.links(nodes);
 
     var renderedNodes = nodes.map(function(node) {
-      return <TreeNode x={node.x} y={node.y} name={node.name} dragging={me.state.dragging} />;
+      return <TreeNode x={node.x} y={node.y} name={node.name} dragging={me.state.moveElement ? true : false} />;
     });
 
     var renderedLinks = links.map(function(link) {
@@ -372,10 +364,10 @@ var RaTree = React.createClass({
     var i = -1;
     var renderedPrenodes = this.state.prenodes.map(function(prenode) {
       i++;
-      return <Prenode name={prenode.name} x0={0} y0={i * 50 + 400} setUpperState={me.setUpperState} />;
+      return <Prenode name={prenode.name} x0={0} y0={i * 50 + 400} setMoveElement={me.setMoveElement} />;
     });
 
-    var svg = <svg id="mysvg" width="400" height="600">{renderedNodes}{renderedLinks}{renderedPrenodes}</svg>;
+    var svg = <svg id="mysvg" width="400" height="600" onMouseMove={this.state.moveElement ? this.state.moveElement : null} onMouseUp={this.endDrag}>{renderedNodes}{renderedLinks}{renderedPrenodes}</svg>;
     return svg;
   }
 });
