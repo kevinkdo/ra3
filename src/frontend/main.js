@@ -322,6 +322,7 @@ var RaTree = React.createClass({
         {
           name: "\u03c3",
           id: 12,
+          numchildren: 1,
           x0: 0,
           y0: 400,
           x: 0,
@@ -330,6 +331,7 @@ var RaTree = React.createClass({
         {
           name: "\u03C0",
           id: 10,
+          numchildren: 1,
           x0: 0,
           y0: 420,
           x: 0,
@@ -338,6 +340,7 @@ var RaTree = React.createClass({
         {
           name: "\u00d7",
           id: 11,
+          numchildren: 2,
           x0: 0,
           y0: 440,
           x: 0,
@@ -346,6 +349,7 @@ var RaTree = React.createClass({
         {
           name: "\u22c8",
           id: 13,
+          numchildren: 2,
           x0: 0,
           y0: 460,
           x: 0,
@@ -354,6 +358,7 @@ var RaTree = React.createClass({
         {
           name: "\u222a",
           id: 14,
+          numchildren: 2,
           x0: 0,
           y0: 480,
           x: 0,
@@ -362,6 +367,7 @@ var RaTree = React.createClass({
         {
           name: "\u2212",
           id: 15,
+          numchildren: 2,
           x0: 0,
           y0: 500,
           x: 0,
@@ -370,6 +376,7 @@ var RaTree = React.createClass({
         {
           name: "\u2229",
           id: 16,
+          numchildren: 2,
           x0: 0,
           y0: 520,
           x: 0,
@@ -378,6 +385,7 @@ var RaTree = React.createClass({
         {
           name: "\u03c1",
           id: 17,
+          numchildren: 1,
           x0: 0,
           y0: 540,
           x: 0,
@@ -419,23 +427,34 @@ var RaTree = React.createClass({
   handleMouseUp: function() {
     this.setState(function(state, props) {
       var newName = "";
+      var numChildren = 0;
       state.prenodes.forEach(function(prenode) {
           prenode.x = prenode.x0;
           prenode.y = prenode.y0;
           if (prenode.id == state.sourceId) {
             newName = prenode.name;
+            numChildren = prenode.numchildren;
           }
       });
+
       var traverse = function(node) {
         if (node.id == state.targetId) {
           node.name = newName;
+          node.children = [];
+          for (var i = 0; i < numChildren; i++) {
+            node.children.push({
+              name: "Replace me!",
+              id: nodeId++,
+              children: []
+            });
+          }
         }
-        if (node.children) {
+        else if (node.children) {
           node.children.forEach(traverse);
         }
       };
-      traverse(state.tree);
 
+      traverse(state.tree);
       state.sourceId = 0;
       state.targetId = 0;
       return state;
