@@ -254,14 +254,14 @@ var TreeNode = React.createClass({
     if (this.props.numChildren > 0) {
       this.props.setText(this.props.id, prompt("Enter a new subscript: ", this.props.subscript));
     } else {
-      //this.props.setText(prompt("", "New "), )
+      this.props.setText(this.props.id, prompt("Enter a new name: ", this.props.name));
     }
   },
 
   render: function() {
     var marker = this.props.subscriptable ?
-      <rect className="noderect" width="16" height="16" fill={this.props.numChildren > 0 || this.props.name.length > 0 ? "blue" : "red"} x={this.props.x} y={this.props.y} onClick={this.props.dragging ? null : this.handleClick} /> :
-      <circle className="nodecirc" r="8" fill={this.props.numChildren > 0 || this.props.name.length > 0 ? "blue" : "red"} cx={this.props.x+8} cy={this.props.y+8} onClick={this.props.dragging ? null : this.handleClick} />;
+      <rect className="noderect" width="16" height="16" fill={this.props.numChildren > 0 || this.props.name.length > 0 ? "blue" : "red"} x={this.props.x} y={this.props.y} onClick={!this.props.dragging ? this.handleClick : null} /> :
+      <circle className="nodecirc" r="8" fill={this.props.numChildren > 0 || this.props.name.length > 0 ? "blue" : "red"} cx={this.props.x+8} cy={this.props.y+8} onClick={!this.props.dragging && this.props.numChildren == 0 ? this.handleClick : null} />;
     var circle = <circle className={this.props.dragging ? "ghostCircle show" : "ghostCircle noshow"} r="30" cx={this.props.x + 8} cy={this.props.y + 8} opacity="0.2" fill="blue" onMouseOver={this.handleMouseOver} onMouseOut={this.setBlueFill} onMouseOut={this.handleMouseOut} />;
     var text = <text className="nodelabel" x={this.props.x + 20} y={this.props.y + 13}>{this.props.name}</text>;
     var subscript = <text className="nodesubscript" x={this.props.x + 28} y={this.props.y + 20}>{this.props.subscript}</text>;
