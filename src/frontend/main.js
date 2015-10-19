@@ -242,7 +242,7 @@ var TreeNode = React.createClass({
 
   handleMouseOver: function(evt) {
     this.setGreenFill(evt);
-    this.props.setTargetId(this.props.key);
+    this.props.setTargetId(this.props.id);
   },
 
   handleMouseOut: function(evt) {
@@ -365,29 +365,11 @@ var RaTree = React.createClass({
     var me = this;
     var clientX = evt.clientX;
     var clientY = evt.clientY;
-    /*var newText = "";
-    var traversePrenodes = function(node) {
-      if (node.id == me.state.sourceId) {
-        newText = node.name;
-      }
-      node.children.forEach(traversePrenodes);
-    };*/
-
-    /*this.setState(function(state, props) {
-      var traverse = function(node) {
-        if (node.id == me.state.targetId) {
-          node.name = 
-        }
-        node.children.forEach(traverse);
-      };
-    });*/
     this.setState(function(state, props) {
       state.prenodes.forEach(function(prenode) {
         if (prenode.id == state.sourceId) {
           prenode.x = clientX - state.xOffset;
           prenode.y = clientY - state.yOffset;
-          console.log(evt.clientX);
-          console.log(prenode.y);
         }
       });
       return state;
@@ -395,11 +377,29 @@ var RaTree = React.createClass({
   },
 
   handleMouseUp: function() {
-    this.setState({
-      sourceId: 0,
-      targetId: 0
+    this.setState(function(state, props) {
+      var newName = "";
+      state.prenodes.forEach(function(prenode) {
+          prenode.x = prenode.x0;
+          prenode.y = prenode.y0;
+          if (prenode.id == state.sourceId) {
+            newName = prenode.name;
+          }
+      });
+      var traverse = function(node) {
+        if (node.id == state.targetId) {
+          node.name = newName;
+        }
+        if (node.children) {
+          node.children.forEach(traverse);
+        }
+      };
+      traverse(state.tree);
+
+      state.sourceId = 0;
+      state.targetId = 0;
+      return state;
     });
-    // Reset sourceNode
     // Update text on targetNode
   },
 
