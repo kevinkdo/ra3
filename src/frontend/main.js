@@ -513,7 +513,7 @@ var RaTree = React.createClass({
     var me = this;
     var width = document.getElementById('rightpane').clientWidth;
     var height = document.getElementById('rightpane').clientHeight;
-    var tree = d3.layout.tree().size([width*3/4, height*3/4]).separation(function(a, b) {return (a.parent == b.parent ? 2 : 1);});
+    var tree = d3.layout.tree().size([width*5/6, height*5/6]).separation(function(a, b) {return (a.parent == b.parent ? 2 : 1);});
     var nodes = tree.nodes(this.state.tree);
     var links = tree.links(nodes);
     var renderedNodes = nodes.map(function(node) {
