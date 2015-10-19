@@ -17,6 +17,8 @@ var ENTER = 13;
 var TAB = 9;
 var raCommands = ["project_{", "join", "select_{", "cross", "union", "diff", "intersect", "rename_{"];
 
+var nodeId = 100;
+
 function getDefaultCommandData() {
   return [
     {
@@ -238,13 +240,19 @@ var TreeNode = React.createClass({
     evt.target.setAttribute('fill', 'green');
   },
 
-  editNode: function() {
-    console.log("hi");
+  handleMouseOver: function(evt) {
+    this.setGreenFill(evt);
+    this.props.setTargetId(this.props.key);
+  },
+
+  handleMouseOut: function(evt) {
+    this.setBlueFill(evt);
+    this.props.setTargetId(0);
   },
 
   render: function() {
-    var rect = <rect className="noderect" width="16" height="16" fill="blue" x={this.props.x} y={this.props.y}></rect>;
-    var circle = <circle className={this.props.showCircle ? "ghostCircle show" : "ghostCircle noshow"} r="30" cx={this.props.x + 8} cy={this.props.y + 8} opacity="0.2" fill="blue" onMouseOver={this.setGreenFill} onMouseOut={this.setBlueFill} onMouseUp={this.editNode}></circle>;
+    var rect = <rect className="noderect" width="16" height="16" fill="blue" x={this.props.x} y={this.props.y} />;
+    var circle = <circle className={this.props.showCircle ? "ghostCircle show" : "ghostCircle noshow"} r="30" cx={this.props.x + 8} cy={this.props.y + 8} opacity="0.2" fill="blue" onMouseOver={this.handleMouseOver} onMouseOut={this.setBlueFill} onMouseOut={this.handleMouseOut} />;
     var text = <text className="nodelabel" x={this.props.x + 20} y={this.props.y + 13}>{this.props.name}</text>;
     return <g>{rect}{text}{circle}</g>;
   }
@@ -259,45 +267,18 @@ var TreeLink = React.createClass({
 
 // ----- Prenode -----
 var Prenode = React.createClass({
-  getInitialState: function() {
-    return {
-      x: this.props.x0,
-      y: this.props.y0,
-      xOffset: 0,
-      yOffset: 0
-    }
-  },
-
-  moveElement: function(evt) {
-    var newstate = {
-      x: evt.clientX - this.state.xOffset,
-      y: evt.clientY - this.state.yOffset
-    };
-    this.setState(newstate);
-  },
-
-  resetElement: function() {
-    this.setState({
-      x: this.props.x0,
-      y: this.props.y0
-    })
-  },
-
-  startDrag: function(evt) {
-    this.setState({
-      xOffset: evt.clientX - this.state.x,
-      yOffset: evt.clientY - this.state.y
-    });
-    this.props.setDragHandlers({
-      moveElement: this.moveElement,
-      resetElement: this.resetElement
+  handleMouseDown: function(evt) {
+    this.props.setDragState({
+      sourceId: this.props.id,
+      xOffset: evt.clientX - this.props.x,
+      yOffset: evt.clientY - this.props.y
     });
   },
 
   render: function() {
-    var rect = <rect className="noderect" width="16" height="16" fill="blue" x={this.state.x} y={this.state.y}></rect>;
-    var text = <text className="nodelabel" x={this.state.x + 20} y={this.state.y + 13}>{this.props.name}</text>;
-    return <g className={this.props.dragging ? "draggable nopointer" : "draggable yespointer"} onMouseDown={this.startDrag}>{rect}{text}</g>;
+    var rect = <rect className="noderect" width="16" height="16" fill="blue" x={this.props.x} y={this.props.y}></rect>;
+    var text = <text className="nodelabel" x={this.props.x + 20} y={this.props.y + 13}>{this.props.name}</text>;
+    return <g className={this.props.dragging ? "draggable nopointer" : "draggable yespointer"} onMouseDown={this.handleMouseDown}>{rect}{text}</g>;
   }
 });
 
@@ -305,29 +286,32 @@ var Prenode = React.createClass({
 var RaTree = React.createClass({ 
   getInitialState: function() {
     return {
-      moveElement: null,
+      targetId: 0,
+      sourceId: 0,
+      xOffset: 0,
+      yOffset: 0,
       tree: {
         name: "—",
-        selected: false,
+        id: 1,
         children: [
           {
             name: "\\select_{name='Billπ'}",
-            selected: false,
+            id: 2,
             children: [
               {
                 name: "Drinker",
-                selected: false,
+                id: 3,
                 children: []
               }
             ]
           },
           {
             name: "\\select_{name='John'}",
-            selected: true,
+            id: 4,
             children: [
               {
                 name: "Drinker",
-                selected: false,
+                id: 5,
                 children: []
               }
             ]
@@ -337,6 +321,7 @@ var RaTree = React.createClass({
       prenodes: [
         {
           name: "\\project",
+          id: 10,
           x0: 0,
           y0: 400,
           x: 0,
@@ -344,6 +329,7 @@ var RaTree = React.createClass({
         },
         {
           name: "\\join",
+          id: 11,
           x0: 0,
           y0: 450,
           x: 0,
@@ -351,6 +337,7 @@ var RaTree = React.createClass({
         },
         {
           name: "\\cross",
+          id: 12,
           x0: 0,
           y0: 500,
           x: 0,
@@ -360,19 +347,60 @@ var RaTree = React.createClass({
     };
   },
 
-  setDragHandlers: function(dragHandlers) {
+  setTargetId: function(targetId) {
     this.setState({
-      moveElement: dragHandlers.moveElement,
-      resetElement: dragHandlers.resetElement
+      targetId: targetId
     });
   },
 
-  endDrag: function() {
-    this.state.resetElement();
-    this.setDragHandlers({
-      moveElement: null,
-      resetElement: null
+  setDragState: function(dragState) {
+    this.setState({
+      sourceId: dragState.sourceId,
+      xOffset: dragState.xOffset,
+      yOffset: dragState.yOffset
     });
+  },
+
+  handleMouseMove: function(evt) {
+    var me = this;
+    var clientX = evt.clientX;
+    var clientY = evt.clientY;
+    /*var newText = "";
+    var traversePrenodes = function(node) {
+      if (node.id == me.state.sourceId) {
+        newText = node.name;
+      }
+      node.children.forEach(traversePrenodes);
+    };*/
+
+    /*this.setState(function(state, props) {
+      var traverse = function(node) {
+        if (node.id == me.state.targetId) {
+          node.name = 
+        }
+        node.children.forEach(traverse);
+      };
+    });*/
+    this.setState(function(state, props) {
+      state.prenodes.forEach(function(prenode) {
+        if (prenode.id == state.sourceId) {
+          prenode.x = clientX - state.xOffset;
+          prenode.y = clientY - state.yOffset;
+          console.log(evt.clientX);
+          console.log(prenode.y);
+        }
+      });
+      return state;
+    });
+  },
+
+  handleMouseUp: function() {
+    this.setState({
+      sourceId: 0,
+      targetId: 0
+    });
+    // Reset sourceNode
+    // Update text on targetNode
   },
 
   render: function() {
@@ -380,22 +408,21 @@ var RaTree = React.createClass({
     var tree = d3.layout.tree().size([300, 300]);
     var nodes = tree.nodes(this.state.tree);
     var links = tree.links(nodes);
-
     var renderedNodes = nodes.map(function(node) {
-      return <TreeNode x={node.x} y={node.y} name={node.name} showCircle={me.state.moveElement ? true : false} />;
+      return <TreeNode key={node.id} id={node.id} x={node.x} y={node.y} name={node.name} setTargetId={me.setTargetId} showCircle={me.state.sourceId != 0 ? true : false} />;
     });
 
     var renderedLinks = links.map(function(link) {
-      return <TreeLink source={link.source} target={link.target} />;
+      return <TreeLink key={nodeId++} source={link.source} target={link.target} />;
     });
 
     var i = -1;
     var renderedPrenodes = this.state.prenodes.map(function(prenode) {
       i++;
-      return <Prenode name={prenode.name} x0={0} y0={i * 50 + 400} setDragHandlers={me.setDragHandlers} dragging={me.state.moveElement ? true : false}/>;
+      return <Prenode id={prenode.id} key={prenode.id} name={prenode.name} x={prenode.x} y={prenode.y} setDragState={me.setDragState} dragging={me.state.sourceId != 0 ? true : false}/>;
     });
 
-    var svg = <svg id="mysvg" width="400" height="600" onMouseMove={this.state.moveElement ? this.state.moveElement : null} onMouseUp={this.endDrag}>{renderedNodes}{renderedLinks}{renderedPrenodes}</svg>;
+    var svg = <svg id="mysvg" width="400" height="600" onMouseMove={me.state.sourceId != 0 ? this.handleMouseMove : null} onMouseUp={me.state.sourceId != 0 ? this.handleMouseUp : null}>{renderedNodes}{renderedLinks}{renderedPrenodes}</svg>;
     return svg;
   }
 });
