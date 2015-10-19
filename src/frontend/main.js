@@ -320,28 +320,68 @@ var RaTree = React.createClass({
       },
       prenodes: [
         {
-          name: "\\project",
-          id: 10,
+          name: "\u03c3",
+          id: 12,
           x0: 0,
           y0: 400,
           x: 0,
           y: 400
         },
         {
-          name: "\\join",
-          id: 11,
+          name: "\u03C0",
+          id: 10,
           x0: 0,
-          y0: 450,
+          y0: 420,
           x: 0,
-          y: 450
+          y: 420
         },
         {
-          name: "\\cross",
-          id: 12,
+          name: "\u00d7",
+          id: 11,
+          x0: 0,
+          y0: 440,
+          x: 0,
+          y: 440
+        },
+        {
+          name: "\u22c8",
+          id: 13,
+          x0: 0,
+          y0: 460,
+          x: 0,
+          y: 460
+        },
+        {
+          name: "\u222a",
+          id: 14,
+          x0: 0,
+          y0: 480,
+          x: 0,
+          y: 480
+        },
+        {
+          name: "\u2212",
+          id: 15,
           x0: 0,
           y0: 500,
           x: 0,
           y: 500
+        },
+        {
+          name: "\u2229",
+          id: 16,
+          x0: 0,
+          y0: 520,
+          x: 0,
+          y: 520
+        },
+        {
+          name: "\u03c1",
+          id: 17,
+          x0: 0,
+          y0: 540,
+          x: 0,
+          y: 540
         }
       ]
     };
@@ -400,7 +440,6 @@ var RaTree = React.createClass({
       state.targetId = 0;
       return state;
     });
-    // Update text on targetNode
   },
 
   render: function() {
