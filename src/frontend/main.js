@@ -5,6 +5,9 @@
 //   TerminalEmulator
 //   CurrentInput
 //   QueryResultPair
+//   TreeNode
+//   TreeLink
+//   Prenode
 //   RaTree
 // React render statements
 
@@ -157,7 +160,6 @@ var TerminalEmulator = React.createClass({
       } else if (this.colourNameToHex(this.state.currentInput)) {
         this.setState({currentInput: "", color: this.colourNameToHex(this.state.currentInput)});
       } else {
-        
         var newCommands = this.state.commands.concat([{query: this.state.currentInput, result: "sample result"}]);
         this.setState({commands: newCommands, currentInput: ""});
       }
@@ -228,9 +230,21 @@ var QueryResultPair = React.createClass({
 
 // ----- TreeNode -----
 var TreeNode = React.createClass({
+  setBlueFill: function(evt) {
+    evt.target.setAttribute('fill', 'blue');
+  },
+
+  setGreenFill: function(evt) {
+    evt.target.setAttribute('fill', 'green');
+  },
+
+  editNode: function() {
+    console.log("hi");
+  },
+
   render: function() {
     var rect = <rect className="noderect" width="16" height="16" fill="blue" x={this.props.x} y={this.props.y}></rect>;
-    var circle = <circle className={this.props.showCircle ? "ghostCircle show" : "ghostCircle noshow"} r="30" cx={this.props.x + 8} cy={this.props.y + 8} opacity="0.2" fill="blue" onMouseOver={function(evt) {evt.target.setAttribute('fill', 'green');}} onMouseOut={function(evt) {evt.target.setAttribute('fill', 'blue');}}></circle>;
+    var circle = <circle className={this.props.showCircle ? "ghostCircle show" : "ghostCircle noshow"} r="30" cx={this.props.x + 8} cy={this.props.y + 8} opacity="0.2" fill="blue" onMouseOver={this.setGreenFill} onMouseOut={this.setBlueFill} onMouseUp={this.editNode}></circle>;
     var text = <text className="nodelabel" x={this.props.x + 20} y={this.props.y + 13}>{this.props.name}</text>;
     return <g>{rect}{text}{circle}</g>;
   }
