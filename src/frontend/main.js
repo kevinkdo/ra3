@@ -467,12 +467,13 @@ var RaTree = React.createClass({
         if (node.id == state.targetId) {
           node.name = newName;
           node.children = [];
+          node.subscriptable = subscriptable;
           for (var i = 0; i < numChildren; i++) {
             node.children.push({
               name: "",
               id: nodeId++,
               children: [],
-              subscriptable: subscriptable
+              subscriptable: false
             });
           }
         }
