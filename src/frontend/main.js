@@ -251,7 +251,7 @@ var TreeNode = React.createClass({
   },
 
   render: function() {
-    var rect = <rect className="noderect" width="16" height="16" fill="blue" x={this.props.x} y={this.props.y} />;
+    var rect = <rect className="noderect" width="16" height="16" fill={this.props.numChildren > 0 || this.props.name.length > 0 ? "blue" : "red"} x={this.props.x} y={this.props.y} />;
     var circle = <circle className={this.props.showCircle ? "ghostCircle show" : "ghostCircle noshow"} r="30" cx={this.props.x + 8} cy={this.props.y + 8} opacity="0.2" fill="blue" onMouseOver={this.handleMouseOver} onMouseOut={this.setBlueFill} onMouseOut={this.handleMouseOut} />;
     var text = <text className="nodelabel" x={this.props.x + 20} y={this.props.y + 13}>{this.props.name}</text>;
     return <g>{rect}{text}{circle}</g>;
@@ -443,7 +443,7 @@ var RaTree = React.createClass({
           node.children = [];
           for (var i = 0; i < numChildren; i++) {
             node.children.push({
-              name: "Replace me!",
+              name: "",
               id: nodeId++,
               children: []
             });
@@ -463,11 +463,13 @@ var RaTree = React.createClass({
 
   render: function() {
     var me = this;
-    var tree = d3.layout.tree().size([300, 300]);
+    var width = document.getElementById('rightpane').clientWidth;
+    var height = document.getElementById('rightpane').clientHeight;
+    var tree = d3.layout.tree().size([width*3/4, height*3/4]);
     var nodes = tree.nodes(this.state.tree);
     var links = tree.links(nodes);
     var renderedNodes = nodes.map(function(node) {
-      return <TreeNode key={node.id} id={node.id} x={node.x} y={node.y} name={node.name} setTargetId={me.setTargetId} showCircle={me.state.sourceId != 0 ? true : false} />;
+      return <TreeNode key={node.id} id={node.id} x={node.x} y={node.y} name={node.name} numChildren={node.children ? node.children.length : 0} setTargetId={me.setTargetId} showCircle={me.state.sourceId != 0 ? true : false} />;
     });
 
     var renderedLinks = links.map(function(link) {
@@ -480,7 +482,7 @@ var RaTree = React.createClass({
       return <Prenode id={prenode.id} key={prenode.id} name={prenode.name} x={prenode.x} y={prenode.y} setDragState={me.setDragState} dragging={me.state.sourceId != 0 ? true : false}/>;
     });
 
-    var svg = <svg id="mysvg" width="400" height="600" onMouseMove={me.state.sourceId != 0 ? this.handleMouseMove : null} onMouseUp={me.state.sourceId != 0 ? this.handleMouseUp : null}>{renderedNodes}{renderedLinks}{renderedPrenodes}</svg>;
+    var svg = <svg id="mysvg" width={width} height={height} onMouseMove={me.state.sourceId != 0 ? this.handleMouseMove : null} onMouseUp={me.state.sourceId != 0 ? this.handleMouseUp : null}>{renderedNodes}{renderedLinks}{renderedPrenodes}</svg>;
     return svg;
   }
 });
