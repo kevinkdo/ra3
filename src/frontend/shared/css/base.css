@@ -55,6 +55,11 @@ body {
 
 .nodelabel {
   font-family: "Bitstream Vera Sans Mono", Consolas, Courier, monospace;
+  font-size: 16px;
+}
+
+.nodesubscript {
+  font-family: "Bitstream Vera Sans Mono", Consolas, Courier, monospace;
   font-size: 12px;
 }
 
