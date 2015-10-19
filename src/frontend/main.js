@@ -341,9 +341,9 @@ var RaTree = React.createClass({
           numchildren: 1,
           subscriptable: true,
           x0: 0,
-          y0: 400,
+          y0: 0,
           x: 0,
-          y: 400
+          y: 0
         },
         {
           name: "\u03C0",
@@ -351,9 +351,9 @@ var RaTree = React.createClass({
           numchildren: 1,
           subscriptable: true,
           x0: 0,
-          y0: 420,
+          y0: 20,
           x: 0,
-          y: 420
+          y: 20
         },
         {
           name: "\u00d7",
@@ -361,9 +361,9 @@ var RaTree = React.createClass({
           numchildren: 2,
           subscriptable: false,
           x0: 0,
-          y0: 440,
+          y0: 40,
           x: 0,
-          y: 440
+          y: 40
         },
         {
           name: "\u22c8",
@@ -371,9 +371,9 @@ var RaTree = React.createClass({
           numchildren: 2,
           subscriptable: true,
           x0: 0,
-          y0: 460,
+          y0: 60,
           x: 0,
-          y: 460
+          y: 60
         },
         {
           name: "\u222a",
@@ -381,9 +381,9 @@ var RaTree = React.createClass({
           numchildren: 2,
           subscriptable: false,
           x0: 0,
-          y0: 480,
+          y0: 80,
           x: 0,
-          y: 480
+          y: 80
         },
         {
           name: "\u2212",
@@ -391,9 +391,9 @@ var RaTree = React.createClass({
           numchildren: 2,
           subscriptable: false,
           x0: 0,
-          y0: 500,
+          y0: 100,
           x: 0,
-          y: 500
+          y: 100
         },
         {
           name: "\u2229",
@@ -401,9 +401,9 @@ var RaTree = React.createClass({
           numchildren: 2,
           subscriptable: false,
           x0: 0,
-          y0: 520,
+          y0: 120,
           x: 0,
-          y: 520
+          y: 120
         },
         {
           name: "\u03c1",
@@ -411,9 +411,9 @@ var RaTree = React.createClass({
           numchildren: 1,
           subscriptable: true,
           x0: 0,
-          y0: 540,
+          y0: 140,
           x: 0,
-          y: 540
+          y: 140
         }
       ]
     };
