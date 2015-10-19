@@ -268,20 +268,30 @@ var Prenode = React.createClass({
     }
   },
 
-  startDrag: function(evt) {
-    this.setState({
-      xOffset: evt.clientX - this.state.x,
-      yOffset: evt.clientY - this.state.y
-    });
-    this.props.setMoveElement(this.moveElement);
-  },
-
   moveElement: function(evt) {
     var newstate = {
       x: evt.clientX - this.state.xOffset,
       y: evt.clientY - this.state.yOffset
     };
     this.setState(newstate);
+  },
+
+  resetElement: function() {
+    this.setState({
+      x: this.props.x0,
+      y: this.props.y0
+    })
+  },
+
+  startDrag: function(evt) {
+    this.setState({
+      xOffset: evt.clientX - this.state.x,
+      yOffset: evt.clientY - this.state.y
+    });
+    this.props.setDragHandlers({
+      moveElement: this.moveElement,
+      resetElement: this.resetElement
+    });
   },
 
   render: function() {
@@ -350,14 +360,19 @@ var RaTree = React.createClass({
     };
   },
 
-  setMoveElement: function(moveElement) {
+  setDragHandlers: function(dragHandlers) {
     this.setState({
-      moveElement: moveElement
+      moveElement: dragHandlers.moveElement,
+      resetElement: dragHandlers.resetElement
     });
   },
 
   endDrag: function() {
-    this.setMoveElement(null);
+    this.state.resetElement();
+    this.setDragHandlers({
+      moveElement: null,
+      resetElement: null
+    });
   },
 
   render: function() {
@@ -377,7 +392,7 @@ var RaTree = React.createClass({
     var i = -1;
     var renderedPrenodes = this.state.prenodes.map(function(prenode) {
       i++;
-      return <Prenode name={prenode.name} x0={0} y0={i * 50 + 400} setMoveElement={me.setMoveElement} dragging={me.state.moveElement ? true : false}/>;
+      return <Prenode name={prenode.name} x0={0} y0={i * 50 + 400} setDragHandlers={me.setDragHandlers} dragging={me.state.moveElement ? true : false}/>;
     });
 
     var svg = <svg id="mysvg" width="400" height="600" onMouseMove={this.state.moveElement ? this.state.moveElement : null} onMouseUp={this.endDrag}>{renderedNodes}{renderedLinks}{renderedPrenodes}</svg>;
