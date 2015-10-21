@@ -36,8 +36,8 @@ var nodeId = 100;
 function getDefaultCommandData() {
   return [
     {
-      query: "help --verbose",
-      result: "Michael, please type up a short help statement and a long help statement for 'help --verbose'"
+      query: "Type help for instructions, type help --verbose for list of commands",
+      result: ""
     }
   ];
 }
