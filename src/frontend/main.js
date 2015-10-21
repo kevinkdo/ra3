@@ -16,6 +16,18 @@ var BACKSPACE = 8;
 var ENTER = 13;
 var TAB = 9;
 var raCommands = ["project_{", "join", "select_{", "cross", "union", "diff", "intersect", "rename_{"];
+var shortHelpMessage = "Welcome to RA3\nThis works very similarly to Jun Yang's Relational Algebra Interpreter. \n" 
+                        + "type help --verbose for a list of commands";
+var longHelpMessage = "Relational Algebra Expressions: \n"
+                       +"\\select_{COND} EXP: selection over an expression \n"
+                       +"\\project_{ATTR_LIST} EXP: projection of an expression \n"
+                       +"EXP_1 \\join EXP_2: natural join between two expressions \n"
+                       +"EXP_1 \\join_{COND} EXP_2: theta-join between two expressions \n"
+                       +"EXP_1 \\cross EXP_2: cross-product between two expressions \n"
+                       +"EXP_1 \\union EXP_2: union between two expressions \n"
+                       +"EXP_1 \\diff EXP_2: difference between two expressions \n"
+                       +"EXP_1 \\intersect EXP_2: intersection between two expressions \n"
+                       +"\\rename_{NEW_ATTR_NAME_LIST} EXP: rename all attributes of an expression"; 
 
 var nodeId = 100;
 
@@ -159,6 +171,12 @@ var TerminalEmulator = React.createClass({
         this.setState({commands: newCommands, currentInput: ""});
       } else if (this.state.currentInput == "clear") {
         this.setState({commands: [], currentInput: ""});
+      } else if (this.state.currentInput == "help") {
+        var newCommands = this.state.commands.concat([{query: this.state.currentInput, result: shortHelpMessage}]);
+        this.setState({commands: newCommands, currentInput: ""});
+      } else if (this.state.currentInput == "help --verbose") {
+        var newCommands = this.state.commands.concat([{query: this.state.currentInput, result: longHelpMessage}]);
+        this.setState({commands: newCommands, currentInput: ""});
       } else if (this.colourNameToHex(this.state.currentInput)) {
         this.setState({currentInput: "", color: this.colourNameToHex(this.state.currentInput)});
       } else {
@@ -167,14 +185,6 @@ var TerminalEmulator = React.createClass({
       }
     } else if (e.keyCode == TAB) {
         e.preventDefault();
-        /*var tabIndex = this.findPlaceOfTab(this.state.currentInput);
-        var toBeCompleted = this.state.currentInput.substring(tabIndex + 1);
-        console.log(toBeCompleted);
-        var raCommand = this.autoComplete(toBeCompleted)
-        if (raCommand == false) {
-          raCommand = toBeCompleted;
-        }
-        this.setState({currentInput: this.state.currentInput.substring(0, tabIndex) + "\\" + raCommand});*/
         var tabIndex = this.findPlaceOfTab(this.state.currentInput);
         var toBeCompleted = this.state.currentInput.substring(tabIndex);
         console.log(toBeCompleted);
@@ -204,13 +214,13 @@ var TerminalEmulator = React.createClass({
   },
 
   render: function() {
+
     var renderedLines = [];
     var color = this.state.color;
     this.state.commands.forEach(function(x) {
       renderedLines.push(<QueryResultPair query={x.query} result={x.result} color={color} />);
     });
     renderedLines.push(<CurrentInput input={this.state.currentInput} color={color}/>);
-
     return <pre>{renderedLines}</pre>;
   }
 });
