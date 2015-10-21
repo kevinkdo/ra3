@@ -268,10 +268,15 @@ var TreeNode = React.createClass({
     }
   },
 
+  isValid: function() {
+    return !((this.props.numChildren == 0 && this.props.name.length == 0)
+      || (this.props.subscriptRequired && this.props.subscript.length == 0));
+  },
+
   render: function() {
     var marker = this.props.subscriptable ?
-      <rect className="noderect" width="16" height="16" fill={this.props.numChildren > 0 || this.props.name.length > 0 ? "blue" : "red"} x={this.props.x} y={this.props.y} onClick={!this.props.dragging ? this.handleClick : null} /> :
-      <circle className="nodecirc" r="8" fill={this.props.numChildren > 0 || this.props.name.length > 0 ? "blue" : "red"} cx={this.props.x+8} cy={this.props.y+8} onClick={!this.props.dragging && this.props.numChildren == 0 ? this.handleClick : null} />;
+      <rect className="noderect" width="16" height="16" fill={this.isValid() ? "blue" : "red"} x={this.props.x} y={this.props.y} onClick={!this.props.dragging ? this.handleClick : null} /> :
+      <circle className="nodecirc" r="8" fill={this.isValid() ? "blue" : "red"} cx={this.props.x+8} cy={this.props.y+8} onClick={!this.props.dragging && this.props.numChildren == 0 ? this.handleClick : null} />;
     var circle = <circle className={this.props.dragging ? "ghostCircle show" : "ghostCircle noshow"} r="30" cx={this.props.x + 8} cy={this.props.y + 8} opacity="0.2" fill="blue" onMouseOver={this.handleMouseOver} onMouseOut={this.setBlueFill} onMouseOut={this.handleMouseOut} />;
     var text = <text className="nodelabel" x={this.props.x + 20} y={this.props.y + 13}>{this.props.name}</text>;
     var subscript = <text className="nodesubscript" x={this.props.x + 28} y={this.props.y + 20}>{this.props.subscript}</text>;
@@ -315,16 +320,22 @@ var RaTree = React.createClass({
         name: "\u00d7",
         id: 1,
         subscriptable: false,
+        subscriptRequired: false,
+        subscript: "",
         children: [
           {
             name: "\u03c3",
             id: 2,
             subscriptable: true,
+            subscriptRequired: true,
+            subscript: "",
             children: [
               {
                 name: "Drinker",
                 id: 3,
                 subscriptable: false,
+                subscriptRequired: false,
+                subscript: "",
                 children: []
               }
             ]
@@ -333,11 +344,15 @@ var RaTree = React.createClass({
             name: "\u03c3",
             id: 4,
             subscriptable: true,
+            subscriptRequired: true,
+            subscript: "",
             children: [
               {
                 name: "Drinker",
                 id: 5,
                 subscriptable: false,
+                subscriptRequired: false,
+                subscript: "",
                 children: []
               }
             ]
@@ -350,6 +365,7 @@ var RaTree = React.createClass({
           id: 12,
           numchildren: 1,
           subscriptable: true,
+          subscriptRequired: true,
           x0: 0,
           y0: 0,
           x: 0,
@@ -360,6 +376,7 @@ var RaTree = React.createClass({
           id: 10,
           numchildren: 1,
           subscriptable: true,
+          subscriptRequired: true,
           x0: 0,
           y0: 20,
           x: 0,
@@ -370,6 +387,7 @@ var RaTree = React.createClass({
           id: 11,
           numchildren: 2,
           subscriptable: false,
+          subscriptRequired: false,
           x0: 0,
           y0: 40,
           x: 0,
@@ -380,6 +398,7 @@ var RaTree = React.createClass({
           id: 13,
           numchildren: 2,
           subscriptable: true,
+          subscriptrequired: false,
           x0: 0,
           y0: 60,
           x: 0,
@@ -390,6 +409,7 @@ var RaTree = React.createClass({
           id: 14,
           numchildren: 2,
           subscriptable: false,
+          subscriptrequired: false,
           x0: 0,
           y0: 80,
           x: 0,
@@ -400,6 +420,7 @@ var RaTree = React.createClass({
           id: 15,
           numchildren: 2,
           subscriptable: false,
+          subscriptrequired: false,
           x0: 0,
           y0: 100,
           x: 0,
@@ -410,6 +431,7 @@ var RaTree = React.createClass({
           id: 16,
           numchildren: 2,
           subscriptable: false,
+          subscriptrequired: false,
           x0: 0,
           y0: 120,
           x: 0,
@@ -420,6 +442,7 @@ var RaTree = React.createClass({
           id: 17,
           numchildren: 1,
           subscriptable: true,
+          subscriptrequired: true,
           x0: 0,
           y0: 140,
           x: 0,
@@ -463,6 +486,7 @@ var RaTree = React.createClass({
       var newName = "";
       var numChildren = 0;
       var subscriptable = false;
+      var subscriptRequired = false;
       state.prenodes.forEach(function(prenode) {
           prenode.x = prenode.x0;
           prenode.y = prenode.y0;
@@ -470,6 +494,7 @@ var RaTree = React.createClass({
             newName = prenode.name;
             numChildren = prenode.numchildren;
             subscriptable = prenode.subscriptable;
+            subscriptRequired = prenode.subscriptRequired;
           }
       });
 
@@ -478,12 +503,16 @@ var RaTree = React.createClass({
           node.name = newName;
           node.children = [];
           node.subscriptable = subscriptable;
+          node.subscriptRequired = subscriptRequired;
+          node.subscript = "";
           for (var i = 0; i < numChildren; i++) {
             node.children.push({
               name: "",
               id: nodeId++,
               children: [],
-              subscriptable: false
+              subscriptable: false,
+              subscriptRequired: false,
+              subscript: ""
             });
           }
         }
@@ -558,7 +587,7 @@ var RaTree = React.createClass({
     var nodes = tree.nodes(this.state.tree);
     var links = tree.links(nodes);
     var renderedNodes = nodes.map(function(node) {
-      return <TreeNode key={node.id} id={node.id} x={node.x} y={node.y} name={node.name} subscriptable={node.subscriptable} numChildren={node.children ? node.children.length : 0} setTargetId={me.setTargetId} setText={me.setText} dragging={me.state.sourceId != 0 ? true : false} subscript={node.subscript} />;
+      return <TreeNode key={node.id} id={node.id} x={node.x} y={node.y} name={node.name} subscriptable={node.subscriptable} subscriptRequired={node.subscriptRequired} numChildren={node.children ? node.children.length : 0} setTargetId={me.setTargetId} setText={me.setText} dragging={me.state.sourceId != 0 ? true : false} subscript={node.subscript} />;
     });
 
     var renderedLinks = links.map(function(link) {
