@@ -519,6 +519,37 @@ var RaTree = React.createClass({
     });
   },
 
+  serializeTree: function() {
+    var mapping = {
+      "\u03c3": "\\select",
+      "\u03C0": "\\project",
+      "\u00d7": "\\cross",
+      "\u22c8": "\\join",
+      "\u222a": "\\union",
+      "\u2212": "\\diff",
+      "\u2229": "\\intersect",
+      "\u03c1": "\\rename"
+    };
+    var serializeNode = function(node) {
+      if (!node.children || node.children.length == 0) {
+        return node.name;
+      }
+
+      if (node.children.length == 1) {
+        return mapping[node.name]
+          + (node.subscriptable && node.subscript ? "_{" + node.subscript + "}" : "")
+          + " (" + serializeNode(node.children[0]) + ")";
+      }
+
+      if (node.children.length == 2) {
+        return "(" + serializeNode(node.children[0]) + ") " + mapping[node.name]
+          + (node.subscriptable && node.subscript ? "_{" + node.subscript + "}" : "")
+          + " (" + serializeNode(node.children[1]) + ")";
+      }
+    };
+    return serializeNode(this.state.tree);
+  },
+
   render: function() {
     var me = this;
     var width = document.getElementById('rightpane').clientWidth;
@@ -540,7 +571,9 @@ var RaTree = React.createClass({
       return <Prenode id={prenode.id} key={prenode.id} name={prenode.name} x={prenode.x} y={prenode.y} setDragState={me.setDragState} dragging={me.state.sourceId != 0 ? true : false}/>;
     });
 
-    var svg = <svg id="mysvg" width={width} height={height} onMouseMove={me.state.sourceId != 0 ? this.handleMouseMove : null} onMouseUp={me.state.sourceId != 0 ? this.handleMouseUp : null}>{renderedNodes}{renderedLinks}{renderedPrenodes}</svg>;
+    var button = <rect className="svgbutton" width="16" height="16" fill="blue" x={0} y={height-16} onClick={function() {console.log(me.serializeTree())}}></rect>;
+
+    var svg = <svg id="mysvg" width={width} height={height} onMouseMove={me.state.sourceId != 0 ? this.handleMouseMove : null} onMouseUp={me.state.sourceId != 0 ? this.handleMouseUp : null}>{renderedNodes}{renderedLinks}{renderedPrenodes}{button}</svg>;
     return svg;
   }
 });
