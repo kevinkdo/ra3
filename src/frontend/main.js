@@ -15,6 +15,8 @@
 var BACKSPACE = 8;
 var ENTER = 13;
 var TAB = 9;
+var UP = 38;
+var DOWN = 40;
 var raCommands = ["project_{", "join", "select_{", "cross", "union", "diff", "intersect", "rename_{"];
 var shortHelpMessage = "Welcome to RA3\nThis works very similarly to Jun Yang's Relational Algebra Interpreter. \n" 
                         + "type help --verbose for a list of commands";
@@ -68,7 +70,10 @@ var TerminalEmulator = React.createClass({
     return {
       commands: getDefaultCommandData(),
       currentInput: "",
-      color: "#0f0"
+      color: "#0f0",
+      history: [],
+      historyIndex: -1,
+      historyDirection: "0" // 0 is starting, 1 is up, -1 is down
     };
   },
 
@@ -180,16 +185,51 @@ var TerminalEmulator = React.createClass({
       } else if (this.colourNameToHex(this.state.currentInput)) {
         this.setState({currentInput: "", color: this.colourNameToHex(this.state.currentInput)});
       } else {
+        var newHistory = this.state.history.concat(this.state.currentInput);
+        var newHistoryIndex = newHistory.length - 1;
         var newCommands = this.state.commands.concat([{query: this.state.currentInput, result: "sample result"}]);
-        this.setState({commands: newCommands, currentInput: ""});
+        this.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex});
       }
     } else if (e.keyCode == TAB) {
         e.preventDefault();
         var tabIndex = this.findPlaceOfTab(this.state.currentInput);
         var toBeCompleted = this.state.currentInput.substring(tabIndex);
-        console.log(toBeCompleted);
         var raCommand = this.autocorrect(toBeCompleted);
         this.setState({currentInput: this.state.currentInput.substring(0, tabIndex) + "\\" + raCommand});
+    } else if (e.keyCode == UP) {
+        e.preventDefault();
+        if (this.state.historyDirection == -1) {
+          var newHistoryIndex = this.state.historyIndex - 1; 
+          this.setState({historyIndex: newHistoryIndex});
+          this.setState({currentInput: this.state.history[this.state.historyIndex], historyDirection: 1});    
+        } else {
+          this.setState({currentInput: this.state.history[this.state.historyIndex], historyDirection: 1});  
+          var newHistoryIndex = this.state.historyIndex - 1; 
+          this.setState({historyIndex: newHistoryIndex});
+        }
+        if (this.state.historyIndex < 0) {
+          this.setState({historyIndex: 0});
+        }
+
+        console.log(this.state.historyIndex); 
+        
+    } else if (e.keyCode == DOWN) {
+        e.preventDefault();
+        if (this.state.historyDirection == 1) {
+          var newHistoryIndex = this.state.historyIndex + 1; 
+          this.setState({historyIndex: newHistoryIndex});
+          this.setState({currentInput: this.state.history[this.state.historyIndex], historyDirection: 1});    
+        } else {
+          this.setState({currentInput: this.state.history[this.state.historyIndex], historyDirection: -1});  
+          var newHistoryIndex = this.state.historyIndex + 1; 
+          this.setState({historyIndex: newHistoryIndex});
+        }
+        if (this.state.historyIndex > this.state.history.length - 1) {
+          this.setState({historyIndex: this.state.history.length - 1});
+        }
+
+        this.setState({currentInput: this.state.history[this.state.historyIndex], historyDirection: -1}); 
+        console.log(this.state.historyIndex);   
     }
 
     scrollDown();
