@@ -73,7 +73,8 @@ var TerminalEmulator = React.createClass({
       color: "#0f0",
       history: [],
       historyIndex: -1,
-      historyDirection: "0" // 0 is starting, 1 is up, -1 is down
+      historyDirection: "0", // 0 is starting, 1 is up, -1 is down
+      multiLineCount: 2
     };
   },
 
@@ -187,8 +188,12 @@ var TerminalEmulator = React.createClass({
       } else {
         var newHistory = this.state.history.concat(this.state.currentInput);
         var newHistoryIndex = newHistory.length - 1;
-        var newCommands = this.state.commands.concat([{query: this.state.currentInput, result: "sample result"}]);
-        this.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex});
+        if (this.state.currentInput[this.state.currentInput.length - 1] != ";") {
+          this.setState({currentInput: this.state.currentInput + "\n" + this.state.multiLineCount + "> ", history: newHistory, historyIndex: newHistoryIndex, multiLineCount: this.state.multiLineCount + 1});            
+        } else {
+          var newCommands = this.state.commands.concat([{query: this.state.currentInput, result: "sample result"}]);
+          this.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex});  
+        }        
       }
     } else if (e.keyCode == TAB) {
         e.preventDefault();
