@@ -74,7 +74,8 @@ var TerminalEmulator = React.createClass({
       history: [],
       historyIndex: -1,
       historyDirection: "0", // 0 is starting, 1 is up, -1 is down
-      multiLineCount: 2
+      multiLineCount: 2,
+      subqueryList: []
     };
   },
 
@@ -185,6 +186,26 @@ var TerminalEmulator = React.createClass({
         this.setState({commands: newCommands, currentInput: ""});
       } else if (this.colourNameToHex(this.state.currentInput)) {
         this.setState({currentInput: "", color: this.colourNameToHex(this.state.currentInput)});
+      } else if (this.state.currentInput.substring(0,8) == "subquery") {
+        var firstSpaceIndex = 8;
+        var secondSpaceIndex = -1;
+        for (var i = firstSpaceIndex + 1; i < this.state.currentInput.length; i++) {
+          if (this.state.currentInput.charAt(i) == " ") {
+            secondSpaceIndex = i;
+            break;
+          }
+        }
+        var subqueryName = this.state.currentInput.substring(firstSpaceIndex + 1, secondSpaceIndex);
+        var subqueryDefinition = this.state.currentInput.substring(secondSpaceIndex + 1);
+        var tempSubqueryList = this.state.subqueryList;
+        tempSubqueryList[subqueryName] = subqueryDefinition;
+        var newHistory = this.state.history.concat(this.state.currentInput);
+        var newHistoryIndex = newHistory.length - 1;
+        console.log(this.state.subqueryList[subqueryName]);
+
+        var newCommands = this.state.commands.concat([{query: this.state.currentInput, result: "subquery succesfully stored"}]);
+        this.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex, subqueryList: tempSubqueryList});  
+        //need to implement sending back expanded version
       } else {
         var newHistory = this.state.history.concat(this.state.currentInput);
         var newHistoryIndex = newHistory.length - 1;
