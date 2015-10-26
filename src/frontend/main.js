@@ -66,6 +66,10 @@ function passToParser(string) {
 // ===== React classes =====
 // ----- TerminalEmulator -----
 var TerminalEmulator = React.createClass({
+  setInput: function(string) {
+    this.setState({currentInput: string});
+  },
+
   getInitialState: function() {
     return {
       commands: getDefaultCommandData(),
@@ -642,7 +646,7 @@ var RaTree = React.createClass({
           + " (" + serializeNode(node.children[1]) + ")";
       }
     };
-    return serializeNode(this.state.tree);
+    return serializeNode(this.state.tree) + ";";
   },
 
   render: function() {
@@ -666,7 +670,7 @@ var RaTree = React.createClass({
       return <Prenode id={prenode.id} key={prenode.id} name={prenode.name} x={prenode.x} y={prenode.y} setDragState={me.setDragState} dragging={me.state.sourceId != 0 ? true : false}/>;
     });
 
-    var button = <rect className="svgbutton" width="16" height="16" fill="blue" x={0} y={height-16} onClick={function() {console.log(me.serializeTree())}}></rect>;
+    var button = <rect className="svgbutton" width="16" height="16" fill="blue" x={0} y={height-16} onClick={function() {me.props.setTerminalInput(me.serializeTree())}}></rect>;
 
     var svg = <svg id="mysvg" width={width} height={height} onMouseMove={me.state.sourceId != 0 ? this.handleMouseMove : null} onMouseUp={me.state.sourceId != 0 ? this.handleMouseUp : null}>{renderedNodes}{renderedLinks}{renderedPrenodes}{button}</svg>;
     return svg;
@@ -674,12 +678,12 @@ var RaTree = React.createClass({
 });
 
 // ===== React render statements =====
-React.render(
+var terminal = React.render(
   <TerminalEmulator />,
   document.getElementById('leftpane')
 );
 
 React.render(
-  <RaTree />,
+  <RaTree setTerminalInput={terminal.setInput} />,
   document.getElementById('rightpane')
 );
