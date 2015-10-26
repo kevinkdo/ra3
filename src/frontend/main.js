@@ -288,9 +288,9 @@ var TerminalEmulator = React.createClass({
     var renderedLines = [];
     var color = this.state.color;
     this.state.commands.forEach(function(x) {
-      renderedLines.push(<QueryResultPair query={x.query} result={x.result} color={color} />);
+      renderedLines.push(<QueryResultPair key={nodeId++} query={x.query} result={x.result} color={color} />);
     });
-    renderedLines.push(<CurrentInput input={this.state.currentInput} color={color}/>);
+    renderedLines.push(<CurrentInput key={nodeId++} input={this.state.currentInput} color={color}/>);
     return <pre>{renderedLines}</pre>;
   }
 });
@@ -313,11 +313,11 @@ var QueryResultPair = React.createClass({
 // ----- TreeNode -----
 var TreeNode = React.createClass({
   setBlueFill: function(evt) {
-    evt.target.setAttribute('fill', this.isValid() ? "#4CC3D9" : "#F16745");
+    evt.target.setAttribute('fill', this.isValid() ? "#5bc0de" : "#d9534f");
   },
 
   setGreenFill: function(evt) {
-    evt.target.setAttribute('fill', '#7BC8A4');
+    evt.target.setAttribute('fill', '#5cb85c');
   },
 
   handleMouseOver: function(evt) {
@@ -345,9 +345,9 @@ var TreeNode = React.createClass({
 
   render: function() {
     var marker = this.props.subscriptable ?
-      <rect className="noderect" width="16" height="16" fill={this.isValid() ? "#4CC3D9" : "#F16745"} x={this.props.x} y={this.props.y} onClick={!this.props.dragging ? this.handleClick : null} /> :
-      <circle className="nodecirc" r="8" fill={this.isValid() ? "#4CC3D9" : "#F16745"} cx={this.props.x+8} cy={this.props.y+8} onClick={!this.props.dragging && this.props.numChildren == 0 ? this.handleClick : null} />;
-    var circle = <circle className={this.props.dragging ? "ghostCircle show" : "ghostCircle noshow"} r="30" cx={this.props.x + 8} cy={this.props.y + 8} opacity="0.4" fill={this.isValid() ? "#4CC3D9" : "#F16745"} onMouseOver={this.handleMouseOver} onMouseOut={this.setBlueFill} onMouseOut={this.handleMouseOut} />;
+      <rect className="noderect" width="16" height="16" fill={this.isValid() ? "#5bc0de" : "#d9534f"} x={this.props.x} y={this.props.y} onClick={!this.props.dragging ? this.handleClick : null} /> :
+      <circle className="nodecirc" r="8" fill={this.isValid() ? "#5bc0de" : "#d9534f"} cx={this.props.x+8} cy={this.props.y+8} onClick={!this.props.dragging && this.props.numChildren == 0 ? this.handleClick : null} />;
+    var circle = <circle className={this.props.dragging ? "ghostCircle show" : "ghostCircle noshow"} r="30" cx={this.props.x + 8} cy={this.props.y + 8} opacity="0.4" fill={this.isValid() ? "#5bc0de" : "#d9534f"} onMouseOver={this.handleMouseOver} onMouseOut={this.setBlueFill} onMouseOut={this.handleMouseOut} />;
     var text = <text className="nodelabel" x={this.props.x + 20} y={this.props.y + 13}>{this.props.name}</text>;
     var subscript = <text className="nodesubscript" x={this.props.x + 28} y={this.props.y + 20}>{this.props.subscript}</text>;
     return <g>{marker}{text}{subscript}{circle}</g>;
@@ -372,7 +372,7 @@ var Prenode = React.createClass({
   },
 
   render: function() {
-    var rect = <rect className="noderect" width="16" height="16" fill="#4CC3D9" x={this.props.x} y={this.props.y}></rect>;
+    var rect = <rect className="noderect" width="16" height="16" fill="#5bc0de" x={this.props.x} y={this.props.y}></rect>;
     var text = <text className="nodelabel" x={this.props.x + 20} y={this.props.y + 13}>{this.props.name}</text>;
     return <g className={this.props.dragging ? "draggable nopointer" : "draggable yespointer"} onMouseDown={this.handleMouseDown}>{rect}{text}</g>;
   }
@@ -670,12 +670,12 @@ var RaTree = React.createClass({
       return <Prenode id={prenode.id} key={prenode.id} name={prenode.name} x={prenode.x} y={prenode.y} setDragState={me.setDragState} dragging={me.state.sourceId != 0 ? true : false}/>;
     });
 
-    var button1 = <button class="toolbar" type="button" onClick={function() {me.props.setTerminalInput(me.serializeTree())}}>Generate query</button>;
-    var button2 = <button class="toolbar" type="button" onClick={function() {me.props.setTerminalInput(me.serializeTree())}}>Generate subquery</button>;
+    var button1 = <button className="btn btn-default" type="button" onClick={function() {me.props.setTerminalInput(me.serializeTree())}}>Generate query</button>;
+    var button2 = <button className="btn btn-default" type="button" onClick={function() {me.props.setTerminalInput(me.serializeTree())}}>Generate subquery</button>;
     var toolbar = [button1, button2];
 
     var svg = <svg id="mysvg" width={width} height={height} onMouseMove={me.state.sourceId != 0 ? this.handleMouseMove : null} onMouseUp={me.state.sourceId != 0 ? this.handleMouseUp : null}>{renderedNodes}{renderedLinks}{renderedPrenodes}</svg>;
-    return <div>{toolbar}<br /><br />{svg}</div>;
+    return <div><div className="btn-group">{toolbar}</div><br />{svg}</div>;
   }
 });
 
