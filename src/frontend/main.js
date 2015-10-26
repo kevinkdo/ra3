@@ -328,9 +328,9 @@ var TreeNode = React.createClass({
 
   handleClick: function(evt) {
     if (this.props.numChildren > 0) {
-      this.props.setText(this.props.id, prompt("Enter a new subscript: ", this.props.subscript));
+      this.props.setText(this.props.id, prompt("Enter a new subscript: ", this.props.subscript) || this.props.subscript);
     } else {
-      this.props.setText(this.props.id, prompt("Enter a new name: ", this.props.name));
+      this.props.setText(this.props.id, prompt("Enter a new name: ", this.props.name) || this.props.name);
     }
   },
 
