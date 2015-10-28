@@ -364,7 +364,7 @@ var TreeLink = React.createClass({
 // ----- Prenode -----
 var Prenode = React.createClass({
   handleMouseDown: function(evt) {
-    this.props.setDragState({
+    this.props.startDrag({
       sourceId: this.props.id,
       xOffset: evt.clientX - this.props.x,
       yOffset: evt.clientY - this.props.y
@@ -386,6 +386,7 @@ var RaTree = React.createClass({
       sourceId: 0,
       xOffset: 0,
       yOffset: 0,
+      selecting: false,
       tree: {
         name: "\u00d7",
         id: 1,
@@ -528,7 +529,7 @@ var RaTree = React.createClass({
     });
   },
 
-  setDragState: function(dragState) {
+  startDrag: function(dragState) {
     this.setState({
       sourceId: dragState.sourceId,
       xOffset: dragState.xOffset,
@@ -618,7 +619,7 @@ var RaTree = React.createClass({
     });
   },
 
-  serializeTree: function() {
+  serialize: function(root) {
     var mapping = {
       "\u03c3": "\\select",
       "\u03C0": "\\project",
@@ -646,13 +647,17 @@ var RaTree = React.createClass({
           + " (" + serializeNode(node.children[1]) + ")";
       }
     };
-    return serializeNode(this.state.tree) + ";";
+    return serializeNode(root) + ";";
+  },
+
+  getHelpText: function() {
+    return this.state.sourceId != 0 ? "Drag onto a target circle" : "Drag pre-built nodes or click to edit";
   },
 
   render: function() {
     var me = this;
     var width = document.getElementById('rightpane').clientWidth;
-    var height = document.getElementById('rightpane').clientHeight;
+    var height = document.getElementById('rightpane').clientHeight - 100;//TODO remove constant?
     var tree = d3.layout.tree().size([width*5/6, height*5/6]).separation(function(a, b) {return (a.parent == b.parent ? 2 : 1);});
     var nodes = tree.nodes(this.state.tree);
     var links = tree.links(nodes);
@@ -667,15 +672,17 @@ var RaTree = React.createClass({
     var i = -1;
     var renderedPrenodes = this.state.prenodes.map(function(prenode) {
       i++;
-      return <Prenode id={prenode.id} key={prenode.id} name={prenode.name} x={prenode.x} y={prenode.y} setDragState={me.setDragState} dragging={me.state.sourceId != 0 ? true : false}/>;
+      return <Prenode id={prenode.id} key={prenode.id} name={prenode.name} x={prenode.x} y={prenode.y} startDrag={me.startDrag} dragging={me.state.sourceId != 0 ? true : false}/>;
     });
 
-    var button1 = <button type="button" className="btn btn-default" type="button" onClick={function() {me.props.setTerminalInput(me.serializeTree())}}>Generate query</button>;
-    var button2 = <button type="button" className="btn btn-default" type="button" onClick={function() {me.props.setTerminalInput(me.serializeTree())}}>Generate subquery</button>;
+    var button1 = <button type="button" className="btn btn-default" type="button" onClick={function() {me.props.setTerminalInput(me.serialize(me.state.tree))}}>Generate query</button>;
+    var button2 = <button type="button" className="btn btn-default" type="button" onClick={function() {me.props.setTerminalInput(me.serialize(me.state.tree))}}>Generate subquery</button>;
     var toolbar = [button1, button2];
 
+    var helpText = <div className="helpText">{me.getHelpText()}</div>;
+
     var svg = <svg id="mysvg" width={width} height={height} onMouseMove={me.state.sourceId != 0 ? this.handleMouseMove : null} onMouseUp={me.state.sourceId != 0 ? this.handleMouseUp : null}>{renderedNodes}{renderedLinks}{renderedPrenodes}</svg>;
-    return <div><div className="btn-group">{toolbar}</div><br /><br />{svg}</div>;
+    return <div><div className="btn-group" id="toolbar">{toolbar}</div><br /><br />{svg}{helpText}</div>;
   }
 });
 
