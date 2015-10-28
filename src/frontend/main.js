@@ -345,8 +345,8 @@ var TreeNode = React.createClass({
 
   render: function() {
     var marker = this.props.subscriptable ?
-      <rect className="noderect" width="16" height="16" fill={this.isValid() ? "#5bc0de" : "#d9534f"} x={this.props.x} y={this.props.y} onClick={!this.props.dragging ? this.handleClick : null} /> :
-      <circle className="nodecirc" r="8" fill={this.isValid() ? "#5bc0de" : "#d9534f"} cx={this.props.x+8} cy={this.props.y+8} onClick={!this.props.dragging && this.props.numChildren == 0 ? this.handleClick : null} />;
+      <rect width="16" height="16" fill={this.isValid() ? "#5bc0de" : "#d9534f"} x={this.props.x} y={this.props.y} onClick={!this.props.dragging ? this.handleClick : null} /> :
+      <circle r="8" fill={this.isValid() ? "#5bc0de" : "#d9534f"} cx={this.props.x+8} cy={this.props.y+8} onClick={!this.props.dragging && this.props.numChildren == 0 ? this.handleClick : null} />;
     var circle = <circle className={this.props.dragging ? "ghostCircle show" : "ghostCircle noshow"} r="30" cx={this.props.x + 8} cy={this.props.y + 8} opacity="0.4" fill={this.isValid() ? "#5bc0de" : "#d9534f"} onMouseOver={this.handleMouseOver} onMouseOut={this.setBlueFill} onMouseOut={this.handleMouseOut} />;
     var text = <text className="nodelabel" x={this.props.x + 20} y={this.props.y + 13}>{this.props.name}</text>;
     var subscript = <text className="nodesubscript" x={this.props.x + 28} y={this.props.y + 20}>{this.props.subscript}</text>;
@@ -372,7 +372,7 @@ var Prenode = React.createClass({
   },
 
   render: function() {
-    var rect = <rect className="noderect" width="16" height="16" fill="#5bc0de" x={this.props.x} y={this.props.y}></rect>;
+    var rect = <rect width="16" height="16" fill="#5bc0de" x={this.props.x} y={this.props.y}></rect>;
     var text = <text className="nodelabel" x={this.props.x + 20} y={this.props.y + 13}>{this.props.name}</text>;
     return <g className={this.props.dragging ? "draggable nopointer" : "draggable yespointer"} onMouseDown={this.handleMouseDown}>{rect}{text}</g>;
   }

@@ -13,14 +13,14 @@ body {
   height: 100%;
 }
 
-.raprompt {
-  color: #0f0;
-}
-
 pre {
   background: #000;
   border: none;
   color: white;
+}
+
+.raprompt {
+  color: #0f0;
 }
 
 #leftpane {
@@ -53,29 +53,12 @@ pre {
   user-select: none;
 }
 
-.node circle {
-  fill: #fff;
-  stroke: #4682b4;
-  stroke-width: 3px;
-}
-
 .nodelabel {
   font-family: Menlo,Monaco,Consolas,"Courier New",monospace;
   font-size: 16px;
 }
 
 .nodesubscript {
-  font-family: Menlo,Monaco,Consolas,"Courier New",monospace;
-  font-size: 12px;
-}
-
-.commandnode circle {
-  fill: #fff;
-  stroke: #4682b4;
-  stroke-width: 3px;
-}
-
-.commandnode text {
   font-family: Menlo,Monaco,Consolas,"Courier New",monospace;
   font-size: 12px;
 }
@@ -104,16 +87,4 @@ pre {
 
 .nopointer {
   pointer-events: none;
-}
-
-.btn-group {
-  position: relative;
-  display: inline-block;
-  vertical-align: middle;
-}
-
-.btn-default {
-  color: #333;
-  background-color: #fff;
-  border-color: #ccc;
 }
