@@ -331,10 +331,14 @@ var TreeNode = React.createClass({
   },
 
   handleClick: function(evt) {
-    if (this.props.numChildren > 0) {
-      this.props.setText(this.props.id, prompt("Enter a new subscript: ", this.props.subscript) || this.props.subscript);
+    if (this.props.selecting) {
+      this.props.serializeId(this.props.id);
     } else {
-      this.props.setText(this.props.id, prompt("Enter a new name: ", this.props.name) || this.props.name);
+      if (this.props.numChildren > 0) {
+        this.props.setText(this.props.id, prompt("Enter a new subscript: ", this.props.subscript) || this.props.subscript);
+      } else {
+        this.props.setText(this.props.id, prompt("Enter a new name: ", this.props.name) || this.props.name);
+      }
     }
   },
 
@@ -345,8 +349,8 @@ var TreeNode = React.createClass({
 
   render: function() {
     var marker = this.props.subscriptable ?
-      <rect width="16" height="16" fill={this.isValid() ? "#5bc0de" : "#d9534f"} x={this.props.x} y={this.props.y} onClick={!this.props.dragging ? this.handleClick : null} /> :
-      <circle r="8" fill={this.isValid() ? "#5bc0de" : "#d9534f"} cx={this.props.x+8} cy={this.props.y+8} onClick={!this.props.dragging && this.props.numChildren == 0 ? this.handleClick : null} />;
+      <rect width="16" height="16" fill={this.isValid() ? "#5bc0de" : "#d9534f"} x={this.props.x} y={this.props.y} onClick={this.props.dragging ? null : this.handleClick} /> :
+      <circle r="8" fill={this.isValid() ? "#5bc0de" : "#d9534f"} cx={this.props.x+8} cy={this.props.y+8} onClick={(!this.props.dragging && this.props.numChildren == 0) || this.props.selecting ? this.handleClick : null} />;
     var circle = <circle className={this.props.dragging ? "ghostCircle show" : "ghostCircle noshow"} r="30" cx={this.props.x + 8} cy={this.props.y + 8} opacity="0.4" fill={this.isValid() ? "#5bc0de" : "#d9534f"} onMouseOver={this.handleMouseOver} onMouseOut={this.setBlueFill} onMouseOut={this.handleMouseOut} />;
     var text = <text className="nodelabel" x={this.props.x + 20} y={this.props.y + 13}>{this.props.name}</text>;
     var subscript = <text className="nodesubscript" x={this.props.x + 28} y={this.props.y + 20}>{this.props.subscript}</text>;
@@ -651,7 +655,23 @@ var RaTree = React.createClass({
   },
 
   getHelpText: function() {
-    return this.state.sourceId != 0 ? "Drag onto a target circle" : "Drag pre-built nodes or click to edit";
+    return this.state.sourceId != 0 ? "Drag onto a target circle" :
+      this.state.selecting ? "Select a node to serialize" :
+      "Drag pre-built nodes or click to edit";
+  },
+
+  serializeId: function(id) {
+    var me = this;
+    var traverse = function(node) {
+      if (node.id == id) {
+        me.props.setTerminalInput(me.serialize(node));
+      }
+      else if (node.children) {
+        node.children.forEach(traverse);
+      }
+    };
+    traverse(me.state.tree);
+    this.setState({selecting: false});
   },
 
   render: function() {
@@ -662,7 +682,7 @@ var RaTree = React.createClass({
     var nodes = tree.nodes(this.state.tree);
     var links = tree.links(nodes);
     var renderedNodes = nodes.map(function(node) {
-      return <TreeNode key={node.id} id={node.id} x={node.x} y={node.y} name={node.name} subscriptable={node.subscriptable} subscriptRequired={node.subscriptRequired} numChildren={node.children ? node.children.length : 0} setTargetId={me.setTargetId} setText={me.setText} dragging={me.state.sourceId != 0 ? true : false} subscript={node.subscript} />;
+      return <TreeNode key={node.id} id={node.id} x={node.x} y={node.y} name={node.name} subscriptable={node.subscriptable} subscriptRequired={node.subscriptRequired} numChildren={node.children ? node.children.length : 0} setTargetId={me.setTargetId} setText={me.setText} dragging={me.state.sourceId != 0 ? true : false} selecting={me.state.selecting} subscript={node.subscript} serializeId={me.serializeId}/>;
     });
 
     var renderedLinks = links.map(function(link) {
@@ -676,7 +696,7 @@ var RaTree = React.createClass({
     });
 
     var button1 = <button type="button" className="btn btn-default" type="button" onClick={function() {me.props.setTerminalInput(me.serialize(me.state.tree))}}>Generate query</button>;
-    var button2 = <button type="button" className="btn btn-default" type="button" onClick={function() {me.props.setTerminalInput(me.serialize(me.state.tree))}}>Generate subquery</button>;
+    var button2 = <button type="button" className="btn btn-default" type="button" onClick={function() {me.setState({selecting: true});}}>Generate subquery</button>;
     var toolbar = [button1, button2];
 
     var helpText = <div className="helpText">{me.getHelpText()}</div>;
