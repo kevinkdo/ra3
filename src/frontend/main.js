@@ -670,12 +670,12 @@ var RaTree = React.createClass({
       return <Prenode id={prenode.id} key={prenode.id} name={prenode.name} x={prenode.x} y={prenode.y} setDragState={me.setDragState} dragging={me.state.sourceId != 0 ? true : false}/>;
     });
 
-    var button1 = <button className="btn btn-default" type="button" onClick={function() {me.props.setTerminalInput(me.serializeTree())}}>Generate query</button>;
-    var button2 = <button className="btn btn-default" type="button" onClick={function() {me.props.setTerminalInput(me.serializeTree())}}>Generate subquery</button>;
+    var button1 = <button type="button" className="btn btn-default" type="button" onClick={function() {me.props.setTerminalInput(me.serializeTree())}}>Generate query</button>;
+    var button2 = <button type="button" className="btn btn-default" type="button" onClick={function() {me.props.setTerminalInput(me.serializeTree())}}>Generate subquery</button>;
     var toolbar = [button1, button2];
 
     var svg = <svg id="mysvg" width={width} height={height} onMouseMove={me.state.sourceId != 0 ? this.handleMouseMove : null} onMouseUp={me.state.sourceId != 0 ? this.handleMouseUp : null}>{renderedNodes}{renderedLinks}{renderedPrenodes}</svg>;
-    return <div><div className="btn-group">{toolbar}</div><br />{svg}</div>;
+    return <div><div className="btn-group">{toolbar}</div><br /><br />{svg}</div>;
   }
 });
 
