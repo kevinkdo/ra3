@@ -78,7 +78,6 @@ var TerminalEmulator = React.createClass({
       history: [],
       historyIndex: -1,
       historyDirection: "0", // 0 is starting, 1 is up, -1 is down
-      multiLineCount: 2,
       subqueryList: []
     };
   },
@@ -113,9 +112,6 @@ var TerminalEmulator = React.createClass({
         }
         currDistFromCorrect += Math.abs(j - raCommands[i].indexOf(partialCommand[j]));
       }
-      console.log(currDiff);
-      console.log(raCommands[i]);
-      console.log("dist: " + currDistFromCorrect);
 
       if (currDiff >= minDiff && currDistFromCorrect < distFromCorrect) {
         minDiff = currDiff;
@@ -146,18 +142,6 @@ var TerminalEmulator = React.createClass({
     return false;
   },
 
-  autoComplete: function(raComm) {
-    console.log("this is autocomplete: " + raComm);
-    //raComm = raComm.substring(1);
-    var raCommands = ["project_{", "join", "select_{", "cross", "union", "diff", "intersect", "rename_{"];
-    for (var i = 0; i < raCommands.length; i++) {
-      if (raCommands[i].charAt(0) == raComm.charAt(0)) {
-        return raCommands[i];
-      }
-    }
-    return false;
-  },
-
   findPlaceOfTab: function(raComm) {
     for (var i = 0; i < raComm.length; i++) {
       if (raComm[i] == "\\") {
@@ -166,6 +150,13 @@ var TerminalEmulator = React.createClass({
     }
     return -1;
   }, 
+
+  cleanQuery: function(query) {
+    while (query.indexOf(">") != -1) {
+      query = query.replace('>', '');
+    }
+    return query;
+  },
 
   handleStrangeKeys: function(e) {
     if (e.keyCode == BACKSPACE) {
@@ -214,10 +205,29 @@ var TerminalEmulator = React.createClass({
         var newHistory = this.state.history.concat(this.state.currentInput);
         var newHistoryIndex = newHistory.length - 1;
         if (this.state.currentInput[this.state.currentInput.length - 1] != ";") {
-          this.setState({currentInput: this.state.currentInput + "\n" + this.state.multiLineCount + "> ", history: newHistory, historyIndex: newHistoryIndex, multiLineCount: this.state.multiLineCount + 1});            
+          this.setState({currentInput: this.state.currentInput + "\n" + "> ", history: newHistory, historyIndex: newHistoryIndex});            
         } else {
-          var newCommands = this.state.commands.concat([{query: this.state.currentInput, result: "sample result"}]);
-          this.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex});  
+          var xhttp = new XMLHttpRequest();
+          var newCommands = this.state.commands;
+          var currentInputTemp = this.state.currentInput;
+          var temp = "";
+          var that = this;
+          xhttp.onreadystatechange = function() {
+            if (xhttp.readyState == 4) {
+              console.log(xhttp.responseText);
+              temp = xhttp.responseText;
+              newCommands = newCommands.concat([{query: currentInputTemp, result: xhttp.responseText}]);
+            }
+            that.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex});
+
+          }
+          console.log(temp);
+          var queryCleaned = this.cleanQuery(this.state.currentInput);
+          console.log(queryCleaned);
+          xhttp.open("GET", "/query/"+encodeURIComponent(queryCleaned), true);
+          console.log(encodeURIComponent(this.state.currentInput));
+          xhttp.send();
+          this.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex});
         }        
       }
     } else if (e.keyCode == TAB) {
@@ -239,10 +249,7 @@ var TerminalEmulator = React.createClass({
         }
         if (this.state.historyIndex < 0) {
           this.setState({historyIndex: 0});
-        }
-
-        console.log(this.state.historyIndex); 
-        
+        }       
     } else if (e.keyCode == DOWN) {
         e.preventDefault();
         if (this.state.historyDirection == 1) {
@@ -257,9 +264,7 @@ var TerminalEmulator = React.createClass({
         if (this.state.historyIndex > this.state.history.length - 1) {
           this.setState({historyIndex: this.state.history.length - 1});
         }
-
-        this.setState({currentInput: this.state.history[this.state.historyIndex], historyDirection: -1}); 
-        console.log(this.state.historyIndex);   
+        this.setState({currentInput: this.state.history[this.state.historyIndex], historyDirection: -1});  
     }
 
     scrollDown();
