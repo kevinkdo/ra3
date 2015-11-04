@@ -155,6 +155,14 @@ var TerminalEmulator = React.createClass({
     while (query.indexOf(">") != -1) {
       query = query.replace('>', '');
     }
+
+    for (var key in Object.keys(this.state.subqueryList)) {
+      while (query.indexOf(key) != -1) {
+        query = query.replace(key, this.state.subqueryList[key]);
+        query = this.cleanQuery(query);
+      }
+    }
+
     return query;
   },
 
@@ -222,9 +230,9 @@ var TerminalEmulator = React.createClass({
 
           }
           console.log(temp);
-          var queryCleaned = this.cleanQuery(this.state.currentInput);
-          console.log(queryCleaned);
-          xhttp.open("GET", "/query/"+encodeURIComponent(queryCleaned), true);
+          var queryCleanedWithSubqueries = this.cleanQuery(this.state.currentInput);
+          console.log(queryCleanedWithSubqueries);
+          xhttp.open("GET", "/query/"+encodeURIComponent(queryCleanedWithSubqueries), true);
           console.log(encodeURIComponent(this.state.currentInput));
           xhttp.send();
           this.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex});
