@@ -159,7 +159,7 @@ var TerminalEmulator = React.createClass({
     for (var key in Object.keys(this.state.subqueryList)) {
       while (query.indexOf(key) != -1) {
         query = query.replace(key, this.state.subqueryList[key]);
-        query = this.cleanQuery(query);
+        //does not allow for subqueries to be defined in terms of other subqueries
       }
     }
 
