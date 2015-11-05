@@ -3,7 +3,9 @@ Jennie Ju (jsj18)
 Michael Han (mh291)
 Kevin Do (kkd10)
 
-Jordan and Jennie have both been working on the backend. They have designed the general architecture for the backend. Jordan has been working on updating the parser and he has been thinking about the SQL code generation. Jennie has been looking into getting a basic REST API up and running.
+Jordan and Jennie have both been working on the backend. 
+For milesstone 1, they have designed the general architecture for the backend. Jordan has been working on updating the parser and he has been thinking about the SQL code generation. Jennie has been looking into getting a basic REST API up and running.
+For milestone 2, Jordan completed the most of the parsing/SQL code generation and is able to run queries from homework #1 on this new RA. He is working on better error messages and deployment of the server.
 
 For milestone 1, Michael and Kevin have both been working on the frontend. Michael implemented autocorrect and text coloring. For milestone 2, Michael implemented scrolling access to previous commands, help commands, subquery handling, and multiline queries for the terminal. 
 Kevin has been working on the right pane, using D3.js to implement the tree generation code. For milestone 2, Kevin completed a functional prototype of the drag and drop AST generation GUI.
