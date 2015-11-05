@@ -162,8 +162,18 @@ var TerminalEmulator = React.createClass({
         //does not allow for subqueries to be defined in terms of other subqueries
       }
     }
-
     return query;
+  },
+
+  verifyNoSubqueryCycle: function(query) {
+    var keyList = Object.keys(this.state.subqueryList);
+    for (var i = 0; i < keyList.length; i++) {
+      console.log(keyList[i]);
+      if (query.indexOf(keyList[i]) != -1) {
+        return false;
+      }
+    }
+    return true;
   },
 
   handleStrangeKeys: function(e) {
@@ -200,15 +210,18 @@ var TerminalEmulator = React.createClass({
         }
         var subqueryName = this.state.currentInput.substring(firstSpaceIndex + 1, secondSpaceIndex);
         var subqueryDefinition = this.state.currentInput.substring(secondSpaceIndex + 1);
-        var tempSubqueryList = this.state.subqueryList;
-        tempSubqueryList[subqueryName] = subqueryDefinition;
         var newHistory = this.state.history.concat(this.state.currentInput);
         var newHistoryIndex = newHistory.length - 1;
-        console.log(this.state.subqueryList[subqueryName]);
-
-        var newCommands = this.state.commands.concat([{query: this.state.currentInput, result: "subquery succesfully stored"}]);
-        this.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex, subqueryList: tempSubqueryList});  
-        //need to implement sending back expanded version
+        if (this.verifyNoSubqueryCycle(subqueryDefinition)) {
+          var tempSubqueryList = this.state.subqueryList;
+          tempSubqueryList[subqueryName] = subqueryDefinition;          
+          console.log(this.state.subqueryList[subqueryName]);
+          var newCommands = this.state.commands.concat([{query: this.state.currentInput, result: "subquery succesfully stored"}]);
+          this.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex, subqueryList: tempSubqueryList});       
+        } else {
+          var newCommands = this.state.commands.concat([{query: this.state.currentInput, result: "cannot define subquery using other subqueries"}]);  
+          this.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex});       
+        }
       } else {
         var newHistory = this.state.history.concat(this.state.currentInput);
         var newHistoryIndex = newHistory.length - 1;
