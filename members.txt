@@ -5,4 +5,4 @@ Kevin Do (kkd10)
 
 Jordan and Jennie have both been working on the backend. They have designed the general architecture for the backend. Jordan has been working on updating the parser and he has been thinking about the SQL code generation. Jennie has been looking into getting a basic REST API up and running.
 
-Michael and Kevin have both been working on the frontend. Michael implemented scrolling access to previous commands, help commands, subquery handling, and multiline queries for the terminal. Kevin has been working on the right pane, using D3.js to implement the tree generation code.
+For milestone 1, Michael and Kevin have both been working on the frontend. Michael implemented scrolling access to previous commands, help commands, subquery handling, and multiline queries for the terminal. Kevin has been working on the right pane, using D3.js to implement the tree generation code. For milestone 2, Kevin completed a functional prototype of the drag and drop AST generation GUI.
