@@ -25,9 +25,8 @@ We have cleared this project with Professor Jun Yang, with whom we discussed our
 # Current Progress
 On the front end, the terminal emulator is essentially complete, and can make calls to the primary backend API endpoint that executes RA queries. The GUI for drag and drop AST generation is also complete.
 
-On the back end, the RA parser has been implemented, and we are in the midst of creating detailed error messages for RA queries. The REST endpoint for executing RA queries has also been created so that we can pass JSON objects to the front end. Our application can currently be deployed on Heroku.
+On the back end, the RA parser has been implemented, and we are in the midst of creating detailed error messages for RA queries. The REST endpoint for executing RA queries has also been created so that we can pass JSON objects to the front end. Our application can currently be deployed on Heroku, and a build script has been created to allow users to run the application on a Vagrant VM.
 
 # Tasks to be Completed
 - Polish the UI to improve user experience
 - Add more REST endpoints to facilitate frontend features
-- Create a build script to allow others to run the application without an IDE
