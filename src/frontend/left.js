@@ -200,7 +200,7 @@ var TerminalEmulator = React.createClass({
         } else {
           var xhttp = new XMLHttpRequest();
           var newCommands = this.state.commands;
-          var currentInputTemp = this.state.currentInput;
+          var currentInputTemp = this.cleanQuery(this.state.currentInput);
           var temp = "";
           var that = this;
           xhttp.onreadystatechange = function() {
