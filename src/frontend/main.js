@@ -159,7 +159,6 @@ var TerminalEmulator = React.createClass({
     for (var key in Object.keys(this.state.subqueryList)) {
       while (query.indexOf(key) != -1) {
         query = query.replace(key, this.state.subqueryList[key]);
-        //does not allow for subqueries to be defined in terms of other subqueries
       }
     }
     return query;
@@ -174,6 +173,47 @@ var TerminalEmulator = React.createClass({
       }
     }
     return true;
+  },
+
+  createTable: function(json) {
+    //need to handle multi queries
+    if (json[0].isError == true) {
+      return "start: " + json[0].error.start + "\n"
+              + "end: " + json[0].error.end + "\n"
+              + "error: " + json[0].error.message;
+    } else {
+      var table = "";
+      var colList = json[0].columnNames;
+      console.log(colList);
+      var tupleList = [];
+      for (var i = 0; i < json[0].data.length; i++) {
+        tupleList.push(json[0].data[0]);
+      }
+      console.log(tupleList.beer);
+      var maxItemLen = [];
+      var data = [];//key: col name, value: list of items
+      for (var col in colList) {
+        data[col.value] = [];
+        for (var tuple in tupleList) {
+          if (data[col.value].length == 0) {
+            data[col.value] = [tuple.col];
+          } else {
+            data[col.value].push(tuple.col);
+          }
+        }
+      }
+
+      for (var col in colList) {
+        table += "   " + col + "   |\n"; 
+      }
+      table += "---------------------\n";
+      for (var col in colList) {
+        for(var item in data[col]) {
+          table += item.value + "    |\n";
+        }
+      }
+      return table;
+    }
   },
 
   handleStrangeKeys: function(e) {
@@ -236,7 +276,9 @@ var TerminalEmulator = React.createClass({
           xhttp.onreadystatechange = function() {
             if (xhttp.readyState == 4) {
               console.log(xhttp.responseText);
-              temp = xhttp.responseText;
+              //var json = JSON.parse(xhttp.responseText);
+              //var table = that.createTable(json);
+              //newCommands = newCommands.concat([{query: currentInputTemp, result: table}]);
               newCommands = newCommands.concat([{query: currentInputTemp, result: xhttp.responseText}]);
             }
             that.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex});
@@ -245,7 +287,8 @@ var TerminalEmulator = React.createClass({
           console.log(temp);
           var queryCleanedWithSubqueries = this.cleanQuery(this.state.currentInput);
           console.log(queryCleanedWithSubqueries);
-          xhttp.open("GET", "/query/"+encodeURIComponent(queryCleanedWithSubqueries), true);
+          
+          xhttp.open("GET", "https://ra-beers-example.herokuapp.com/query/"+encodeURIComponent(queryCleanedWithSubqueries), true);
           console.log(encodeURIComponent(this.state.currentInput));
           xhttp.send();
           this.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex});
