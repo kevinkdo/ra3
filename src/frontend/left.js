@@ -279,7 +279,6 @@ var TerminalEmulator = React.createClass({
   },
 
   render: function() {
-
     var renderedLines = [];
     var color = this.state.color;
     this.state.commands.forEach(function(x) {
@@ -301,54 +300,39 @@ var CurrentInput = React.createClass({
 // ----- QueryResultPair -----
 var QueryResultPair = React.createClass({
   render: function() {
-    return <span><span className="raprompt" style={{color: this.props.color}}>ra&gt; </span>{this.props.query}{"\n"}{this.props.result}{"\n"}</span>;
-    
-    //For testing
-    //return <span><span className="raprompt" style={{color: this.props.color}}>ra&gt; </span>{this.props.query}{"\n"}<ResultTable />{"\n"}</span>;
+    var fallback = <span><span className="raprompt" style={{color: this.props.color}}>ra&gt; </span>{this.props.query}{"\n"}{this.props.result}{"\n"}</span>;
+
+    if (this.props.result.length == 0) {
+      return fallback;
+    }
+    var parsed = JSON.parse(this.props.result)[0];
+    if (!parsed) {
+      return fallback;
+    }
+
+    if (parsed.isError) {
+      console.log(parsed);
+      return <span><span className="raprompt" style={{color: this.props.color}}>ra&gt; </span>{this.props.query}{"\n"}{parsed.error.message}{"\n"}{"at location " + parsed.error.start + " to " + parsed.error.end + "\n"}</span>;
+    }
+    else if (!parsed.data) {
+      return fallback;
+    } else {
+      return <span><span className="raprompt" style={{color: this.props.color}}>ra&gt; </span>{this.props.query}{"\n"}<ResultTable parsed={parsed}/></span>;
+    }
   }
 });
 
 // ----- ResultTable -----
 var ResultTable = React.createClass({
-  getInitialState: function() {
-    return {
-      data: [
-        {
-          name:"jennie",
-          age: "35",
-          bar: "james joyce pub"
-        },
-        {
-          name: "jordan",
-          age: "323",
-          bar: "james joyce pub"
-        },
-        {
-          name: "kevin",
-          age: "28",
-          bar: "james joyce pub"
-        },
-        {
-          name: "michael",
-          age: "96",
-          bar: "james joyce pub"
-        },
-      ]
-    };
-  },
-
   render: function() {
     var colNames = [];
-    //TODO Ask for list of header names from backend
-    for (var col in this.state.data[0]) {
-      if (this.state.data[0].hasOwnProperty(col)) {
+    this.props.parsed.columnNames.forEach(function(col) {
         colNames.push(col);
-      }
-    }
+    });
 
     var renderColName = function(x) {return <td>{x}</td>};
     var renderedRows = [<tr>{colNames.map(renderColName)}</tr>];
-    this.state.data.forEach(function(x) {
+    this.props.parsed.data.forEach(function(x) {
       var renderColVal = function(colName) {
         return <td>{x[colName]}</td>;
       };
