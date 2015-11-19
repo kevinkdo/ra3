@@ -89,12 +89,24 @@ var TerminalEmulator = React.createClass({
     while (query.indexOf(">") != -1) {
       query = query.replace('>', '');
     }
+    
+    return query;
+  },
 
-    for (var key in Object.keys(this.state.subqueryList)) {
-      while (query.indexOf(key) != -1) {
-        query = query.replace(key, this.state.subqueryList[key]);
+  expandSubquery: function(query) {
+    var keys = [];
+    for (var key in this.state.subqueryList) {
+      if (this.state.subqueryList.hasOwnProperty(key)) {
+        keys.push(key);
       }
     }
+
+    for (var i = 0; i < keys.length; i++) {
+      while (query.indexOf(" " + keys[i]) != -1) {
+        query = query.replace(keys[i], this.state.subqueryList[keys[i]]);
+      }
+    }
+    console.log("expanded subquery: " + query);
     return query;
   },
 
@@ -106,45 +118,6 @@ var TerminalEmulator = React.createClass({
       }
     }
     return true;
-  },
-
-  createTable: function(json) {
-    //need to handle multi queries
-    if (json[0].isError == true) {
-      return "start: " + json[0].error.start + "\n"
-              + "end: " + json[0].error.end + "\n"
-              + "error: " + json[0].error.message;
-    } else {
-      var table = "";
-      var colList = json[0].columnNames;
-      var tupleList = [];
-      for (var i = 0; i < json[0].data.length; i++) {
-        tupleList.push(json[0].data[0]);
-      }
-      var maxItemLen = [];
-      var data = [];//key: col name, value: list of items
-      for (var col in colList) {
-        data[col.value] = [];
-        for (var tuple in tupleList) {
-          if (data[col.value].length == 0) {
-            data[col.value] = [tuple.col];
-          } else {
-            data[col.value].push(tuple.col);
-          }
-        }
-      }
-
-      for (var col in colList) {
-        table += "   " + col + "   |\n"; 
-      }
-      table += "---------------------\n";
-      for (var col in colList) {
-        for(var item in data[col]) {
-          table += item.value + "    |\n";
-        }
-      }
-      return table;
-    }
   },
 
   handleStrangeKeys: function(e) {
@@ -171,6 +144,7 @@ var TerminalEmulator = React.createClass({
       } else if (this.colourNameToHex(this.state.currentInput)) {
         this.setState({currentInput: "", color: this.colourNameToHex(this.state.currentInput)});
       } else if (this.state.currentInput.substring(0,8) == "subquery") {
+
         var firstSpaceIndex = 8;
         var secondSpaceIndex = -1;
         for (var i = firstSpaceIndex + 1; i < this.state.currentInput.length; i++) {
@@ -181,17 +155,22 @@ var TerminalEmulator = React.createClass({
         }
         var subqueryName = this.state.currentInput.substring(firstSpaceIndex + 1, secondSpaceIndex);
         var subqueryDefinition = this.state.currentInput.substring(secondSpaceIndex + 1);
+        if (subqueryDefinition[subqueryDefinition.length-1] == ';') {
+          subqueryDefinition = subqueryDefinition.substring(0, subqueryDefinition.length - 1);
+        }
+        subqueryDefinition = "(" + subqueryDefinition + ")";
         var newHistory = this.state.history.concat(this.state.currentInput);
         var newHistoryIndex = newHistory.length - 1;
         if (this.verifyNoSubqueryCycle(subqueryDefinition)) {
           var tempSubqueryList = this.state.subqueryList;
           tempSubqueryList[subqueryName] = subqueryDefinition;
-          var newCommands = this.state.commands.concat([{query: this.state.currentInput, result: "subquery succesfully stored"}]);
-          this.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex, subqueryList: tempSubqueryList});       
+          var newCommands = this.state.commands.concat([{query: this.state.currentInput, result: subquerySuccess}]);
+          this.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex, subqueryList: tempSubqueryList});     
         } else {
-          var newCommands = this.state.commands.concat([{query: this.state.currentInput, result: "cannot define subquery using other subqueries"}]);  
+          var newCommands = this.state.commands.concat([{query: this.state.currentInput, result: subqueryFailure}]);  
           this.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex});       
         }
+
       } else {
         var newHistory = this.state.history.concat(this.state.currentInput);
         var newHistoryIndex = newHistory.length - 1;
@@ -201,20 +180,18 @@ var TerminalEmulator = React.createClass({
           var xhttp = new XMLHttpRequest();
           var newCommands = this.state.commands;
           var currentInputTemp = this.cleanQuery(this.state.currentInput);
+          console.log("cleaned of arrows: " + currentInputTemp);
           var temp = "";
           var that = this;
           xhttp.onreadystatechange = function() {
             if (xhttp.readyState == 4) {
-              //var json = JSON.parse(xhttp.responseText);
-              //var table = that.createTable(json);
-              //newCommands = newCommands.concat([{query: currentInputTemp, result: table}]);
               newCommands = newCommands.concat([{query: currentInputTemp, result: xhttp.responseText}]);
             }
             that.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex});
 
           }
-          var queryCleanedWithSubqueries = this.cleanQuery(this.state.currentInput);
-          
+          var queryCleanedWithSubqueries = this.expandSubquery(this.state.currentInput);
+          console.log("sending back: " + queryCleanedWithSubqueries);
           xhttp.open("GET", "https://ra-beers-example.herokuapp.com/query/"+encodeURIComponent(queryCleanedWithSubqueries), true);
           xhttp.send();
           this.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex});
@@ -260,7 +237,6 @@ var TerminalEmulator = React.createClass({
     scrollDown();
   },
   
-
   //Annoyingly, onkeypress mostly only works with printable keys (i.e. not backspace)
   handlePrintableKeys: function(e) {
     if (e.keyCode < 32 || e.keyCode > 126) {
@@ -302,9 +278,10 @@ var QueryResultPair = React.createClass({
   render: function() {
     var fallback = <span><span className="raprompt" style={{color: this.props.color}}>ra&gt; </span>{this.props.query}{"\n"}{this.props.result}{"\n"}</span>;
 
-    if (this.props.result.length == 0) {
+    if (this.props.result.length == 0 || this.props.result == subquerySuccess || this.props.result == subqueryFailure) {
       return fallback;
     }
+    
     var parsed = JSON.parse(this.props.result)[0];
     if (!parsed) {
       return fallback;

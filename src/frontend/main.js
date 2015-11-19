@@ -17,6 +17,8 @@ var longHelpMessage = "Relational Algebra Expressions: \n"
                        +"EXP_1 \\diff EXP_2: difference between two expressions \n"
                        +"EXP_1 \\intersect EXP_2: intersection between two expressions \n"
                        +"\\rename_{NEW_ATTR_NAME_LIST} EXP: rename all attributes of an expression"; 
+var subquerySuccess = "subquery succesfully stored";
+var subqueryFailure = "cannot define subquery using other subqueries";
 
 var nodeId = 100;
 
