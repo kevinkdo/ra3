@@ -86,8 +86,8 @@ var TerminalEmulator = React.createClass({
   }, 
 
   cleanQuery: function(query) {
-    while (query.indexOf(">") != -1) {
-      query = query.replace('>', '');
+    while (query.indexOf("\n>") != -1) {
+      query = query.replace('\n>', '');
     }
     
     return query;
@@ -190,7 +190,7 @@ var TerminalEmulator = React.createClass({
             that.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex});
 
           }
-          var queryCleanedWithSubqueries = this.expandSubquery(this.state.currentInput);
+          var queryCleanedWithSubqueries = this.expandSubquery(this.cleanQuery(this.state.currentInput));
           console.log("sending back: " + queryCleanedWithSubqueries);
           xhttp.open("GET", "https://ra-beers-example.herokuapp.com/query/"+encodeURIComponent(queryCleanedWithSubqueries), true);
           xhttp.send();
@@ -281,21 +281,40 @@ var QueryResultPair = React.createClass({
     if (this.props.result.length == 0 || this.props.result == subquerySuccess || this.props.result == subqueryFailure) {
       return fallback;
     }
-    
-    var parsed = JSON.parse(this.props.result)[0];
-    if (!parsed) {
-      return fallback;
-    }
 
-    if (parsed.isError) {
-      console.log(parsed);
-      return <span><span className="raprompt" style={{color: this.props.color}}>ra&gt; </span>{this.props.query}{"\n"}{parsed.error.message}{"\n"}{"at location " + parsed.error.start + " to " + parsed.error.end + "\n"}</span>;
+    var parsedList = JSON.parse(this.props.result);
+    var tables = [];
+    var first = true; 
+    for (var i = 0; i < parsedList.length; i++) {
+      var parsed = parsedList[i];
+      if (!parsed) {
+        tables.push(fallback);
+      }
+      if (first) {
+        if (parsed.isError) {
+          console.log(parsed);
+          tables.push(<span><span className="raprompt" style={{color: this.props.color}}>ra&gt; </span>{this.props.query}{"\n"}{parsed.error.message}{"\n"}{"at location " + parsed.error.start + " to " + parsed.error.end + "\n"}</span>);
+        }
+        else if (!parsed.data) {
+          tables.push(fallback);
+        } else {
+          tables.push(<span><span className="raprompt" style={{color: this.props.color}}>ra&gt; </span>{this.props.query}{"\n"}<ResultTable parsed={parsed}/></span>);
+        }
+        first = false;
+      } else {
+        if (parsed.isError) {
+          console.log(parsed);
+          tables.push(<span>{parsed.error.message}{"\n"}{"at location " + parsed.error.start + " to " + parsed.error.end + "\n"}</span>);
+        }
+        else if (!parsed.data) {
+          tables.push(fallback);
+        } else {
+          tables.push(<span><ResultTable parsed={parsed}/></span>);
+        }
+      }
+      tables.push(<span>{"\n"}</span>);
     }
-    else if (!parsed.data) {
-      return fallback;
-    } else {
-      return <span><span className="raprompt" style={{color: this.props.color}}>ra&gt; </span>{this.props.query}{"\n"}<ResultTable parsed={parsed}/></span>;
-    }
+    return <div>{tables}</div>
   }
 });
 
