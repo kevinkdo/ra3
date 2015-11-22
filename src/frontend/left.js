@@ -77,7 +77,7 @@ var TerminalEmulator = React.createClass({
   },
 
   findPlaceOfTab: function(raComm) {
-    for (var i = 0; i < raComm.length; i++) {
+    for (var i = raComm.length - 1; i >= 0; i--) {
       if (raComm[i] == "\\") {
         return i;
       }
@@ -201,7 +201,7 @@ var TerminalEmulator = React.createClass({
         e.preventDefault();
         var tabIndex = this.findPlaceOfTab(this.state.currentInput);
         var toBeCompleted = this.state.currentInput.substring(tabIndex);
-        var raCommand = this.autocorrect(toBeCompleted);
+        var raCommand = this.autocorrect(toBeCompleted); 
         this.setState({currentInput: this.state.currentInput.substring(0, tabIndex) + "\\" + raCommand});
     } else if (e.keyCode == UP) {
         e.preventDefault();
