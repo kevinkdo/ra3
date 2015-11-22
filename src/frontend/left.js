@@ -200,9 +200,14 @@ var TerminalEmulator = React.createClass({
     } else if (e.keyCode == TAB) {
         e.preventDefault();
         var tabIndex = this.findPlaceOfTab(this.state.currentInput);
-        var toBeCompleted = this.state.currentInput.substring(tabIndex);
-        var raCommand = this.autocorrect(toBeCompleted); 
-        this.setState({currentInput: this.state.currentInput.substring(0, tabIndex) + "\\" + raCommand});
+        if (tabIndex == -1) {
+          this.setState({currentInput: this.state.currentInput});  
+        } else {
+          var toBeCompleted = this.state.currentInput.substring(tabIndex);
+          var raCommand = this.autocorrect(toBeCompleted); 
+          this.setState({currentInput: this.state.currentInput.substring(0, tabIndex) + "\\" + raCommand});  
+        }
+        
     } else if (e.keyCode == UP) {
         e.preventDefault();
         if (this.state.historyDirection == -1) {
