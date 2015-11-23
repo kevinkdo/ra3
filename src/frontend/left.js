@@ -20,7 +20,6 @@ var TerminalEmulator = React.createClass({
   { 
     partialCommand = partialCommand.toLowerCase();
     if (partialCommand.charAt(0) != '\\') {
-      //return -1;
       partialCommand = partialCommand.substring(1);
     }
     
@@ -56,7 +55,6 @@ var TerminalEmulator = React.createClass({
       }
     }
     return currClosestCommand;
-
   },
 
   autocomplete: function(s) {
@@ -75,7 +73,6 @@ var TerminalEmulator = React.createClass({
     if (matchIndex == -1) {
       return s;
     }
-
     return raCommands[matchIndex];
   },
 
@@ -116,7 +113,6 @@ var TerminalEmulator = React.createClass({
     while (query.indexOf("\n>") != -1) {
       query = query.replace('\n>', '');
     }
-    
     return query;
   },
 
@@ -195,7 +191,6 @@ var TerminalEmulator = React.createClass({
           var newCommands = this.state.commands.concat([{query: this.state.currentInput, result: subqueryFailure}]);  
           this.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex});       
         }
-
       } else {
         var newHistory = this.state.history.concat(this.state.currentInput);
         var newHistoryIndex = newHistory.length - 1;
@@ -212,7 +207,6 @@ var TerminalEmulator = React.createClass({
               newCommands = newCommands.concat([{query: currentInputTemp, result: xhttp.responseText}]);
             }
             that.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex});
-
           }
           var queryCleanedWithSubqueries = this.expandSubquery(this.cleanQuery(this.state.currentInput));
           if (queryCleanedWithSubqueries.substring(0,2) == "\\d") {
@@ -223,8 +217,7 @@ var TerminalEmulator = React.createClass({
             xhttp.open("GET", "https://ra-beers-example.herokuapp.com/query/"+encodeURIComponent(queryCleanedWithSubqueries), true);
             xhttp.send();
             this.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex});
-          }
-          
+          }      
         }        
       }
     } else if (e.keyCode == TAB) {
@@ -240,8 +233,7 @@ var TerminalEmulator = React.createClass({
           var toBeCompleted = this.state.currentInput.substring(autocompleteIndex);
           var raCommand = this.autocomplete(toBeCompleted); 
           this.setState({currentInput: this.state.currentInput.substring(0, autocompleteIndex) + raCommand});  
-        }
-        
+        }    
     } else if (e.keyCode == UP) {
         e.preventDefault();
         if (this.state.historyDirection == -1) {
