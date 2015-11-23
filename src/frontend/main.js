@@ -9,15 +9,25 @@ var attributes = [];
 var shortHelpMessage = "Welcome to RA3\nThis works very similarly to Jun Yang's Relational Algebra Interpreter. \n" 
                         + "type help --verbose for a list of commands";
 var longHelpMessage = "Relational Algebra Expressions: \n"
-                       +"\\select_{COND} EXP: selection over an expression \n"
-                       +"\\project_{ATTR_LIST} EXP: projection of an expression \n"
-                       +"EXP_1 \\join EXP_2: natural join between two expressions \n"
-                       +"EXP_1 \\join_{COND} EXP_2: theta-join between two expressions \n"
-                       +"EXP_1 \\cross EXP_2: cross-product between two expressions \n"
-                       +"EXP_1 \\union EXP_2: union between two expressions \n"
-                       +"EXP_1 \\diff EXP_2: difference between two expressions \n"
-                       +"EXP_1 \\intersect EXP_2: intersection between two expressions \n"
-                       +"\\rename_{NEW_ATTR_NAME_LIST} EXP: rename all attributes of an expression"; 
+                       + "\\select_{COND} EXP: selection over an expression \n"
+                       + "\\project_{ATTR_LIST} EXP: projection of an expression \n"
+                       + "EXP_1 \\join EXP_2: natural join between two expressions \n"
+                       + "EXP_1 \\join_{COND} EXP_2: theta-join between two expressions \n"
+                       + "EXP_1 \\cross EXP_2: cross-product between two expressions \n"
+                       + "EXP_1 \\union EXP_2: union between two expressions \n"
+                       + "EXP_1 \\diff EXP_2: difference between two expressions \n"
+                       + "EXP_1 \\intersect EXP_2: intersection between two expressions \n"
+                       + "\\rename_{NEW_ATTR_NAME_LIST} EXP: rename all attributes of an expression \n"
+                       + "\\d: for a list of all relations \n"
+                       + "\\d [TABLENAME]: schema of the TABLENAME \n\n"
+                       + "subquery [SUBQUERYNAME] [SUBQUERYDEFINITION]: Defines a subquery named SUBQUERYNAME with definition SUBQUERYDEFINITION. "
+                       + "These subqueries are only one layer deep meaning you cannot reference another subquery in the subquery definition. \n\n"
+                       + "AUTOCORRECT \n"
+                       + "There is autocorrect implemented for the RA commands. Hit tab after starting command. Must start commands with a '\\'. \n"
+                       + "AUTOCOMPLETE \n"
+                       + "There is autocomplete implemented for the relation names and attributes. Hit tab after starting the relation name or attribute. "
+                       + "The beginning part of the desired word must be spelled correctly. If there are multiple words that begin with what you have typed "
+                       + "so far then nothing will happen. Hit tab to activate autocomplete."; 
 var subquerySuccess = "subquery succesfully stored";
 var subqueryFailure = "cannot define subquery using other subqueries";
 

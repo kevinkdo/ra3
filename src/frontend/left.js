@@ -177,7 +177,6 @@ var TerminalEmulator = React.createClass({
       } else if (this.colourNameToHex(this.state.currentInput)) {
         this.setState({currentInput: "", color: this.colourNameToHex(this.state.currentInput)});
       } else if (this.state.currentInput.substring(0,8) == "subquery") {
-
         var firstSpaceIndex = 8;
         var secondSpaceIndex = -1;
         for (var i = firstSpaceIndex + 1; i < this.state.currentInput.length; i++) {
@@ -337,7 +336,8 @@ var QueryResultPair = React.createClass({
   render: function() {
     var fallback = <span><span className="raprompt" style={{color: this.props.color}}>ra&gt; </span>{this.props.query}{"\n"}{this.props.result}{"\n"}</span>;
 
-    if (this.props.result.length == 0 || this.props.result == subquerySuccess || this.props.result == subqueryFailure) {
+    if (this.props.result.length == 0 || this.props.result == subquerySuccess || this.props.result == subqueryFailure
+     || this.props.result == shortHelpMessage || this.props.result == longHelpMessage) {
       return fallback;
     }
 
