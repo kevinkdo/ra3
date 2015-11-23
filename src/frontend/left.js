@@ -18,10 +18,12 @@ var TerminalEmulator = React.createClass({
 
   autocorrect: function(partialCommand)
   { 
+    partialCommand = partialCommand.toLowerCase();
     if (partialCommand.charAt(0) != '\\') {
-      return -1;
+      //return -1;
+      partialCommand = partialCommand.substring(1);
     }
-    partialCommand = partialCommand.substring(1);
+    
     var raCommandCharacterMap = {};
     for (var i = 0; i < raCommands.length; i++) {
       raCommandCharacterMap[raCommands[i]] = {};
@@ -57,6 +59,25 @@ var TerminalEmulator = React.createClass({
 
   },
 
+  autocomplete: function(s) {
+    var matchCount = 0;
+    var matchIndex = -1;
+    for (var i = 0; i < raCommands.length; i++) {      
+      if (s == raCommands[i].substring(0, s.length)) {
+        matchCount++;
+        matchIndex = i;
+      }
+      if (matchCount > 1) {
+        return s;
+      }
+    }
+    if (matchIndex == -1) {
+      return s;
+    }
+
+    return raCommands[matchIndex];
+  },
+
   //http://stackoverflow.com/questions/1573053/javascript-function-to-convert-color-names-to-hex-codes
   colourNameToHex: function(colour)
   {
@@ -76,7 +97,7 @@ var TerminalEmulator = React.createClass({
     return false;
   },
 
-  findPlaceOfTab: function(raComm) {
+  findPlaceOfSlash: function(raComm) {
     for (var i = raComm.length - 1; i >= 0; i--) {
       if (raComm[i] == "\\") {
         return i;
@@ -84,6 +105,18 @@ var TerminalEmulator = React.createClass({
     }
     return -1;
   }, 
+
+  findPlaceOfAutocomplete: function(s) {
+    for (var i = s.length - 1; i >= 0; i--) {
+      if (s[i] == " " || s[i] == "{") {
+        return i + 1;
+      }
+      if (s[i] == "\\") {
+        return -1; 
+      }
+    }
+    return 0;
+  },
 
   cleanQuery: function(query) {
     while (query.indexOf("\n>") != -1) {
@@ -199,13 +232,18 @@ var TerminalEmulator = React.createClass({
       }
     } else if (e.keyCode == TAB) {
         e.preventDefault();
-        var tabIndex = this.findPlaceOfTab(this.state.currentInput);
-        if (tabIndex == -1) {
-          this.setState({currentInput: this.state.currentInput});  
-        } else {
-          var toBeCompleted = this.state.currentInput.substring(tabIndex);
-          var raCommand = this.autocorrect(toBeCompleted); 
+
+        var autocompleteIndex = this.findPlaceOfAutocomplete(this.state.currentInput);
+        if (autocompleteIndex == -1) {
+          var tabIndex = this.findPlaceOfSlash(this.state.currentInput);                  
+          var toBeCorrected = this.state.currentInput.substring(tabIndex);
+          var raCommand = this.autocorrect(toBeCorrected); 
           this.setState({currentInput: this.state.currentInput.substring(0, tabIndex) + "\\" + raCommand});  
+        } else {
+          var toBeCompleted = this.state.currentInput.substring(autocompleteIndex);
+          var raCommand = this.autocomplete(toBeCompleted); 
+          //console.log("raCommand: " + raCommand);
+          this.setState({currentInput: this.state.currentInput.substring(0, autocompleteIndex) + raCommand});  
         }
         
     } else if (e.keyCode == UP) {
@@ -255,6 +293,19 @@ var TerminalEmulator = React.createClass({
   },
 
   componentDidMount: function() {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+      if (xhttp.readyState == 4) {
+        var attrList = JSON.parse(xhttp.responseText);
+        console.log(attrList);
+        for (var i = 0; i < attrList.length; i++) {
+          raCommands.push(attrList[i]);
+        }
+      }
+    }
+    xhttp.open("GET", "http://ra-beers-example.herokuapp.com/lookahead/");
+    xhttp.send();
+  
     document.onkeypress = this.handlePrintableKeys;
     window.onkeydown = this.handleStrangeKeys;
   },

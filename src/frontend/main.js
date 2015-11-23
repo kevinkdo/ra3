@@ -5,6 +5,7 @@ var TAB = 9;
 var UP = 38;
 var DOWN = 40;
 var raCommands = ["project_{", "join", "select_{", "cross", "union", "diff", "intersect", "rename_{"];
+var attributes = [];
 var shortHelpMessage = "Welcome to RA3\nThis works very similarly to Jun Yang's Relational Algebra Interpreter. \n" 
                         + "type help --verbose for a list of commands";
 var longHelpMessage = "Relational Algebra Expressions: \n"
