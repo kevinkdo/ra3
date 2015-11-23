@@ -60,6 +60,7 @@ var TerminalEmulator = React.createClass({
   },
 
   autocomplete: function(s) {
+    s = s.toLowerCase();
     var matchCount = 0;
     var matchIndex = -1;
     for (var i = 0; i < raCommands.length; i++) {      
@@ -139,7 +140,6 @@ var TerminalEmulator = React.createClass({
         query = query.replace(keys[i], this.state.subqueryList[keys[i]]);
       }
     }
-    console.log("expanded subquery: " + query);
     return query;
   },
 
@@ -213,7 +213,6 @@ var TerminalEmulator = React.createClass({
           var xhttp = new XMLHttpRequest();
           var newCommands = this.state.commands;
           var currentInputTemp = this.cleanQuery(this.state.currentInput);
-          console.log("cleaned of arrows: " + currentInputTemp);
           var temp = "";
           var that = this;
           xhttp.onreadystatechange = function() {
@@ -224,10 +223,16 @@ var TerminalEmulator = React.createClass({
 
           }
           var queryCleanedWithSubqueries = this.expandSubquery(this.cleanQuery(this.state.currentInput));
-          console.log("sending back: " + queryCleanedWithSubqueries);
-          xhttp.open("GET", "https://ra-beers-example.herokuapp.com/query/"+encodeURIComponent(queryCleanedWithSubqueries), true);
-          xhttp.send();
-          this.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex});
+          if (queryCleanedWithSubqueries.substring(0,2) == "\\d") {
+            xhttp.open("GET", "https://ra-beers-example.herokuapp.com/schema/"+encodeURIComponent(queryCleanedWithSubqueries), true);
+            xhttp.send();
+            this.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex});
+          } else {
+            xhttp.open("GET", "https://ra-beers-example.herokuapp.com/query/"+encodeURIComponent(queryCleanedWithSubqueries), true);
+            xhttp.send();
+            this.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex});
+          }
+          
         }        
       }
     } else if (e.keyCode == TAB) {
@@ -242,7 +247,6 @@ var TerminalEmulator = React.createClass({
         } else {
           var toBeCompleted = this.state.currentInput.substring(autocompleteIndex);
           var raCommand = this.autocomplete(toBeCompleted); 
-          //console.log("raCommand: " + raCommand);
           this.setState({currentInput: this.state.currentInput.substring(0, autocompleteIndex) + raCommand});  
         }
         
@@ -297,7 +301,6 @@ var TerminalEmulator = React.createClass({
     xhttp.onreadystatechange = function() {
       if (xhttp.readyState == 4) {
         var attrList = JSON.parse(xhttp.responseText);
-        console.log(attrList);
         for (var i = 0; i < attrList.length; i++) {
           raCommands.push(attrList[i]);
         }
@@ -354,7 +357,12 @@ var QueryResultPair = React.createClass({
         else if (!parsed.data) {
           tables.push(fallback);
         } else {
-          tables.push(<span><span className="raprompt" style={{color: this.props.color}}>ra&gt; </span>{this.props.query}{"\n"}<ResultTable parsed={parsed}/></span>);
+          if (parsed.title) {
+            tables.push(<span><span className="raprompt" style={{color: this.props.color}}>ra&gt; </span>{this.props.query}{"\n"}<span>{parsed.title}{"\n"}</span><ResultTable parsed={parsed}/></span>);
+          } else {
+            tables.push(<span><span className="raprompt" style={{color: this.props.color}}>ra&gt; </span>{this.props.query}{"\n"}<ResultTable parsed={parsed}/></span>);  
+          }
+          
         }
         first = false;
       } else {
@@ -365,7 +373,11 @@ var QueryResultPair = React.createClass({
         else if (!parsed.data) {
           tables.push(fallback);
         } else {
-          tables.push(<span><ResultTable parsed={parsed}/></span>);
+          if (parsed.title) {
+            tables.push(<span><span>{parsed.title}{"\n"}</span><ResultTable parsed={parsed}/></span>);
+          } else {
+            tables.push(<span><ResultTable parsed={parsed}/></span>);
+          }
         }
       }
       tables.push(<span>{"\n"}</span>);
