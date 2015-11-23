@@ -22,12 +22,20 @@ var longHelpMessage = "Relational Algebra Expressions: \n"
                        + "\\d [TABLENAME]: schema of the TABLENAME \n\n"
                        + "subquery [SUBQUERYNAME] [SUBQUERYDEFINITION]: Defines a subquery named SUBQUERYNAME with definition SUBQUERYDEFINITION. "
                        + "These subqueries are only one layer deep meaning you cannot reference another subquery in the subquery definition. \n\n"
+                       + "Additional Functionality: \n"
                        + "AUTOCORRECT \n"
                        + "There is autocorrect implemented for the RA commands. Hit tab after starting command. Must start commands with a '\\'. \n"
                        + "AUTOCOMPLETE \n"
                        + "There is autocomplete implemented for the relation names and attributes. Hit tab after starting the relation name or attribute. "
                        + "The beginning part of the desired word must be spelled correctly. If there are multiple words that begin with what you have typed "
-                       + "so far then nothing will happen. Hit tab to activate autocomplete."; 
+                       + "so far then nothing will happen. Hit tab to activate autocomplete.\n\n"
+                       + "CLEAR \n"
+                       + "By typing 'clear', you can clear the screen of text. \n\n"
+                       + "COLORS \n"
+                       + "By typing in a color from below list of colors, you can change the color of the prompt. \n"
+                       + "List of Colors: black, blue, gold, gray, green, orange, purple, red, white, yellow, ghost protocol \n"
+                       + "HISTORY \n"
+                       + "By using the up and down arrow keys, you can navigate the command history"; 
 var subquerySuccess = "subquery succesfully stored";
 var subqueryFailure = "cannot define subquery using other subqueries";
 
