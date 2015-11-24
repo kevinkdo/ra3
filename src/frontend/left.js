@@ -336,7 +336,6 @@ var QueryResultPair = React.createClass({
       }
       if (first) {
         if (parsed.isError) {
-          console.log(parsed);
           tables.push(<span><span className="raprompt" style={{color: this.props.color}}>ra&gt; </span>{this.props.query}{"\n"}{parsed.error.message}{"\n"}{"at location " + parsed.error.start + " to " + parsed.error.end + "\n"}</span>);
         }
         else if (!parsed.data) {
@@ -352,7 +351,6 @@ var QueryResultPair = React.createClass({
         first = false;
       } else {
         if (parsed.isError) {
-          console.log(parsed);
           tables.push(<span>{parsed.error.message}{"\n"}{"at location " + parsed.error.start + " to " + parsed.error.end + "\n"}</span>);
         }
         else if (!parsed.data) {
