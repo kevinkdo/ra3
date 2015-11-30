@@ -283,7 +283,7 @@ var TerminalEmulator = React.createClass({
   componentDidMount: function() {
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
-      if (xhttp.readyState == 4) {
+      if (xhttp.readyState == 4 && xhttp.status == 200) {
         var attrList = JSON.parse(xhttp.responseText);
         for (var i = 0; i < attrList.length; i++) {
           raCommands.push(attrList[i]);
