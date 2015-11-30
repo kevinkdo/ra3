@@ -4,6 +4,10 @@ var TerminalEmulator = React.createClass({
     this.setState({currentInput: string});
   },
 
+  getInput: function() {
+    return this.state.currentInput;
+  },
+
   getInitialState: function() {
     return {
       commands: getDefaultCommandData(),

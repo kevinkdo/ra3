@@ -77,6 +77,6 @@ var terminal = React.render(
 );
 
 React.render(
-  <RaTree setTerminalInput={terminal.setInput} />,
+  <RaTree setTerminalInput={terminal.setInput} getTerminalInput={terminal.getInput} />,
   document.getElementById('rightpane')
 );

@@ -322,6 +322,28 @@ var RaTree = React.createClass({
     this.setState({selecting: false});
   },
 
+  generateTree: function() {
+    /*var me = this;
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+      var error = false;
+      if (xhttp.readyState == 4 && xhttp.status == 200) {
+        var json = JSON.parse(xhttp.responseText);
+        if (json.isError) {
+          error = true;
+        } else {
+          me.setState({tree: json.tree});
+        }
+      } else {
+        error = true;
+      }
+
+      if (error) {alert("Couldn't generate tree. Sorry!");}
+    }
+    xhttp.open("GET", "https://ra-beers-example.herokuapp.com/ast/"+encodeURIComponent(this.props.getTerminalInput()), true);
+    xhttp.send();*/
+  },
+
   render: function() {
     var me = this;
     var width = document.getElementById('rightpane').clientWidth;
@@ -345,7 +367,8 @@ var RaTree = React.createClass({
 
     var button1 = <button type="button" className="btn btn-default" type="button" onClick={function() {me.props.setTerminalInput(me.serialize(me.state.tree))}}>Generate query</button>;
     var button2 = <button type="button" className="btn btn-default" type="button" onClick={function() {me.setState({selecting: true});}}>Generate subquery</button>;
-    var toolbar = [button1, button2];
+    var button3 = <button type="button" className="btn btn-default" type="button" onClick={this.generateTree}>Generate tree</button>;
+    var toolbar = [button1, button2, button3];
 
     var helpText = <div className="helpText">{me.getHelpText()}</div>;
 
