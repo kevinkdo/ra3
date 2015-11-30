@@ -203,7 +203,7 @@ var TerminalEmulator = React.createClass({
           var temp = "";
           var that = this;
           xhttp.onreadystatechange = function() {
-            if (xhttp.readyState == 4) {
+            if (xhttp.readyState == 4 && xhttp.status == 200) {
               newCommands = newCommands.concat([{query: currentInputTemp, result: xhttp.responseText}]);
             }
             that.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex});
