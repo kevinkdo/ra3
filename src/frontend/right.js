@@ -349,26 +349,54 @@ var RaTree = React.createClass({
     this.setState({selecting: false});
   },
 
+  postProcess: function(tree) {
+    var mapping = {
+      "\\select": "\u03c3",
+      "\\project": "\u03C0",
+      "\\cross": "\u00d7",
+      "\\join": "\u22c8",
+      "\\union": "\u222a",
+      "\\diff": "\u2212",
+      "\\intersect": "\u2229",
+      "\\rename": "\u03c1"
+    };
+
+    var traverse = function(node) {
+      node.id = nodeId++;
+      if (mapping[node.name] != undefined) {
+        node.name = mapping[node.name];
+      }
+      if (node.children) {
+        node.children.forEach(traverse);
+      }
+    };
+
+    traverse(tree);
+    return tree;
+  },
+
   generateTree: function() {
-    /*var me = this;
+    var me = this;
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
       var error = false;
-      if (xhttp.readyState == 4 && xhttp.status == 200) {
-        var json = JSON.parse(xhttp.responseText);
-        if (json.isError) {
-          error = true;
+      if (xhttp.readyState == 4) {
+        if (xhttp.status == 200) {
+          var json = JSON.parse(xhttp.responseText);
+          if (json[0].isError) {
+            error = true;
+          } else {
+            me.setState({tree: me.postProcess(json[0].tree)});
+          }
         } else {
-          me.setState({tree: json.tree});
+          error = true;
         }
-      } else {
-        error = true;
-      }
 
-      if (error) {alert("Couldn't generate tree. Sorry!");}
+        if (error) {alert(json[0].error.message);}
+      }
     }
     xhttp.open("GET", DOMAIN + "ast/"+encodeURIComponent(this.props.getTerminalInput()), true);
-    xhttp.send();*/
+    xhttp.send();
   },
 
   render: function() {
