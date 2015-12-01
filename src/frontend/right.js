@@ -378,6 +378,8 @@ var RaTree = React.createClass({
   generateTree: function() {
     var me = this;
     var xhttp = new XMLHttpRequest();
+    var text = this.props.getTerminalInput();
+    if (text.length == 0) return;
     xhttp.onreadystatechange = function() {
       var error = false;
       if (xhttp.readyState == 4) {
@@ -395,7 +397,7 @@ var RaTree = React.createClass({
         if (error) {alert(json[0].error.message);}
       }
     }
-    xhttp.open("GET", DOMAIN + "ast/"+encodeURIComponent(this.props.getTerminalInput()), true);
+    xhttp.open("GET", DOMAIN + "ast/"+encodeURIComponent(text), true);
     xhttp.send();
   },
 
