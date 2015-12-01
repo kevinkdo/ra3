@@ -86,8 +86,9 @@ var TerminalEmulator = React.createClass({
     var colours = {"black":"#000000", "blue":"#0000ff", "gold":"#ffd700","gray":"#808080","green":"#008000", "orange":"#ffa500", 
     "purple":"#800080", "red":"#ff0000", "white":"#ffffff", "yellow":"#ffff00","ghost protocol": "#000000"};
 
-    if (typeof colours[colour.toLowerCase()] != 'undefined')
-        return colours[colour.toLowerCase()];
+    if (typeof colours[colour.toLowerCase()] != 'undefined') {
+      return colours[colour.toLowerCase()];
+    }
 
     return false;
   },
@@ -146,87 +147,92 @@ var TerminalEmulator = React.createClass({
     return true;
   },
 
+  handleEnter: function(e) {
+    if (this.state.currentInput.length == 0) {
+      var newCommands = this.state.commands.concat([{query: "", result: ""}]);
+      this.setState({commands: newCommands, currentInput: ""});
+    } else if (this.state.currentInput == "clear") {
+      this.setState({commands: [], currentInput: ""});
+    } else if (this.state.currentInput == "help") {
+      var newCommands = this.state.commands.concat([{query: this.state.currentInput, result: shortHelpMessage}]);
+      this.setState({commands: newCommands, currentInput: ""});
+    } else if (this.state.currentInput == "help --verbose") {
+      var newCommands = this.state.commands.concat([{query: this.state.currentInput, result: longHelpMessage}]);
+      this.setState({commands: newCommands, currentInput: ""});
+    } else if (this.colourNameToHex(this.state.currentInput)) {
+      this.setState({currentInput: "", color: this.colourNameToHex(this.state.currentInput)});
+    } else if (this.state.currentInput.substring(0,8) == "subquery") {
+      var firstSpaceIndex = 8;
+      var secondSpaceIndex = -1;
+      for (var i = firstSpaceIndex + 1; i < this.state.currentInput.length; i++) {
+        if (this.state.currentInput.charAt(i) == " ") {
+          secondSpaceIndex = i;
+          break;
+        }
+      }
+      var subqueryName = this.state.currentInput.substring(firstSpaceIndex + 1, secondSpaceIndex);
+      var subqueryDefinition = this.state.currentInput.substring(secondSpaceIndex + 1);
+      if (subqueryDefinition[subqueryDefinition.length-1] == ';') {
+        subqueryDefinition = subqueryDefinition.substring(0, subqueryDefinition.length - 1);
+      }
+      subqueryDefinition = "(" + subqueryDefinition + ")";
+      var newHistory = this.state.history.concat(this.state.currentInput);
+      var newHistoryIndex = newHistory.length - 1;
+      if (this.verifyNoSubqueryCycle(subqueryDefinition)) {
+        var tempSubqueryList = this.state.subqueryList;
+        tempSubqueryList[subqueryName] = subqueryDefinition;
+        var newCommands = this.state.commands.concat([{query: this.state.currentInput, result: subquerySuccess}]);
+        this.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex, subqueryList: tempSubqueryList});     
+      } else {
+        var newCommands = this.state.commands.concat([{query: this.state.currentInput, result: subqueryFailure}]);  
+        this.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex});       
+      }
+    } else {
+      var newHistory = this.state.history.concat(this.state.currentInput);
+      var newHistoryIndex = newHistory.length - 1;
+      if (this.state.currentInput[this.state.currentInput.length - 1] != ";") {
+        this.setState({currentInput: this.state.currentInput + "\n" + "> ", history: newHistory, historyIndex: newHistoryIndex});            
+      } else {
+        var xhttp = new XMLHttpRequest();
+        var newCommands = this.state.commands;
+        var currentInputTemp = this.cleanQuery(this.state.currentInput);
+        var temp = "";
+        var me = this;
+        xhttp.onreadystatechange = function() {
+          if (xhttp.readyState == 4) {
+            if (xhttp.status == 200) {
+              newCommands = newCommands.concat([{query: currentInputTemp, result: xhttp.responseText}]);
+              me.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex});
+            } else {
+              alert("Having network issues. Sorry!");
+            }
+          }
+        }
+        var queryCleanedWithSubqueries = this.expandSubquery(this.cleanQuery(this.state.currentInput));
+        if (queryCleanedWithSubqueries.substring(0,2) == "\\d") {
+          xhttp.open("GET", DOMAIN + "schema/"+encodeURIComponent(queryCleanedWithSubqueries), true);
+          xhttp.send();
+          this.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex});
+        } else {
+          xhttp.open("GET", DOMAIN + "query/"+encodeURIComponent(queryCleanedWithSubqueries), true);
+          xhttp.send();
+          this.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex});
+        }      
+      }        
+    }
+  },
+
   handleStrangeKeys: function(e) {
     if (e.keyCode == BACKSPACE) {
-      //Prevent browser from going back
       e.preventDefault();
-
       if (this.state.currentInput.length > 0) {
         newCurrentInput = this.state.currentInput.slice(0, -1);
         this.setState({currentInput: newCurrentInput});
       }
     } else if (e.keyCode == ENTER) {
-      if (this.state.currentInput.length == 0) {
-        var newCommands = this.state.commands.concat([{query: "", result: ""}]);
-        this.setState({commands: newCommands, currentInput: ""});
-      } else if (this.state.currentInput == "clear") {
-        this.setState({commands: [], currentInput: ""});
-      } else if (this.state.currentInput == "help") {
-        var newCommands = this.state.commands.concat([{query: this.state.currentInput, result: shortHelpMessage}]);
-        this.setState({commands: newCommands, currentInput: ""});
-      } else if (this.state.currentInput == "help --verbose") {
-        var newCommands = this.state.commands.concat([{query: this.state.currentInput, result: longHelpMessage}]);
-        this.setState({commands: newCommands, currentInput: ""});
-      } else if (this.colourNameToHex(this.state.currentInput)) {
-        this.setState({currentInput: "", color: this.colourNameToHex(this.state.currentInput)});
-      } else if (this.state.currentInput.substring(0,8) == "subquery") {
-        var firstSpaceIndex = 8;
-        var secondSpaceIndex = -1;
-        for (var i = firstSpaceIndex + 1; i < this.state.currentInput.length; i++) {
-          if (this.state.currentInput.charAt(i) == " ") {
-            secondSpaceIndex = i;
-            break;
-          }
-        }
-        var subqueryName = this.state.currentInput.substring(firstSpaceIndex + 1, secondSpaceIndex);
-        var subqueryDefinition = this.state.currentInput.substring(secondSpaceIndex + 1);
-        if (subqueryDefinition[subqueryDefinition.length-1] == ';') {
-          subqueryDefinition = subqueryDefinition.substring(0, subqueryDefinition.length - 1);
-        }
-        subqueryDefinition = "(" + subqueryDefinition + ")";
-        var newHistory = this.state.history.concat(this.state.currentInput);
-        var newHistoryIndex = newHistory.length - 1;
-        if (this.verifyNoSubqueryCycle(subqueryDefinition)) {
-          var tempSubqueryList = this.state.subqueryList;
-          tempSubqueryList[subqueryName] = subqueryDefinition;
-          var newCommands = this.state.commands.concat([{query: this.state.currentInput, result: subquerySuccess}]);
-          this.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex, subqueryList: tempSubqueryList});     
-        } else {
-          var newCommands = this.state.commands.concat([{query: this.state.currentInput, result: subqueryFailure}]);  
-          this.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex});       
-        }
-      } else {
-        var newHistory = this.state.history.concat(this.state.currentInput);
-        var newHistoryIndex = newHistory.length - 1;
-        if (this.state.currentInput[this.state.currentInput.length - 1] != ";") {
-          this.setState({currentInput: this.state.currentInput + "\n" + "> ", history: newHistory, historyIndex: newHistoryIndex});            
-        } else {
-          var xhttp = new XMLHttpRequest();
-          var newCommands = this.state.commands;
-          var currentInputTemp = this.cleanQuery(this.state.currentInput);
-          var temp = "";
-          var that = this;
-          xhttp.onreadystatechange = function() {
-            if (xhttp.readyState == 4 && xhttp.status == 200) {
-              newCommands = newCommands.concat([{query: currentInputTemp, result: xhttp.responseText}]);
-            }
-            that.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex});
-          }
-          var queryCleanedWithSubqueries = this.expandSubquery(this.cleanQuery(this.state.currentInput));
-          if (queryCleanedWithSubqueries.substring(0,2) == "\\d") {
-            xhttp.open("GET", DOMAIN + "schema/"+encodeURIComponent(queryCleanedWithSubqueries), true);
-            xhttp.send();
-            this.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex});
-          } else {
-            xhttp.open("GET", DOMAIN + "query/"+encodeURIComponent(queryCleanedWithSubqueries), true);
-            xhttp.send();
-            this.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex});
-          }      
-        }        
-      }
+      this.handleEnter(e);
     } else if (e.keyCode == TAB) {
         e.preventDefault();
-
         var autocompleteIndex = this.findPlaceOfAutocomplete(this.state.currentInput);
         if (autocompleteIndex == -1) {
           var tabIndex = this.findPlaceOfSlash(this.state.currentInput);                  
@@ -271,17 +277,14 @@ var TerminalEmulator = React.createClass({
 
     scrollDown();
   },
-  
-  //Annoyingly, onkeypress mostly only works with printable keys (i.e. not backspace)
-  handlePrintableKeys: function(e) {
-    if (e.keyCode < 32 || e.keyCode > 126) {
-      return;
-    }
 
-    var keyCode = e.keyCode;
-    var newCurrentInput;
-    newCurrentInput = this.state.currentInput + String.fromCharCode(keyCode);
-    this.setState({currentInput: newCurrentInput});
+  handlePrintableKeys: function(e) {
+    if (e.keyCode >= 32 && e.keyCode <= 126) {
+      var keyCode = e.keyCode;
+      var newCurrentInput;
+      newCurrentInput = this.state.currentInput + String.fromCharCode(keyCode);
+      this.setState({currentInput: newCurrentInput});
+    }
   },
 
   componentDidMount: function() {
@@ -376,10 +379,10 @@ var QueryResultPair = React.createClass({
 // ----- ResultTable -----
 var ResultTable = React.createClass({
   render: function() {
-    var colNames = [];
-    this.props.parsed.columnNames.forEach(function(col) {
+    var colNames = this.props.parsed.columnNames;
+    /*this.props.parsed.columnNames.forEach(function(col) {
         colNames.push(col);
-    });
+    });*/
 
     var renderColName = function(x) {return <td>{x}</td>};
     var renderedRows = [<tr>{colNames.map(renderColName)}</tr>];
