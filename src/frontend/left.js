@@ -15,7 +15,6 @@ var TerminalEmulator = React.createClass({
       color: "#0f0",
       history: [""],
       historyIndex: -1,
-      historyDirection: "0", // 0 is starting, 1 is up, -1 is down
       subqueryList: []
     };
   },
