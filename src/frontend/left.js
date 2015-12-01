@@ -13,7 +13,7 @@ var TerminalEmulator = React.createClass({
       commands: getDefaultCommandData(),
       currentInput: "",
       color: "#0f0",
-      history: [],
+      history: [""],
       historyIndex: -1,
       historyDirection: "0", // 0 is starting, 1 is up, -1 is down
       subqueryList: []
@@ -176,7 +176,8 @@ var TerminalEmulator = React.createClass({
         subqueryDefinition = subqueryDefinition.substring(0, subqueryDefinition.length - 1);
       }
       subqueryDefinition = "(" + subqueryDefinition + ")";
-      var newHistory = this.state.history.concat(this.state.currentInput);
+      var newHistory = this.state.history;
+      newHistory.splice(this.state.history.length - 1, 0, this.state.currentInput);
       var newHistoryIndex = newHistory.length - 1;
       if (this.verifyNoSubqueryCycle(subqueryDefinition)) {
         var tempSubqueryList = this.state.subqueryList;
@@ -188,7 +189,8 @@ var TerminalEmulator = React.createClass({
         this.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex});       
       }
     } else {
-      var newHistory = this.state.history.concat(this.state.currentInput);
+      var newHistory = this.state.history;
+      newHistory.splice(this.state.history.length - 1, 0, this.state.currentInput);
       var newHistoryIndex = newHistory.length - 1;
       if (this.state.currentInput[this.state.currentInput.length - 1] != ";") {
         this.setState({currentInput: this.state.currentInput + "\n" + "> ", history: newHistory, historyIndex: newHistoryIndex});            
@@ -246,33 +248,20 @@ var TerminalEmulator = React.createClass({
         }    
     } else if (e.keyCode == UP) {
         e.preventDefault();
-        if (this.state.historyDirection == -1) {
-          var newHistoryIndex = this.state.historyIndex - 1; 
-          this.setState({historyIndex: newHistoryIndex});
-          this.setState({currentInput: this.state.history[this.state.historyIndex], historyDirection: 1});    
-        } else {
-          this.setState({currentInput: this.state.history[this.state.historyIndex], historyDirection: 1});  
-          var newHistoryIndex = this.state.historyIndex - 1; 
-          this.setState({historyIndex: newHistoryIndex});
+        var newHistoryIndex = this.state.historyIndex - 1;
+        if (newHistoryIndex < 0) {
+          newHistoryIndex = 0;
         }
-        if (this.state.historyIndex < 0) {
-          this.setState({historyIndex: 0});
-        }       
+        this.setState({historyIndex: newHistoryIndex});
+        this.setState({currentInput: this.state.history[this.state.historyIndex]});    
     } else if (e.keyCode == DOWN) {
         e.preventDefault();
-        if (this.state.historyDirection == 1) {
-          var newHistoryIndex = this.state.historyIndex + 1; 
-          this.setState({historyIndex: newHistoryIndex});
-          this.setState({currentInput: this.state.history[this.state.historyIndex], historyDirection: 1});    
-        } else {
-          this.setState({currentInput: this.state.history[this.state.historyIndex], historyDirection: -1});  
-          var newHistoryIndex = this.state.historyIndex + 1; 
-          this.setState({historyIndex: newHistoryIndex});
+        var newHistoryIndex = this.state.historyIndex + 1;
+        if (newHistoryIndex > this.state.history.length - 1) {
+          newHistoryIndex = this.state.history.length - 1;
         }
-        if (this.state.historyIndex > this.state.history.length - 1) {
-          this.setState({historyIndex: this.state.history.length - 1});
-        }
-        this.setState({currentInput: this.state.history[this.state.historyIndex], historyDirection: -1});  
+        this.setState({historyIndex: newHistoryIndex});
+        this.setState({currentInput: this.state.history[this.state.historyIndex]});    
     }
 
     scrollDown();
