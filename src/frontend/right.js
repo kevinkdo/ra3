@@ -340,7 +340,7 @@ var RaTree = React.createClass({
 
       if (error) {alert("Couldn't generate tree. Sorry!");}
     }
-    xhttp.open("GET", "https://ra-beers-example.herokuapp.com/ast/"+encodeURIComponent(this.props.getTerminalInput()), true);
+    xhttp.open("GET", DOMAIN + "ast/"+encodeURIComponent(this.props.getTerminalInput()), true);
     xhttp.send();*/
   },
 

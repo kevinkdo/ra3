@@ -214,11 +214,11 @@ var TerminalEmulator = React.createClass({
           }
           var queryCleanedWithSubqueries = this.expandSubquery(this.cleanQuery(this.state.currentInput));
           if (queryCleanedWithSubqueries.substring(0,2) == "\\d") {
-            xhttp.open("GET", "https://ra-beers-example.herokuapp.com/schema/"+encodeURIComponent(queryCleanedWithSubqueries), true);
+            xhttp.open("GET", DOMAIN + "schema/"+encodeURIComponent(queryCleanedWithSubqueries), true);
             xhttp.send();
             this.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex});
           } else {
-            xhttp.open("GET", "https://ra-beers-example.herokuapp.com/query/"+encodeURIComponent(queryCleanedWithSubqueries), true);
+            xhttp.open("GET", DOMAIN + "query/"+encodeURIComponent(queryCleanedWithSubqueries), true);
             xhttp.send();
             this.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex});
           }      
@@ -294,7 +294,7 @@ var TerminalEmulator = React.createClass({
         }
       }
     }
-    xhttp.open("GET", "http://ra-beers-example.herokuapp.com/lookahead/");
+    xhttp.open("GET", DOMAIN + "lookahead/");
     xhttp.send();
   
     document.onkeypress = this.handlePrintableKeys;
