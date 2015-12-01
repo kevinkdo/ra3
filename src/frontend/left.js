@@ -327,53 +327,34 @@ var CurrentInput = React.createClass({
 // ----- QueryResultPair -----
 var QueryResultPair = React.createClass({
   render: function() {
-    var fallback = <span><span className="raprompt" style={{color: this.props.color}}>ra&gt; </span>{this.props.query}{"\n"}{this.props.result}{"\n"}</span>;
+    var results = [];
+    var fallback = <span>{"\n"}{this.props.result}{"\n"}</span>;
 
     if (this.props.result.length == 0 || this.props.result == subquerySuccess || this.props.result == subqueryFailure
      || this.props.result == shortHelpMessage || this.props.result == longHelpMessage) {
-      return fallback;
+      results.push(fallback);
+    } else {
+      var parsedList = JSON.parse(this.props.result);
+      for (var i = 0; i < parsedList.length; i++) {
+        var parsed = parsedList[i];
+        if (!parsed) {
+          results.push(fallback);
+        } else if (parsed.isError) {
+          results.push(<span>{parsed.error.message}{"\n"}{"at location " + parsed.error.start + " to " + parsed.error.end + "\n"}</span>);
+        } else if (!parsed.data) {
+          results.push(fallback);
+        } else {
+          if (parsed.title) {
+            results.push(<span><span>{parsed.title}{"\n"}</span><ResultTable parsed={parsed}/></span>);
+          } else {
+            results.push(<span><ResultTable parsed={parsed}/></span>);
+          }
+        }
+        results.push(<span>{"\n"}</span>);
+      }
     }
 
-    var parsedList = JSON.parse(this.props.result);
-    var tables = [];
-    var first = true; 
-    for (var i = 0; i < parsedList.length; i++) {
-      var parsed = parsedList[i];
-      if (!parsed) {
-        tables.push(fallback);
-      }
-      if (first) {
-        if (parsed.isError) {
-          tables.push(<span><span className="raprompt" style={{color: this.props.color}}>ra&gt; </span>{this.props.query}{"\n"}{parsed.error.message}{"\n"}{"at location " + parsed.error.start + " to " + parsed.error.end + "\n"}</span>);
-        }
-        else if (!parsed.data) {
-          tables.push(fallback);
-        } else {
-          if (parsed.title) {
-            tables.push(<span><span className="raprompt" style={{color: this.props.color}}>ra&gt; </span>{this.props.query}{"\n"}<span>{parsed.title}{"\n"}</span><ResultTable parsed={parsed}/></span>);
-          } else {
-            tables.push(<span><span className="raprompt" style={{color: this.props.color}}>ra&gt; </span>{this.props.query}{"\n"}<ResultTable parsed={parsed}/></span>);  
-          }
-          
-        }
-        first = false;
-      } else {
-        if (parsed.isError) {
-          tables.push(<span>{parsed.error.message}{"\n"}{"at location " + parsed.error.start + " to " + parsed.error.end + "\n"}</span>);
-        }
-        else if (!parsed.data) {
-          tables.push(fallback);
-        } else {
-          if (parsed.title) {
-            tables.push(<span><span>{parsed.title}{"\n"}</span><ResultTable parsed={parsed}/></span>);
-          } else {
-            tables.push(<span><ResultTable parsed={parsed}/></span>);
-          }
-        }
-      }
-      tables.push(<span>{"\n"}</span>);
-    }
-    return <div>{tables}</div>
+    return <div><span><span className="raprompt" style={{color: this.props.color}}>ra&gt; </span>{this.props.query}</span><div>{results}</div></div>;
   }
 });
 
