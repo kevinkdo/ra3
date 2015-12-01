@@ -380,10 +380,6 @@ var QueryResultPair = React.createClass({
 var ResultTable = React.createClass({
   render: function() {
     var colNames = this.props.parsed.columnNames;
-    /*this.props.parsed.columnNames.forEach(function(col) {
-        colNames.push(col);
-    });*/
-
     var renderColName = function(x) {return <td>{x}</td>};
     var renderedRows = [<tr>{colNames.map(renderColName)}</tr>];
     this.props.parsed.data.forEach(function(x) {
