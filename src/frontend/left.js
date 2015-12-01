@@ -317,7 +317,7 @@ var CurrentInput = React.createClass({
 var QueryResultPair = React.createClass({
   render: function() {
     var results = [];
-    var fallback = <span>{"\n"}{this.props.result}{"\n"}</span>;
+    var fallback = <span key={nodeId++}>{"\n"}{this.props.result}{"\n"}</span>;
 
     if (this.props.result.length == 0 || this.props.result == subquerySuccess || this.props.result == subqueryFailure
      || this.props.result == shortHelpMessage || this.props.result == longHelpMessage) {
@@ -329,17 +329,17 @@ var QueryResultPair = React.createClass({
         if (!parsed) {
           results.push(fallback);
         } else if (parsed.isError) {
-          results.push(<span>{parsed.error.message}{"\n"}{"at location " + parsed.error.start + " to " + parsed.error.end + "\n"}</span>);
+          results.push(<span key={nodeId++}>{parsed.error.message}{"\n"}{"at location " + parsed.error.start + " to " + parsed.error.end + "\n"}</span>);
         } else if (!parsed.data) {
           results.push(fallback);
         } else {
           if (parsed.title) {
-            results.push(<span><span>{parsed.title}{"\n"}</span><ResultTable parsed={parsed}/></span>);
+            results.push(<span key={nodeId++}><span>{parsed.title}{"\n"}</span><ResultTable parsed={parsed}/></span>);
           } else {
-            results.push(<span><ResultTable parsed={parsed}/></span>);
+            results.push(<span key={nodeId++}><ResultTable parsed={parsed}/></span>);
           }
         }
-        results.push(<span>{"\n"}</span>);
+        results.push(<span key={nodeId++}>{"\n"}</span>);
       }
     }
 
@@ -351,14 +351,14 @@ var QueryResultPair = React.createClass({
 var ResultTable = React.createClass({
   render: function() {
     var colNames = this.props.parsed.columnNames;
-    var renderColName = function(x) {return <td>{x}</td>};
-    var renderedRows = [<tr>{colNames.map(renderColName)}</tr>];
+    var renderColName = function(x) {return <td key={nodeId++}>{x}</td>};
+    var renderedRows = [<tr key={nodeId++} >{colNames.map(renderColName)}</tr>];
     this.props.parsed.data.forEach(function(x) {
       var renderColVal = function(colName) {
-        return <td>{x[colName]}</td>;
+        return <td key={nodeId++}>{x[colName]}</td>;
       };
 
-      renderedRows.push(<tr>{colNames.map(renderColVal)}</tr>);
+      renderedRows.push(<tr key={nodeId++}>{colNames.map(renderColVal)}</tr>);
     });
     return <table className="resultTable">{renderedRows}</table>
   }

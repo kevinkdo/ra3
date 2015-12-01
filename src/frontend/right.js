@@ -404,21 +404,18 @@ var RaTree = React.createClass({
   render: function() {
     var me = this;
     var width = document.getElementById('rightpane').clientWidth;
-    var height = document.getElementById('rightpane').clientHeight - 100;//TODO remove constant?
+    var height = document.getElementById('rightpane').clientHeight - 150;
     var tree = d3.layout.tree().size([width*5/6, height*5/6]).separation(function(a, b) {return (a.parent == b.parent ? 2 : 1);});
     var nodes = tree.nodes(this.state.tree);
     var links = tree.links(nodes);
+
     var renderedNodes = nodes.map(function(node) {
       return <TreeNode key={node.id} id={node.id} x={node.x} y={node.y} name={node.name} numChildren={node.children ? node.children.length : 0} setTargetId={me.setTargetId} setText={me.setText} dragging={me.state.sourceId != 0 ? true : false} selecting={me.state.selecting} subscript={node.subscript} serializeId={me.serializeId}/>;
     });
-
     var renderedLinks = links.map(function(link) {
       return <TreeLink key={nodeId++} source={link.source} target={link.target} />;
     });
-
-    var i = -1;
     var renderedPrenodes = this.state.prenodes.map(function(prenode) {
-      i++;
       return <Prenode id={prenode.id} key={prenode.id} name={prenode.name} x={prenode.x} y={prenode.y} startDrag={me.startDrag} dragging={me.state.sourceId != 0 ? true : false}/>;
     });
 
@@ -426,10 +423,9 @@ var RaTree = React.createClass({
     var button2 = <button key={nodeId++} type="button" className="btn btn-default" type="button" onClick={function() {me.setState({selecting: true});}}>Generate subquery</button>;
     var button3 = <button key={nodeId++} type="button" className="btn btn-default" type="button" onClick={this.generateTree}>Generate tree</button>;
     var toolbar = [button1, button2, button3];
-
     var helpText = <div className="helpText">{me.getHelpText()}</div>;
-
     var svg = <svg id="mysvg" width={width} height={height} onMouseMove={me.state.sourceId != 0 ? this.handleMouseMove : null} onMouseUp={me.state.sourceId != 0 ? this.handleMouseUp : null}>{renderedNodes}{renderedLinks}{renderedPrenodes}</svg>;
-    return <div><div className="btn-group" id="toolbar">{toolbar}</div><br /><br />{svg}{helpText}</div>;
+
+    return <div><div className="btn-group" id="toolbar">{toolbar}</div>{helpText}<br /><br />{svg}</div>;
   }
 });
