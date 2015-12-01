@@ -420,9 +420,9 @@ var RaTree = React.createClass({
       return <Prenode id={prenode.id} key={prenode.id} name={prenode.name} x={prenode.x} y={prenode.y} startDrag={me.startDrag} dragging={me.state.sourceId != 0 ? true : false}/>;
     });
 
-    var button1 = <button type="button" className="btn btn-default" type="button" onClick={function() {me.props.setTerminalInput(me.serialize(me.state.tree))}}>Generate query</button>;
-    var button2 = <button type="button" className="btn btn-default" type="button" onClick={function() {me.setState({selecting: true});}}>Generate subquery</button>;
-    var button3 = <button type="button" className="btn btn-default" type="button" onClick={this.generateTree}>Generate tree</button>;
+    var button1 = <button key={nodeId++} type="button" className="btn btn-default" type="button" onClick={function() {me.props.setTerminalInput(me.serialize(me.state.tree))}}>Generate query</button>;
+    var button2 = <button key={nodeId++} type="button" className="btn btn-default" type="button" onClick={function() {me.setState({selecting: true});}}>Generate subquery</button>;
+    var button3 = <button key={nodeId++} type="button" className="btn btn-default" type="button" onClick={this.generateTree}>Generate tree</button>;
     var toolbar = [button1, button2, button3];
 
     var helpText = <div className="helpText">{me.getHelpText()}</div>;
