@@ -80,17 +80,17 @@ var RaTree = React.createClass({
       yOffset: 0,
       selecting: false,
       tree: {
-        name: "\u22c8",
+        name: "\u2212",
         id: 1,
         subscript: "",
         children: [
           {
-            name: "\u03c3",
+            name: "\u03C0",
             id: 2,
-            subscript: "name='Ben'",
+            subscript: "bar,beer",
             children: [
               {
-                name: "Drinker",
+                name: "Serves",
                 id: 3,
                 subscript: "",
                 children: []
@@ -98,15 +98,42 @@ var RaTree = React.createClass({
             ]
           },
           {
-            name: "\u03c1",
+            name: "\u03C0",
             id: 4,
-            subscript: "name,beer",
+            subscript: "bar1,beer1",
             children: [
               {
-                name: "Likes",
+                name: "\u22c8",
                 id: 5,
-                subscript: "",
-                children: []
+                subscript: "beer1=beer2 and price1>price2",
+                children: [
+                  {
+                    name: "\u03c1",
+                    id: 6,
+                    subscript: "bar1,beer1,price1",
+                    children: [
+                      {
+                        name: "Serves",
+                        id: 7,
+                        subscript: "",
+                        children: []
+                      }
+                    ]
+                  },
+                  {
+                    name: "\u03c1",
+                    id: 8,
+                    subscript: "bar2,beer2,price2",
+                    children: [
+                      {
+                        name: "Serves",
+                        id: 9,
+                        subscript: "",
+                        children: []
+                      }
+                    ]
+                  }
+                ]
               }
             ]
           }
