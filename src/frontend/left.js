@@ -279,6 +279,7 @@ var TerminalEmulator = React.createClass({
   },
 
   handlePrintableKeys: function(e) {
+    e.preventDefault();
     if (e.keyCode >= 32 && e.keyCode <= 126) {
       var keyCode = e.keyCode;
       var newCurrentInput;
