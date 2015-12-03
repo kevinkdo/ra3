@@ -129,7 +129,7 @@ var TerminalEmulator = React.createClass({
     }
 
     for (var i = 0; i < keys.length; i++) {
-      while (query.indexOf(" " + keys[i]) != -1) {
+      while (query.indexOf(keys[i]) != -1) {
         query = query.replace(keys[i], this.state.subqueryList[keys[i]]);
       }
     }
