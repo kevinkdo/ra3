@@ -169,7 +169,16 @@ var TerminalEmulator = React.createClass({
           break;
         }
       }
+      var newHistory = this.state.history;
+      newHistory.splice(this.state.history.length - 1, 0, this.state.currentInput);
+      var newHistoryIndex = newHistory.length - 1;
+
       var subqueryName = this.state.currentInput.substring(firstSpaceIndex + 1, secondSpaceIndex);
+      if (subqueryName[0] != ":") {
+        var newCommands = this.state.commands.concat([{query: this.state.currentInput, result: subqueryNeedsColon}]);  
+        this.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex});       
+        return;
+      }
       var subqueryDefinition = this.state.currentInput.substring(secondSpaceIndex + 1);
       if (subqueryDefinition[subqueryDefinition.length-1] == ';') {
         subqueryDefinition = subqueryDefinition.substring(0, subqueryDefinition.length - 1);
@@ -319,7 +328,7 @@ var QueryResultPair = React.createClass({
     var fallback = <span key={nodeId++}>{"\n"}{this.props.result}{"\n"}</span>;
 
     if (this.props.result.length == 0 || this.props.result == subquerySuccess || this.props.result == subqueryFailure
-     || this.props.result == shortHelpMessage || this.props.result == longHelpMessage) {
+     || this.props.result == shortHelpMessage || this.props.result == longHelpMessage || this.props.result == subqueryNeedsColon) {
       results.push(fallback);
     } else {
       var parsedList = JSON.parse(this.props.result);

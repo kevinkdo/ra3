@@ -1,6 +1,6 @@
 // ===== Globals =====
-//var DOMAIN = "https://ra-beers-example.herokuapp.com/";
-var DOMAIN = "http://127.0.0.1:8000/";
+var DOMAIN = "https://ra-beers-example.herokuapp.com/";
+//var DOMAIN = "http://127.0.0.1:8000/";
 var BACKSPACE = 8;
 var ENTER = 13;
 var TAB = 9;
@@ -40,6 +40,7 @@ var longHelpMessage = "Relational Algebra Expressions: \n"
                        + "By using the up and down arrow keys, you can navigate the command history"; 
 var subquerySuccess = "subquery succesfully stored";
 var subqueryFailure = "cannot define subquery using other subqueries";
+var subqueryNeedsColon = "subquery must begin with a :"
 
 var nodeId = 100;
 
