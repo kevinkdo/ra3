@@ -286,6 +286,15 @@ var TerminalEmulator = React.createClass({
     }
   },
 
+  handlePaste: function(e) {
+    var me = this;
+    e.preventDefault();
+    e.clipboardData.items[0].getAsString(function(s) {
+      newCurrentInput = me.state.currentInput + s;
+      me.setState({currentInput: newCurrentInput});
+    });
+  },
+
   componentDidMount: function() {
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
@@ -301,6 +310,7 @@ var TerminalEmulator = React.createClass({
   
     document.onkeypress = this.handlePrintableKeys;
     window.onkeydown = this.handleStrangeKeys;
+    document.onpaste = this.handlePaste;
   },
 
   render: function() {
