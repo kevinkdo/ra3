@@ -102,12 +102,13 @@ var TerminalEmulator = React.createClass({
   }, 
 
   findPlaceOfAutocomplete: function(s) {
+    if (s.indexOf("\\") != -1) {
+        return -1; 
+      }
     for (var i = s.length - 1; i >= 0; i--) {
+      
       if (s[i] == " " || s[i] == "{") {
         return i + 1;
-      }
-      if (s[i] == "\\") {
-        return -1; 
       }
     }
     return 0;
