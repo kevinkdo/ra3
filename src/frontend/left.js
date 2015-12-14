@@ -20,7 +20,7 @@ var TerminalEmulator = React.createClass({
   },
 
   autocorrect: function(partialCommand)
-  { 
+  {
     partialCommand = partialCommand.toLowerCase();
     if (partialCommand.charAt(0) != '\\') {
       partialCommand = partialCommand.substring(1);
@@ -153,10 +153,10 @@ var TerminalEmulator = React.createClass({
     } else if (this.state.currentInput == "clear") {
       this.setState({commands: [], currentInput: ""});
     } else if (this.state.currentInput == "help") {
-      var newCommands = this.state.commands.concat([{query: this.state.currentInput, result: shortHelpMessage}]);
+      var newCommands = this.state.commands.concat([{query: this.state.currentInput, result: SHORT_HELP_MESSAGE}]);
       this.setState({commands: newCommands, currentInput: ""});
     } else if (this.state.currentInput == "help --verbose") {
-      var newCommands = this.state.commands.concat([{query: this.state.currentInput, result: longHelpMessage}]);
+      var newCommands = this.state.commands.concat([{query: this.state.currentInput, result: LONG_HELP_MESSAGE}]);
       this.setState({commands: newCommands, currentInput: ""});
     } else if (this.colourNameToHex(this.state.currentInput)) {
       this.setState({currentInput: "", color: this.colourNameToHex(this.state.currentInput)});
@@ -175,7 +175,7 @@ var TerminalEmulator = React.createClass({
 
       var subqueryName = this.state.currentInput.substring(firstSpaceIndex + 1, secondSpaceIndex);
       if (subqueryName[0] != ":") {
-        var newCommands = this.state.commands.concat([{query: this.state.currentInput, result: subqueryNeedsColon}]);  
+        var newCommands = this.state.commands.concat([{query: this.state.currentInput, result: SUBQUERY_FAIL_COLON_MSG}]);  
         this.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex});       
         return;
       }
@@ -190,10 +190,10 @@ var TerminalEmulator = React.createClass({
       if (this.verifyNoSubqueryCycle(subqueryDefinition)) {
         var tempSubqueryList = this.state.subqueryList;
         tempSubqueryList[subqueryName] = subqueryDefinition;
-        var newCommands = this.state.commands.concat([{query: this.state.currentInput, result: subquerySuccess}]);
+        var newCommands = this.state.commands.concat([{query: this.state.currentInput, result: SUBQUERY_SUCCESS_MSG}]);
         this.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex, subqueryList: tempSubqueryList});     
       } else {
-        var newCommands = this.state.commands.concat([{query: this.state.currentInput, result: subqueryFailure}]);  
+        var newCommands = this.state.commands.concat([{query: this.state.currentInput, result: SUBQUERY_NEST_FAIL_MSG}]);  
         this.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex});       
       }
     } else {
@@ -220,13 +220,13 @@ var TerminalEmulator = React.createClass({
         }
         var queryCleanedWithSubqueries = this.expandSubquery(this.cleanQuery(this.state.currentInput));
         if (queryCleanedWithSubqueries.substring(0,2) == "\\d") {
-          xhttp.open("GET", DOMAIN + "schema/"+encodeURIComponent(queryCleanedWithSubqueries), true);
+          /*xhttp.open("GET", DOMAIN + "schema/"+encodeURIComponent(queryCleanedWithSubqueries), true);
           xhttp.send();
-          this.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex});
+          this.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex});*/
         } else {
-          xhttp.open("GET", DOMAIN + "query/"+encodeURIComponent(queryCleanedWithSubqueries), true);
+          /*xhttp.open("GET", DOMAIN + "query/"+encodeURIComponent(queryCleanedWithSubqueries), true);
           xhttp.send();
-          this.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex});
+          this.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex});*/
         }      
       }        
     }
@@ -337,8 +337,8 @@ var QueryResultPair = React.createClass({
     var results = [];
     var fallback = <span key={nodeId++}>{"\n"}{this.props.result}{"\n"}</span>;
 
-    if (this.props.result.length == 0 || this.props.result == subquerySuccess || this.props.result == subqueryFailure
-     || this.props.result == shortHelpMessage || this.props.result == longHelpMessage || this.props.result == subqueryNeedsColon) {
+    if (this.props.result.length == 0 || this.props.result == SUBQUERY_SUCCESS_MSG || this.props.result == SUBQUERY_NEST_FAIL_MSG
+     || this.props.result == SHORT_HELP_MESSAGE || this.props.result == LONG_HELP_MESSAGE || this.props.result == SUBQUERY_FAIL_COLON_MSG) {
       results.push(fallback);
     } else {
       var parsedList = JSON.parse(this.props.result);
