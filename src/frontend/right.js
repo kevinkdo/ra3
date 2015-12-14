@@ -377,28 +377,10 @@ var RaTree = React.createClass({
 
   generateTree: function() {
     var me = this;
-    var xhttp = new XMLHttpRequest();
     var text = this.props.getTerminalInput();
     if (text.length == 0) return;
-    xhttp.onreadystatechange = function() {
-      var error = false;
-      if (xhttp.readyState == 4) {
-        if (xhttp.status == 200) {
-          var json = JSON.parse(xhttp.responseText);
-          if (json[0].isError) {
-            error = true;
-          } else {
-            me.setState({tree: me.postProcess(json[0].tree)});
-          }
-        } else {
-          error = true;
-        }
-
-        if (error) {alert(json[0].error.message);}
-      }
-    }
-    xhttp.open("GET", DOMAIN + "ast/"+encodeURIComponent(text), true);
-    xhttp.send();
+    var tree = parser.parse(text);
+    me.setState({tree: me.postProcess(tree)});
   },
 
   render: function() {

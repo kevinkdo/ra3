@@ -296,7 +296,7 @@ var TerminalEmulator = React.createClass({
 
   componentDidMount: function() {
     var xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
+    /*xhttp.onreadystatechange = function() {
       if (xhttp.readyState == 4 && xhttp.status == 200) {
         var attrList = JSON.parse(xhttp.responseText);
         for (var i = 0; i < attrList.length; i++) {
@@ -305,7 +305,7 @@ var TerminalEmulator = React.createClass({
       }
     }
     xhttp.open("GET", DOMAIN + "lookahead/");
-    xhttp.send();
+    xhttp.send();*/
   
     document.onkeypress = this.handlePrintableKeys;
     window.onkeydown = this.handleStrangeKeys;
