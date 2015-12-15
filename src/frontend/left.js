@@ -25,7 +25,7 @@ var TerminalEmulator = React.createClass({
     if (partialCommand.charAt(0) != '\\') {
       partialCommand = partialCommand.substring(1);
     }
-    
+
     var raCommandCharacterMap = {};
     for (var i = 0; i < raCommands.length; i++) {
       raCommandCharacterMap[raCommands[i]] = {};
@@ -64,7 +64,7 @@ var TerminalEmulator = React.createClass({
     s = s.toLowerCase();
     var matchCount = 0;
     var matchIndex = -1;
-    for (var i = 0; i < raCommands.length; i++) {      
+    for (var i = 0; i < raCommands.length; i++) {
       if (s == raCommands[i].substring(0, s.length)) {
         matchCount++;
         matchIndex = i;
@@ -79,10 +79,8 @@ var TerminalEmulator = React.createClass({
     return raCommands[matchIndex];
   },
 
-  //http://stackoverflow.com/questions/1573053/javascript-function-to-convert-color-names-to-hex-codes
-  colourNameToHex: function(colour)
-  {
-    var colours = {"black":"#000000", "blue":"#0000ff", "gold":"#ffd700","gray":"#808080","green":"#008000", "orange":"#ffa500", 
+  colourNameToHex: function(colour) {
+    var colours = {"black":"#000000", "blue":"#0000ff", "gold":"#ffd700","gray":"#808080","green":"#008000", "orange":"#ffa500",
     "purple":"#800080", "red":"#ff0000", "white":"#ffffff", "yellow":"#ffff00","ghost protocol": "#000000"};
 
     if (typeof colours[colour.toLowerCase()] != 'undefined') {
@@ -99,12 +97,12 @@ var TerminalEmulator = React.createClass({
       }
     }
     return -1;
-  }, 
+  },
 
   findPlaceOfAutocomplete: function(s) {
     for (var i = s.length - 1; i >= 0; i--) {
       if (s[i] == "\\") {
-        return -1; 
+        return -1;
       }
       if (s[i] == " " || s[i] == "{") {
         return i + 1;
@@ -175,8 +173,8 @@ var TerminalEmulator = React.createClass({
 
       var subqueryName = this.state.currentInput.substring(firstSpaceIndex + 1, secondSpaceIndex);
       if (subqueryName[0] != ":") {
-        var newCommands = this.state.commands.concat([{query: this.state.currentInput, result: SUBQUERY_FAIL_COLON_MSG}]);  
-        this.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex});       
+        var newCommands = this.state.commands.concat([{query: this.state.currentInput, result: SUBQUERY_FAIL_COLON_MSG}]);
+        this.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex});
         return;
       }
       var subqueryDefinition = this.state.currentInput.substring(secondSpaceIndex + 1);
@@ -191,17 +189,17 @@ var TerminalEmulator = React.createClass({
         var tempSubqueryList = this.state.subqueryList;
         tempSubqueryList[subqueryName] = subqueryDefinition;
         var newCommands = this.state.commands.concat([{query: this.state.currentInput, result: SUBQUERY_SUCCESS_MSG}]);
-        this.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex, subqueryList: tempSubqueryList});     
+        this.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex, subqueryList: tempSubqueryList});
       } else {
-        var newCommands = this.state.commands.concat([{query: this.state.currentInput, result: SUBQUERY_NEST_FAIL_MSG}]);  
-        this.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex});       
+        var newCommands = this.state.commands.concat([{query: this.state.currentInput, result: SUBQUERY_NEST_FAIL_MSG}]);
+        this.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex});
       }
     } else {
       var newHistory = this.state.history;
       newHistory.splice(this.state.history.length - 1, 0, this.state.currentInput);
       var newHistoryIndex = newHistory.length - 1;
       if (this.state.currentInput[this.state.currentInput.length - 1] != ";") {
-        this.setState({currentInput: this.state.currentInput + "\n" + "> ", history: newHistory, historyIndex: newHistoryIndex});            
+        this.setState({currentInput: this.state.currentInput + "\n" + "> ", history: newHistory, historyIndex: newHistoryIndex});
       } else {
         var xhttp = new XMLHttpRequest();
         var newCommands = this.state.commands;
@@ -213,18 +211,7 @@ var TerminalEmulator = React.createClass({
 
         newCommands = newCommands.concat([{query: currentInputTemp, result: result}]);
         me.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex});
-
-        
-        if (queryCleanedWithSubqueries.substring(0,2) == "\\d") {
-          /*xhttp.open("GET", DOMAIN + "schema/"+encodeURIComponent(queryCleanedWithSubqueries), true);
-          xhttp.send();
-          this.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex});*/
-        } else {
-          /*xhttp.open("GET", DOMAIN + "query/"+encodeURIComponent(queryCleanedWithSubqueries), true);
-          xhttp.send();
-          this.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex});*/
-        }      
-      }        
+      }
     }
   },
 
@@ -241,15 +228,15 @@ var TerminalEmulator = React.createClass({
         e.preventDefault();
         var autocompleteIndex = this.findPlaceOfAutocomplete(this.state.currentInput);
         if (autocompleteIndex == -1) {
-          var tabIndex = this.findPlaceOfSlash(this.state.currentInput);                  
+          var tabIndex = this.findPlaceOfSlash(this.state.currentInput);
           var toBeCorrected = this.state.currentInput.substring(tabIndex);
-          var raCommand = this.autocorrect(toBeCorrected); 
-          this.setState({currentInput: this.state.currentInput.substring(0, tabIndex) + "\\" + raCommand});  
+          var raCommand = this.autocorrect(toBeCorrected);
+          this.setState({currentInput: this.state.currentInput.substring(0, tabIndex) + "\\" + raCommand});
         } else {
           var toBeCompleted = this.state.currentInput.substring(autocompleteIndex);
-          var raCommand = this.autocomplete(toBeCompleted); 
-          this.setState({currentInput: this.state.currentInput.substring(0, autocompleteIndex) + raCommand});  
-        }    
+          var raCommand = this.autocomplete(toBeCompleted);
+          this.setState({currentInput: this.state.currentInput.substring(0, autocompleteIndex) + raCommand});
+        }
     } else if (e.keyCode == UP) {
         e.preventDefault();
         var newHistoryIndex = this.state.historyIndex - 1;
@@ -257,7 +244,7 @@ var TerminalEmulator = React.createClass({
           newHistoryIndex = 0;
         }
         this.setState({historyIndex: newHistoryIndex});
-        this.setState({currentInput: this.state.history[this.state.historyIndex]});    
+        this.setState({currentInput: this.state.history[this.state.historyIndex]});
     } else if (e.keyCode == DOWN) {
         e.preventDefault();
         var newHistoryIndex = this.state.historyIndex + 1;
@@ -265,7 +252,7 @@ var TerminalEmulator = React.createClass({
           newHistoryIndex = this.state.history.length - 1;
         }
         this.setState({historyIndex: newHistoryIndex});
-        this.setState({currentInput: this.state.history[this.state.historyIndex]});    
+        this.setState({currentInput: this.state.history[this.state.historyIndex]});
     }
 
     scrollDown();
@@ -302,7 +289,7 @@ var TerminalEmulator = React.createClass({
     }
     xhttp.open("GET", DOMAIN + "lookahead/");
     xhttp.send();*/
-  
+
     document.onkeypress = this.handlePrintableKeys;
     window.onkeydown = this.handleStrangeKeys;
     document.onpaste = this.handlePaste;
