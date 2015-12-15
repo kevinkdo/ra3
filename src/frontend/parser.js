@@ -39,8 +39,8 @@ var runAstNode = function(node) {
     } else if (node.name == "\u2229") { // intersection
     } else if (node.name == "\u03c1") { // rename
     } else { // table name
-        tuples = beers[node.name].tuples;
-        columns = beers[node.name].columns;
+        tuples = beers.tables[node.name].tuples;
+        columns = beers.tables[node.name].columns;
     }
 
     return {

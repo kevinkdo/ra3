@@ -1,89 +1,92 @@
 {
+  "table_names": ["bar", "beer", "drinker", "frequents", "serves", "likes"],
+  "tables": {
     "bar": {
-        "columns": ["name", "address"],
-        "tuples":[
-            { "name": "Down Under Pub", "address": "802 W. Main Street" },
-            { "name": "The Edge", "address": "108 Morris Street" },
-            { "name": "James Joyce Pub", "address": "912 W. Main Street" },
-            { "name": "Satisfaction", "address": "905 W. Main Street" },
-            { "name": "Talk of the Town", "address": "108 E. Main Street" }
-        ]
+      "columns": ["name", "address"],
+      "tuples":[
+        { "name": "Down Under Pub", "address": "802 W. Main Street" },
+        { "name": "The Edge", "address": "108 Morris Street" },
+        { "name": "James Joyce Pub", "address": "912 W. Main Street" },
+        { "name": "Satisfaction", "address": "905 W. Main Street" },
+        { "name": "Talk of the Town", "address": "108 E. Main Street" }
+      ]
     },
     "beer": {
-        "columns": ["name", "brewer"],
-        "tuples": [
-            { "name": "Amstel", "brewer": "Amstel Brewery" },
-            { "name": "Budweiser", "brewer": "Anheuser-Busch Inc." },
-            { "name": "Corona", "brewer": "Grupo Modelo" },
-            { "name": "Dixie", "brewer": "Dixie Brewing" },
-            { "name": "Erdinger", "brewer": "Erdinger Weissbrau" },
-            { "name": "Full Sail", "brewer": "Full Sail Brewing" }
-        ]
+      "columns": ["name", "brewer"],
+      "tuples": [
+        { "name": "Amstel", "brewer": "Amstel Brewery" },
+        { "name": "Budweiser", "brewer": "Anheuser-Busch Inc." },
+        { "name": "Corona", "brewer": "Grupo Modelo" },
+        { "name": "Dixie", "brewer": "Dixie Brewing" },
+        { "name": "Erdinger", "brewer": "Erdinger Weissbrau" },
+        { "name": "Full Sail", "brewer": "Full Sail Brewing" }
+      ]
     },
     "drinker": {
-        "columns": ["name", "address"],
-        "tuples": [
-            { "name": "Amy", "address": "100 W. Main Street" },
-            { "name": "Ben", "address": "101 W. Main Street" },
-            { "name": "Coy", "address": "200 S. Duke Street" },
-            { "name": "Dan", "address": "300 N. Duke Street" },
-            { "name": "Eve", "address": "100 W. Main Street" }
-        ]
+      "columns": ["name", "address"],
+      "tuples": [
+        { "name": "Amy", "address": "100 W. Main Street" },
+        { "name": "Ben", "address": "101 W. Main Street" },
+        { "name": "Coy", "address": "200 S. Duke Street" },
+        { "name": "Dan", "address": "300 N. Duke Street" },
+        { "name": "Eve", "address": "100 W. Main Street" }
+      ]
     },
     "frequents": {
-        "columns": ["drinker", "bar", "times_a_week"],
-        "tuples": [
-            { "drinker": "Amy", "bar": "James Joyce Pub", "times_a_week": 2 },
-            { "drinker": "Ben", "bar": "James Joyce Pub", "times_a_week": 1 },
-            { "drinker": "Ben", "bar": "Satisfaction", "times_a_week": 2 },
-            { "drinker": "Ben", "bar": "Talk of the Town", "times_a_week": 1 },
-            { "drinker": "Coy", "bar": "Down Under Pub", "times_a_week": 1 },
-            { "drinker": "Coy", "bar": "The Edge", "times_a_week": 1 },
-            { "drinker": "Dan", "bar": "Down Under Pub", "times_a_week": 2 },
-            { "drinker": "Dan", "bar": "The Edge", "times_a_week": 1 },
-            { "drinker": "Dan", "bar": "James Joyce Pub", "times_a_week": 1 },
-            { "drinker": "Dan", "bar": "Satisfaction", "times_a_week": 2 },
-            { "drinker": "Dan", "bar": "Talk of the Town", "times_a_week": 2 },
-            { "drinker": "Eve", "bar": "James Joyce Pub", "times_a_week": 2 }
-        ]
+      "columns": ["drinker", "bar", "times_a_week"],
+      "tuples": [
+        { "drinker": "Amy", "bar": "James Joyce Pub", "times_a_week": 2 },
+        { "drinker": "Ben", "bar": "James Joyce Pub", "times_a_week": 1 },
+        { "drinker": "Ben", "bar": "Satisfaction", "times_a_week": 2 },
+        { "drinker": "Ben", "bar": "Talk of the Town", "times_a_week": 1 },
+        { "drinker": "Coy", "bar": "Down Under Pub", "times_a_week": 1 },
+        { "drinker": "Coy", "bar": "The Edge", "times_a_week": 1 },
+        { "drinker": "Dan", "bar": "Down Under Pub", "times_a_week": 2 },
+        { "drinker": "Dan", "bar": "The Edge", "times_a_week": 1 },
+        { "drinker": "Dan", "bar": "James Joyce Pub", "times_a_week": 1 },
+        { "drinker": "Dan", "bar": "Satisfaction", "times_a_week": 2 },
+        { "drinker": "Dan", "bar": "Talk of the Town", "times_a_week": 2 },
+        { "drinker": "Eve", "bar": "James Joyce Pub", "times_a_week": 2 }
+      ]
     },
     "serves": {
-        "columns": ["bar", "beer", "price"],
-        "tuples": [
-            { "bar": "Down Under Pub", "beer": "Amstel", "price": 2.75 },
-            { "bar": "Down Under Pub", "beer": "Budweiser", "price": 2.25 },
-            { "bar": "Down Under Pub", "beer": "Corona", "price": 3.00 },
-            { "bar": "The Edge", "beer": "Amstel", "price": 2.75 },
-            { "bar": "The Edge", "beer": "Budweiser", "price": 2.50 },
-            { "bar": "The Edge", "beer": "Corona", "price": 3.00 },
-            { "bar": "James Joyce Pub", "beer": "Amstel", "price": 3.00 },
-            { "bar": "James Joyce Pub", "beer": "Corona", "price": 3.25 },
-            { "bar": "James Joyce Pub", "beer": "Dixie", "price": 3.00 },
-            { "bar": "James Joyce Pub", "beer": "Erdinger", "price": 3.50 },
-            { "bar": "Satisfaction", "beer": "Amstel", "price": 2.75 },
-            { "bar": "Satisfaction", "beer": "Budweiser", "price": 2.25 },
-            { "bar": "Satisfaction", "beer": "Corona", "price": 2.75 },
-            { "bar": "Satisfaction", "beer": "Dixie", "price": 2.75 },
-            { "bar": "Satisfaction", "beer": "Full Sail", "price": 2.75 },
-            { "bar": "Talk of the Town", "beer": "Amstel", "price": 2.50 },
-            { "bar": "Talk of the Town", "beer": "Budweiser", "price": 2.20 }
-        ]
+      "columns": ["bar", "beer", "price"],
+      "tuples": [
+        { "bar": "Down Under Pub", "beer": "Amstel", "price": 2.75 },
+        { "bar": "Down Under Pub", "beer": "Budweiser", "price": 2.25 },
+        { "bar": "Down Under Pub", "beer": "Corona", "price": 3.00 },
+        { "bar": "The Edge", "beer": "Amstel", "price": 2.75 },
+        { "bar": "The Edge", "beer": "Budweiser", "price": 2.50 },
+        { "bar": "The Edge", "beer": "Corona", "price": 3.00 },
+        { "bar": "James Joyce Pub", "beer": "Amstel", "price": 3.00 },
+        { "bar": "James Joyce Pub", "beer": "Corona", "price": 3.25 },
+        { "bar": "James Joyce Pub", "beer": "Dixie", "price": 3.00 },
+        { "bar": "James Joyce Pub", "beer": "Erdinger", "price": 3.50 },
+        { "bar": "Satisfaction", "beer": "Amstel", "price": 2.75 },
+        { "bar": "Satisfaction", "beer": "Budweiser", "price": 2.25 },
+        { "bar": "Satisfaction", "beer": "Corona", "price": 2.75 },
+        { "bar": "Satisfaction", "beer": "Dixie", "price": 2.75 },
+        { "bar": "Satisfaction", "beer": "Full Sail", "price": 2.75 },
+        { "bar": "Talk of the Town", "beer": "Amstel", "price": 2.50 },
+        { "bar": "Talk of the Town", "beer": "Budweiser", "price": 2.20 }
+      ]
     },
     "likes": {
-        "columns": ["drinker", "beer"],
-        "tuples": [
-            { "drinker": "Amy", "beer": "Amstel" },
-            { "drinker": "Amy", "beer": "Corona" },
-            { "drinker": "Ben", "beer": "Amstel" },
-            { "drinker": "Ben", "beer": "Budweiser" },
-            { "drinker": "Coy", "beer": "Dixie" },
-            { "drinker": "Dan", "beer": "Amstel" },
-            { "drinker": "Dan", "beer": "Budweiser" },
-            { "drinker": "Dan", "beer": "Corona" },
-            { "drinker": "Dan", "beer": "Dixie" },
-            { "drinker": "Dan", "beer": "Erdinger" },
-            { "drinker": "Eve", "beer": "Amstel" },
-            { "drinker": "Eve", "beer": "Corona" }
-        ]
+      "columns": ["drinker", "beer"],
+      "tuples": [
+        { "drinker": "Amy", "beer": "Amstel" },
+        { "drinker": "Amy", "beer": "Corona" },
+        { "drinker": "Ben", "beer": "Amstel" },
+        { "drinker": "Ben", "beer": "Budweiser" },
+        { "drinker": "Coy", "beer": "Dixie" },
+        { "drinker": "Dan", "beer": "Amstel" },
+        { "drinker": "Dan", "beer": "Budweiser" },
+        { "drinker": "Dan", "beer": "Corona" },
+        { "drinker": "Dan", "beer": "Dixie" },
+        { "drinker": "Dan", "beer": "Erdinger" },
+        { "drinker": "Eve", "beer": "Amstel" },
+        { "drinker": "Eve", "beer": "Corona" }
+      ]
     }
+  }
 }
