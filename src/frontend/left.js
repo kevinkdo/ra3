@@ -101,32 +101,24 @@ var TerminalEmulator = React.createClass({
     } else if (this.colourNameToHex(this.state.currentInput)) {
       this.setState({currentInput: "", color: this.colourNameToHex(this.state.currentInput)});
     } else if (this.state.currentInput.substring(0,8) == "subquery") {
-      var firstSpaceIndex = 8;
-      var secondSpaceIndex = -1;
-      for (var i = firstSpaceIndex + 1; i < this.state.currentInput.length; i++) {
-        if (this.state.currentInput.charAt(i) == " ") {
-          secondSpaceIndex = i;
-          break;
-        }
-      }
       var newHistory = this.state.history;
-      newHistory.splice(this.state.history.length - 1, 0, this.state.currentInput);
-      var newHistoryIndex = newHistory.length - 1;
+      newHistory.push(this.state.currentInput);
+      var newHistoryIndex = newHistory.length;
 
+      var firstSpaceIndex = 8;
+      var secondSpaceIndex = this.state.currentInput.substring(firstSpaceIndex + 1).indexOf(" ") + firstSpaceIndex + 1;
       var subqueryName = this.state.currentInput.substring(firstSpaceIndex + 1, secondSpaceIndex);
+      var subqueryDefinition = this.state.currentInput.substring(secondSpaceIndex + 1);
+
       if (subqueryName[0] != ":") {
         var newCommands = this.state.commands.concat([{query: this.state.currentInput, result: SUBQUERY_FAIL_COLON_MSG}]);
         this.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex});
         return;
       }
-      var subqueryDefinition = this.state.currentInput.substring(secondSpaceIndex + 1);
+
       if (subqueryDefinition[subqueryDefinition.length-1] == ';') {
         subqueryDefinition = subqueryDefinition.substring(0, subqueryDefinition.length - 1);
       }
-      subqueryDefinition = "(" + subqueryDefinition + ")";
-      var newHistory = this.state.history;
-      newHistory.splice(this.state.history.length - 1, 0, this.state.currentInput);
-      var newHistoryIndex = newHistory.length - 1;
       if (this.verifyNoSubqueryCycle(subqueryDefinition)) {
         var tempSubqueryList = this.state.subqueryList;
         tempSubqueryList[subqueryName] = subqueryDefinition;
@@ -138,8 +130,8 @@ var TerminalEmulator = React.createClass({
       }
     } else {
       var newHistory = this.state.history;
-      newHistory.splice(this.state.history.length - 1, 0, this.state.currentInput);
-      var newHistoryIndex = newHistory.length - 1;
+      newHistory.push(this.state.currentInput);
+      var newHistoryIndex = newHistory.length;
       if (this.state.currentInput[this.state.currentInput.length - 1] != ";") {
         this.setState({currentInput: this.state.currentInput + "\n" + "> ", history: newHistory, historyIndex: newHistoryIndex});
       } else {
@@ -173,16 +165,18 @@ var TerminalEmulator = React.createClass({
         if (newHistoryIndex < 0) {
           newHistoryIndex = 0;
         }
-        this.setState({historyIndex: newHistoryIndex});
-        this.setState({currentInput: this.state.history[this.state.historyIndex]});
+        this.setState({historyIndex: newHistoryIndex, currentInput: this.state.history[newHistoryIndex]});
     } else if (e.keyCode == DOWN) {
         e.preventDefault();
         var newHistoryIndex = this.state.historyIndex + 1;
+        var newCurrentInput;
         if (newHistoryIndex > this.state.history.length - 1) {
-          newHistoryIndex = this.state.history.length - 1;
+          newHistoryIndex = this.state.history.length;
+          newCurrentInput = "";
+        } else {
+          newCurrentInput = this.state.history[newHistoryIndex];
         }
-        this.setState({historyIndex: newHistoryIndex});
-        this.setState({currentInput: this.state.history[this.state.historyIndex]});
+        this.setState({historyIndex: newHistoryIndex, currentInput: newCurrentInput});
     }
 
     scrollDown();
@@ -202,7 +196,7 @@ var TerminalEmulator = React.createClass({
     var me = this;
     e.preventDefault();
     e.clipboardData.items[0].getAsString(function(s) {
-      newCurrentInput = me.state.currentInput + s;
+      var newCurrentInput = me.state.currentInput + s;
       me.setState({currentInput: newCurrentInput});
     });
   },
