@@ -41,15 +41,6 @@ var TerminalEmulator = React.createClass({
     return false;
   },
 
-  findPlaceOfSlash: function(raComm) {
-    for (var i = raComm.length - 1; i >= 0; i--) {
-      if (raComm[i] == "\\") {
-        return i;
-      }
-    }
-    return -1;
-  },
-
   findAutocompleteLocation: function(s) {
     for (var i = s.length - 1; i >= 0; i--) {
       if (s[i] == "\\") {
@@ -152,16 +143,9 @@ var TerminalEmulator = React.createClass({
       if (this.state.currentInput[this.state.currentInput.length - 1] != ";") {
         this.setState({currentInput: this.state.currentInput + "\n" + "> ", history: newHistory, historyIndex: newHistoryIndex});
       } else {
-        var xhttp = new XMLHttpRequest();
-        var newCommands = this.state.commands;
-        var currentInputTemp = this.cleanQuery(this.state.currentInput);
-        var temp = "";
-        var me = this;
-        var queryCleanedWithSubqueries = this.expandSubquery(this.cleanQuery(this.state.currentInput));
-        var result = runQuery(queryCleanedWithSubqueries);
-
-        newCommands = newCommands.concat([{query: currentInputTemp, result: result}]);
-        me.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex});
+        var result = runQuery(this.expandSubquery(this.cleanQuery(this.state.currentInput)));
+        var newCommands = this.state.commands.concat([{query: this.cleanQuery(this.state.currentInput), result: result}]);
+        this.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex});
       }
     }
   },
