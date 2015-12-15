@@ -208,17 +208,13 @@ var TerminalEmulator = React.createClass({
         var currentInputTemp = this.cleanQuery(this.state.currentInput);
         var temp = "";
         var me = this;
-        xhttp.onreadystatechange = function() {
-          if (xhttp.readyState == 4) {
-            if (xhttp.status == 200) {
-              newCommands = newCommands.concat([{query: currentInputTemp, result: xhttp.responseText}]);
-              me.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex});
-            } else {
-              alert("Having network issues. Sorry!");
-            }
-          }
-        }
         var queryCleanedWithSubqueries = this.expandSubquery(this.cleanQuery(this.state.currentInput));
+        var result = runQuery(queryCleanedWithSubqueries);
+
+        newCommands = newCommands.concat([{query: currentInputTemp, result: result}]);
+        me.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex});
+
+        
         if (queryCleanedWithSubqueries.substring(0,2) == "\\d") {
           /*xhttp.open("GET", DOMAIN + "schema/"+encodeURIComponent(queryCleanedWithSubqueries), true);
           xhttp.send();
@@ -334,44 +330,30 @@ var CurrentInput = React.createClass({
 // ----- QueryResultPair -----
 var QueryResultPair = React.createClass({
   render: function() {
-    var results = [];
+    var html;
+    var result = this.props.result;
     var fallback = <span key={nodeId++}>{"\n"}{this.props.result}{"\n"}</span>;
 
-    if (this.props.result.length == 0 || this.props.result == SUBQUERY_SUCCESS_MSG || this.props.result == SUBQUERY_NEST_FAIL_MSG
-     || this.props.result == SHORT_HELP_MESSAGE || this.props.result == LONG_HELP_MESSAGE || this.props.result == SUBQUERY_FAIL_COLON_MSG) {
-      results.push(fallback);
+    if (result.length == 0 || result == SUBQUERY_SUCCESS_MSG || result == SUBQUERY_NEST_FAIL_MSG || result == SHORT_HELP_MESSAGE || result == LONG_HELP_MESSAGE || result == SUBQUERY_FAIL_COLON_MSG) {
+      html = fallback;
     } else {
-      var parsedList = JSON.parse(this.props.result);
-      for (var i = 0; i < parsedList.length; i++) {
-        var parsed = parsedList[i];
-        if (!parsed) {
-          results.push(fallback);
-        } else if (parsed.isError) {
-          results.push(<span key={nodeId++}>{parsed.error.message}{"\n"}{"at location " + parsed.error.start + " to " + parsed.error.end + "\n"}</span>);
-        } else if (!parsed.data) {
-          results.push(fallback);
-        } else {
-          if (parsed.title) {
-            results.push(<span key={nodeId++}><span>{parsed.title}{"\n"}</span><ResultTable parsed={parsed}/></span>);
-          } else {
-            results.push(<span key={nodeId++}><ResultTable parsed={parsed}/></span>);
-          }
-        }
-        results.push(<span key={nodeId++}>{"\n"}</span>);
+      if (result.isError) {
+        //results.push(<span key={nodeId++}>{result.errormessage}{"\n"}{"at location " + parsed.error.start + " to " + parsed.error.end + "\n"}</span>);
+      } else {
+        html = <span key={nodeId++}><ResultTable parsed={result}/></span>;
       }
     }
-
-    return <div><span><span className="raprompt" style={{color: this.props.color}}>ra&gt; </span>{this.props.query}</span><div>{results}</div></div>;
+    return <div><span><span className="raprompt" style={{color: this.props.color}}>ra&gt; </span>{this.props.query}</span><div>{html}</div></div>;
   }
 });
 
 // ----- ResultTable -----
 var ResultTable = React.createClass({
   render: function() {
-    var colNames = this.props.parsed.columnNames;
+    var colNames = this.props.parsed.columns;
     var renderColName = function(x) {return <td key={nodeId++}>{x}</td>};
     var renderedRows = [<tr key={nodeId++} >{colNames.map(renderColName)}</tr>];
-    this.props.parsed.data.forEach(function(x) {
+    this.props.parsed.tuples.forEach(function(x) {
       var renderColVal = function(colName) {
         return <td key={nodeId++}>{x[colName]}</td>;
       };

@@ -9,3 +9,43 @@ request.onreadystatechange = function() {
     }
 };
 request.send();
+
+var beers;
+var request2 = new XMLHttpRequest();
+request2.open('GET', 'beers.json');
+request2.onreadystatechange = function() {
+    if (request2.readyState == 4 && request2.status == 200) {
+        beers = JSON.parse(request2.responseText);
+    }
+};
+request2.send();
+
+var runQuery = function(query) {
+    var ast = parser.parse(query);
+    return runAstNode(ast);
+};
+
+var runAstNode = function(node) {
+    var tuples = [];
+    var columns;
+    if (node.name == "\u03c3") { // select
+
+    } else if (node.name == "\u03C0") { // project
+        var table = beers[node.name];
+    } else if (node.name == "\u00d7") { // cross
+    } else if (node.name == "\u22c8") { // join
+    } else if (node.name == "\u222a") { // union
+    } else if (node.name == "\u2212") { // diff
+    } else if (node.name == "\u2229") { // intersection
+    } else if (node.name == "\u03c1") { // rename
+    } else { // table name
+        tuples = beers[node.name].tuples;
+        columns = beers[node.name].columns;
+    }
+
+    return {
+        isError: false,
+        columns: columns,
+        tuples: tuples 
+    };
+};
