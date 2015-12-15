@@ -4,9 +4,7 @@ var ENTER = 13;
 var TAB = 9;
 var UP = 38;
 var DOWN = 40;
-var raCommands = ["project_{", "join", "select_{", "cross", "union", "diff", "intersect", "rename_{"];
-var attributes = [];
-var SHORT_HELP_MESSAGE = "Welcome to RA3\nThis works very similarly to Jun Yang's Relational Algebra Interpreter.\n" 
+var SHORT_HELP_MESSAGE = "Welcome to RA3\nThis works very similarly to Jun Yang's Relational Algebra Interpreter.\n"
                         + "'help --verbose' for a list of commands";
 var LONG_HELP_MESSAGE = "Relational Algebra Expressions: \n"
                        + "\\select_{COND} EXP: selection over an expression \n"

@@ -19,64 +19,15 @@ var TerminalEmulator = React.createClass({
     };
   },
 
-  autocorrect: function(partialCommand)
-  {
-    partialCommand = partialCommand.toLowerCase();
-    if (partialCommand.charAt(0) != '\\') {
-      partialCommand = partialCommand.substring(1);
-    }
-
-    var raCommandCharacterMap = {};
-    for (var i = 0; i < raCommands.length; i++) {
-      raCommandCharacterMap[raCommands[i]] = {};
-      for (var j = 0; j < raCommands[i].length; j++) {
-        if (!(raCommands[i][j] in raCommandCharacterMap[raCommands[i]])) {
-          raCommandCharacterMap[raCommands[i]][raCommands[i][j]] = 0;
-        }
-        raCommandCharacterMap[raCommands[i]][raCommands[i][j]]++;
-      }
-    }
-    var distFromCorrect = 10000;
-    var currClosestCommand = "";
-    var minDiff = -1000;
-    for (var i = 0; i < raCommands.length; i++) {
-      var currDiff = 0;
-      var currDistFromCorrect = 0;
-      for (var j = 0; j < partialCommand.length; j++) {
-        if (partialCommand[j] in raCommandCharacterMap[raCommands[i]] && raCommandCharacterMap[raCommands[i]][partialCommand[j]] > 0) {
-          raCommandCharacterMap[raCommands[i]][partialCommand[j]]--;
-        } else {
-          currDiff--;
-        }
-        currDistFromCorrect += Math.abs(j - raCommands[i].indexOf(partialCommand[j]));
-      }
-
-      if (currDiff >= minDiff && currDistFromCorrect < distFromCorrect) {
-        minDiff = currDiff;
-        distFromCorrect = currDistFromCorrect;
-        currClosestCommand = raCommands[i];
-      }
-    }
-    return currClosestCommand;
-  },
-
   autocomplete: function(s) {
     s = s.toLowerCase();
-    var matchCount = 0;
-    var matchIndex = -1;
-    for (var i = 0; i < raCommands.length; i++) {
-      if (s == raCommands[i].substring(0, s.length)) {
-        matchCount++;
-        matchIndex = i;
+    var answer = s;
+    tab_options.forEach(function(option) {
+      if (s == option.substring(0, s.length)) {
+        answer = option;
       }
-      if (matchCount > 1) {
-        return s;
-      }
-    }
-    if (matchIndex == -1) {
-      return s;
-    }
-    return raCommands[matchIndex];
+    });
+    return answer;
   },
 
   colourNameToHex: function(colour) {
@@ -99,10 +50,10 @@ var TerminalEmulator = React.createClass({
     return -1;
   },
 
-  findPlaceOfAutocomplete: function(s) {
+  findAutocompleteLocation: function(s) {
     for (var i = s.length - 1; i >= 0; i--) {
       if (s[i] == "\\") {
-        return -1;
+        return i;
       }
       if (s[i] == " " || s[i] == "{") {
         return i + 1;
@@ -226,16 +177,11 @@ var TerminalEmulator = React.createClass({
       this.handleEnter(e);
     } else if (e.keyCode == TAB) {
         e.preventDefault();
-        var autocompleteIndex = this.findPlaceOfAutocomplete(this.state.currentInput);
-        if (autocompleteIndex == -1) {
-          var tabIndex = this.findPlaceOfSlash(this.state.currentInput);
-          var toBeCorrected = this.state.currentInput.substring(tabIndex);
-          var raCommand = this.autocorrect(toBeCorrected);
-          this.setState({currentInput: this.state.currentInput.substring(0, tabIndex) + "\\" + raCommand});
-        } else {
+        var autocompleteIndex = this.findAutocompleteLocation(this.state.currentInput);
+        if (autocompleteIndex != -1) {
           var toBeCompleted = this.state.currentInput.substring(autocompleteIndex);
-          var raCommand = this.autocomplete(toBeCompleted);
-          this.setState({currentInput: this.state.currentInput.substring(0, autocompleteIndex) + raCommand});
+          var completion = this.autocomplete(toBeCompleted);
+          this.setState({currentInput: this.state.currentInput.substring(0, autocompleteIndex) + completion});
         }
     } else if (e.keyCode == UP) {
         e.preventDefault();
@@ -278,18 +224,6 @@ var TerminalEmulator = React.createClass({
   },
 
   componentDidMount: function() {
-    var xhttp = new XMLHttpRequest();
-    /*xhttp.onreadystatechange = function() {
-      if (xhttp.readyState == 4 && xhttp.status == 200) {
-        var attrList = JSON.parse(xhttp.responseText);
-        for (var i = 0; i < attrList.length; i++) {
-          raCommands.push(attrList[i]);
-        }
-      }
-    }
-    xhttp.open("GET", DOMAIN + "lookahead/");
-    xhttp.send();*/
-
     document.onkeypress = this.handlePrintableKeys;
     window.onkeydown = this.handleStrangeKeys;
     document.onpaste = this.handlePaste;
@@ -325,7 +259,7 @@ var QueryResultPair = React.createClass({
       html = fallback;
     } else {
       if (result.isError) {
-        //results.push(<span key={nodeId++}>{result.errormessage}{"\n"}{"at location " + parsed.error.start + " to " + parsed.error.end + "\n"}</span>);
+        results.push(<span key={nodeId++}>{result.error.message}{"\n"}{"at location " + parsed.error.start + " to " + parsed.error.end + "\n"}</span>);
       } else {
         html = <span key={nodeId++}><ResultTable parsed={result}/></span>;
       }

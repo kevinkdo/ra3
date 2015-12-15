@@ -71,7 +71,7 @@ var Prenode = React.createClass({
 });
 
 // ----- RaTree -----
-var RaTree = React.createClass({ 
+var RaTree = React.createClass({
   getInitialState: function() {
     return {
       targetId: 0,
