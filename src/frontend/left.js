@@ -129,12 +129,12 @@ var TerminalEmulator = React.createClass({
         this.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex});
       }
     } else {
-      var newHistory = this.state.history;
-      newHistory.push(this.state.currentInput);
-      var newHistoryIndex = newHistory.length;
       if (this.state.currentInput[this.state.currentInput.length - 1] != ";") {
-        this.setState({currentInput: this.state.currentInput + "\n" + "> ", history: newHistory, historyIndex: newHistoryIndex});
+        this.setState({currentInput: this.state.currentInput + "\n" + "> "});
       } else {
+        var newHistory = this.state.history;
+        newHistory.push(this.state.currentInput);
+        var newHistoryIndex = newHistory.length;
         var result = runQuery(this.expandSubquery(this.cleanQuery(this.state.currentInput)));
         var newCommands = this.state.commands.concat([{query: this.cleanQuery(this.state.currentInput), result: result}]);
         this.setState({commands: newCommands, currentInput: "", history: newHistory, historyIndex: newHistoryIndex});
