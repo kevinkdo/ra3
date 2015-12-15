@@ -9,35 +9,23 @@
 }
 
 start
-  = n:exp WS* STATEMENT_TERMINATOR { return n; }
+  = WS* n:exp WS* STATEMENT_TERMINATOR WS* { return n; }
 
 exp
-  = n:exp_unary { return n; }
-  / n1:exp_unary WS* JOIN s:OPERATOR_OPTION WS* n2:exp_unary { return astNode("\u22c8", s, [n1, n2]); }
-  / n1:exp_unary WS* JOIN WS* n2:exp_unary { return astNode("\u22c8", "", [n1, n2]); }
-  / n1:exp_unary WS* CROSS WS* n2:exp_unary { return astNode("\u00d7", "", [n1, n2]); }
-  / n1:exp_unary WS* UNION WS* n2:exp_unary { return astNode("\u222a", "", [n1, n2]); }
-  / n1:exp_unary WS* DIFF WS* n2:exp_unary { return astNode("\u2212", "", [n1, n2]); }
-  / n1:exp_unary WS* INTERSECT WS* n2:exp_unary { return astNode("\u2229", "", [n1, n2]); }
-
-exp_unary
-  = n:exp_unit { return n; }
-  / SELECT s:OPERATOR_OPTION WS* n:exp_unary { return astNode("\u03c3", s, [n]); }
-  / PROJECT s:OPERATOR_OPTION WS* n:exp_unary { return astNode("\u03c3", s, [n]); }
-  / RENAME s:OPERATOR_OPTION WS* n:exp_unary { return astNode("\u03c3", s, [n]); }
+  = n1:exp_unit WS* JOIN s:OPERATOR_OPTION WS* n2:exp_unit { return astNode("\u22c8", s, [n1, n2]); }
+  / n1:exp_unit WS* JOIN WS* n2:exp_unit { return astNode("\u22c8", "", [n1, n2]); }
+  / n1:exp_unit WS* CROSS WS* n2:exp_unit { return astNode("\u00d7", "", [n1, n2]); }
+  / n1:exp_unit WS* UNION WS* n2:exp_unit { return astNode("\u222a", "", [n1, n2]); }
+  / n1:exp_unit WS* DIFF WS* n2:exp_unit { return astNode("\u2212", "", [n1, n2]); }
+  / n1:exp_unit WS* INTERSECT WS* n2:exp_unit { return astNode("\u2229", "", [n1, n2]); }
+  / n:exp_unit { return n; }
 
 exp_unit
-  = n:TABLE_NAME { return n; }
-  / LEFT_PAREN WS* n:exp1 WS* RIGHT_PAREN { return n; }
-
-exp1
-  = n:exp { return n; }
-  / n1:exp WS* JOIN OPERATOR_OPTION WS* n2:exp_unary { return astNode("\u22c8", s, [n1, n2]); }
-  / n1:exp WS* JOIN WS* n2:exp_unary { return astNode("\u22c8", "", [n1, n2]); }
-  / n1:exp WS* CROSS WS* n2:exp_unary { return astNode("\u00d7", "", [n1, n2]); }
-  / n1:exp WS* UNION WS* n2:exp_unary { return astNode("\u222a", "", [n1, n2]); }
-  / n1:exp WS* DIFF WS* n2:exp_unary { return astNode("\u2212", "", [n1, n2]); }
-  / n1:exp WS* INTERSECT WS* n2:exp_unary { return astNode("\u2229", "", [n1, n2]); }
+  = SELECT s:OPERATOR_OPTION WS* n:exp_unit { return astNode("\u03c3", s, [n]); }
+  / PROJECT s:OPERATOR_OPTION WS* n:exp_unit { return astNode("\u03C0", s, [n]); }
+  / RENAME s:OPERATOR_OPTION WS* n:exp_unit { return astNode("\u03c1", s, [n]); }
+  / LEFT_PAREN WS* n:exp WS* RIGHT_PAREN { return n; }
+  / n:TABLE_NAME { return n; }
 
 DIGIT = [0-9]
 ALPHA = s:([a-zA-Z]+) { return s.join(""); }
