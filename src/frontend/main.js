@@ -34,7 +34,14 @@ var LONG_HELP_MESSAGE = "Relational Algebra Expressions: \n"
                        + "By typing in a color from below list of colors, you can change the color of the prompt. \n"
                        + "List of Colors: black, blue, gold, gray, green, orange, purple, red, white, yellow, ghost protocol \n\n"
                        + "HISTORY \n"
-                       + "By using the up and down arrow keys, you can navigate the command history"; 
+                       + "By using the up and down arrow keys, you can navigate the command history\n\n"
+                       + "SCHEMA\n"
+                       + "Bar(name, address)\n"
+                       + "Beer(name, brewer)\n"
+                       + "Drinker(name, address)\n"
+                       + "Frequents(drinker, bar, times_a_week)\n"
+                       + "Serves(bar, beer, price)\n"
+                       + "Likes(drinker, beer)\n";
 var SUBQUERY_SUCCESS_MSG = "Successfully stored subquery.";
 var SUBQUERY_NEST_FAIL_MSG = "Error: Subqueries can not be nested.";
 var SUBQUERY_FAIL_COLON_MSG = "Error: Subqueries must begin with a colon (:)"
