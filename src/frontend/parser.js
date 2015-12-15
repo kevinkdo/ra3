@@ -35,8 +35,10 @@ var runQuery = function(query) {
 };
 
 var runAstNode = function(node) {
+    var isError = false;
     var tuples = [];
-    var columns;
+    var columns = [];
+    var error_message = "";
     if (node.name == "\u03c3") { // select
     } else if (node.name == "\u03C0") { // project
         var table = beers[node.name];
@@ -47,13 +49,23 @@ var runAstNode = function(node) {
     } else if (node.name == "\u2229") { // intersection
     } else if (node.name == "\u03c1") { // rename
     } else { // table name
-        tuples = beers.tables[node.name].tuples;
-        columns = beers.tables[node.name].columns;
+        if (beers.table_names.indexOf(node.name) > -1) {
+            tuples = beers.tables[node.name].tuples;
+            columns = beers.tables[node.name].columns;
+        } else {
+            isError = true;
+            error_message = "Table does not exist";
+        }
     }
 
     return {
-        isError: false,
+        isError: isError,
         columns: columns,
-        tuples: tuples
+        tuples: tuples,
+        error: {
+            message: error_message,
+            start: 0,
+            end: 0,
+        }
     };
 };

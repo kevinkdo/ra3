@@ -237,13 +237,13 @@ var QueryResultPair = React.createClass({
   render: function() {
     var html;
     var result = this.props.result;
-    var fallback = <span key={nodeId++}>{"\n"}{this.props.result}{"\n"}</span>;
+    var fallback = <span key={nodeId++}>{"\n"}{result}{"\n"}</span>;
 
     if (result.length == 0 || result == SUBQUERY_SUCCESS_MSG || result == SUBQUERY_NEST_FAIL_MSG || result == SHORT_HELP_MESSAGE || result == LONG_HELP_MESSAGE || result == SUBQUERY_FAIL_COLON_MSG) {
       html = fallback;
     } else {
       if (result.isError) {
-        results.push(<span key={nodeId++}>{result.error.message}{"\n"}{"at location " + parsed.error.start + " to " + parsed.error.end + "\n"}</span>);
+        html = <span key={nodeId++}>{result.error.message}{"\n"}{"at location " + result.error.start + " to " + result.error.end + "\n"}</span>;
       } else {
         html = <span key={nodeId++}><ResultTable parsed={result}/></span>;
       }
