@@ -17,25 +17,6 @@ request2.onreadystatechange = function() {
 };
 request2.send();
 
-var getSelectCondFunction = function(parsed_select_cond) {
-  if (parsed_select_cond.oper == "=") {
-    return function(tuple) { return tuple[parsed_select_cond.column] == parsed_select_cond.val };
-  } else if (parsed_select_cond.oper == "<") {
-    return function(tuple) { return [parsed_select_cond.column] < parsed_select_cond.val };
-  } else if (parsed_select_cond.oper == ">") {
-    return function(tuple) { return tuple[parsed_select_cond.column] > parsed_select_cond.val };
-  } else if (parsed_select_cond.oper == "<=") {
-    return function(tuple) { return tuple[parsed_select_cond.column] <= parsed_select_cond.val };
-  } else if (parsed_select_cond.oper == ">=") {
-    return function(tuple) { return tuple[parsed_select_cond.column] >= parsed_select_cond.val };
-  } else if (parsed_select_cond.oper == "<>") {
-    return function(tuple) { return tuple[parsed_select_cond.column] != parsed_select_cond.val };
-  } else {
-    isError = true;
-    error_message = "Select condition contains unknown operator."
-  }
-};
-
 var runQuery = function(query) {
   var ast = ra_parser.parse(query);
   return runAstNode(ast);
@@ -52,15 +33,19 @@ var runAstNode = function(node) {
       var parsed_select_cond = select_cond_parser.parse(node.subscript);
       if (child_result.isError) {
         isError = true;
-        error_message = child_result .error_message;
+        error_message = child_result.error_message;
       }
-      else if (child_result.columns.indexOf(parsed_select_cond.column) == -1) {
-        isError = true;
-        error_message = "Column does not exist: " + parsed_select_cond.column;
-      }
-      else {
+
+      parsed_select_cond.columns.forEach(function(column) {
+        if (child_result.columns.indexOf(column) == -1) {
+          isError = true;
+          error_message = "Column does not exist: " + parsed_select_cond.column;
+        }
+      });
+
+      if (!isError) {
         columns = child_result.columns;
-        tuples = child_result.tuples.filter(getSelectCondFunction(parsed_select_cond));
+        tuples = child_result.tuples.filter(parsed_select_cond.select_func);
       }
     } catch (e) {
       isError = true;

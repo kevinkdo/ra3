@@ -1,9 +1,37 @@
 {
-  function unit(column, oper, val) {
-    return {
-      column: column,
-      oper: oper,
-      val: val
+  function getEQSelectFunc(column, v) {
+    return function(tuple) {
+      return tuple[column] == v;
+    };
+  }
+
+  function getLTSelectFunc(column, v) {
+    return function(tuple) {
+      return tuple[column] < v;
+    };
+  }
+
+  function getLESelectFunc(column, v) {
+    return function(tuple) {
+      return tuple[column] <= v;
+    };
+  }
+
+  function getGTSelectFunc(column, v) {
+    return function(tuple) {
+      return tuple[column] > v;
+    };
+  }
+
+  function getGESelectFunc(column, v) {
+    return function(tuple) {
+      return tuple[column] >= v;
+    };
+  }
+
+  function getNESelectFunc(column, v) {
+    return function(tuple) {
+      return tuple[column] != v;
     };
   }
 }
@@ -12,18 +40,18 @@ start
   = WS* n:exp WS* { return n; }
 
 exp
-  = NOT WS* exp_unit
-  / exp_unit WS* AND WS* exp_unit
-  / exp_unit WS* OR WS* exp_unit
+  = NOT WS* n1:exp_unit { return unary_bool(n1, "!"); }
+  / n1:exp_unit WS* AND WS* n2:exp_unit { return bin_bool(n1, "&&", n2); }
+  / n1:exp_unit WS* OR WS* n2:exp_unit { return bin_bool(n1, "||", n2); }
   / n:exp_unit { return n; }
 
 exp_unit
-  = s:COLUMN WS* EQUAL WS* v:val { return unit(s, "=", v); }
-  / s:COLUMN WS* LT WS* v:val { return unit(s, "<", v); }
-  / s:COLUMN WS* LE WS* v:val { return unit(s, "<=", v); }
-  / s:COLUMN WS* GT WS* v:val { return unit(s, ">", v); }
-  / s:COLUMN WS* GE WS* v:val { return unit(s, ">=", v); }
-  / s:COLUMN WS* NE WS* v:val { return unit(s, "<>", v); }
+  = s:COLUMN WS* EQUAL WS* v:val { return {columns:[s], select_func: getEQSelectFunc(s, v)}; }
+  / s:COLUMN WS* LT WS* v:val { return {columns:[s], select_func: getLTSelectFunc(s, v)}; }
+  / s:COLUMN WS* LE WS* v:val { return {columns:[s], select_func: getLESelectFunc(s, v)}; }
+  / s:COLUMN WS* GT WS* v:val { return {columns:[s], select_func: getGTSelectFunc(s, v)}; }
+  / s:COLUMN WS* GE WS* v:val { return {columns:[s], select_func: getGESelectFunc(s, v)}; }
+  / s:COLUMN WS* NE WS* v:val { return {columns:[s], select_func: getNESelectFunc(s, v)}; }
   / LEFT_PAREN WS* n:exp WS* RIGHT_PAREN { return n; }
 
 val
