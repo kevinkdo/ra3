@@ -32,12 +32,11 @@ exp_unit
 
 val
   = i:NUMBER { return i; }
-  / QUOTE s:ALPHANUM QUOTE { return s; }
+  / QUOTE s:INSIDE_QUOTE./m QUOTE { return s; }
 
 DIGIT = s:[0-9] { return s; }
 NUMBER = s:[0-9]+ { return makeInt(s); }
 ALPHA = s:([a-zA-Z]+) { return s.join(""); }
-ALPHANUM = s:([a-zA-Z0-9]+) { return s.join(""); }
 COLUMN = s1:ALPHA s2:(ALPHA/DIGIT/'_')* { return s1 + s2.join(""); }
 INSIDE_QUOTE = s:([^'])+ { return s.join(""); }
 

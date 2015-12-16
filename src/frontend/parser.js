@@ -29,7 +29,6 @@ var runAstNode = function(node) {
   var error_message = "";
   if (node.name == "\u03c3") { // select
     try {
-      debugger;
       var child_result = runAstNode(node.children[0]);
       var parsed_select_cond = select_cond_parser.parse(node.subscript);
       if (child_result.isError) {
@@ -45,7 +44,20 @@ var runAstNode = function(node) {
         tuples = child_result.tuples.filter(function(tuple) {
           if (parsed_select_cond.oper == "=") {
             return tuple[parsed_select_cond.column] == parsed_select_cond.val;
-          } // DO REST OF THE CONDITIONS
+          } else if (parsed_select_cond.oper == "<") {
+            return tuple[parsed_select_cond.column] < parsed_select_cond.val;
+          } else if (parsed_select_cond.oper == ">") {
+            return tuple[parsed_select_cond.column] > parsed_select_cond.val;
+          } else if (parsed_select_cond.oper == "<=") {
+            return tuple[parsed_select_cond.column] <= parsed_select_cond.val;
+          } else if (parsed_select_cond.oper == ">=") {
+            return tuple[parsed_select_cond.column] >= parsed_select_cond.val;
+          } else if (parsed_select_cond.oper == "<>") {
+            return tuple[parsed_select_cond.column] != parsed_select_cond.val;
+          } else {
+            isError = true;
+            error_message = "Select condition contains unknown operator."
+          }
         });
       }
     } catch (e) {
