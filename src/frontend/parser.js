@@ -33,7 +33,7 @@ var runAstNode = function(node) {
   var isError = false;
   var tuples = [];
   var columns = [];
-  var error_message = "";
+  var error = {};
   if (node.name == "\u03c3") { // select
     try {
       var child_result = runAstNode(node.children[0]);
@@ -56,7 +56,7 @@ var runAstNode = function(node) {
       }
     } catch (e) {
       isError = true;
-      error_message = e.message;
+      error = e;
     }
   } else if (node.name == "\u03C0") { // project
   } else if (node.name == "\u00d7") { // cross
@@ -79,6 +79,6 @@ var runAstNode = function(node) {
     isError: isError,
     columns: columns,
     tuples: tuples,
-    error: e
+    error: error
   };
 };
