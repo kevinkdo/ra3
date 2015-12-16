@@ -18,7 +18,14 @@ request2.onreadystatechange = function() {
 request2.send();
 
 var runQuery = function(query) {
-  var ast = ra_parser.parse(query);
+  try {
+    var ast = ra_parser.parse(query);
+  } catch (e) {
+    return {
+      isError: true,
+      error: e
+    }
+  }
   return runAstNode(ast);
 };
 
@@ -72,10 +79,6 @@ var runAstNode = function(node) {
     isError: isError,
     columns: columns,
     tuples: tuples,
-    error: {
-      message: error_message,
-      start: 0,
-      end: 0,
-    }
+    error: e
   };
 };
