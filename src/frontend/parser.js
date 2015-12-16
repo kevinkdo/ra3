@@ -1,17 +1,5 @@
 var tab_options = ["\\project_{", "\\join", "\\select_{", "\\cross", "\\union", "\\diff", "\\intersect", "\\rename_{"];
 
-var grammar;
-var parser;
-var request = new XMLHttpRequest();
-request.open('GET', 'ra.pegjs');
-request.onreadystatechange = function() {
-    if (request.readyState == 4 && request.status == 200) {
-      grammar = request.responseText;
-      parser = PEG.buildParser(grammar);
-    }
-};
-request.send();
-
 var beers;
 var request2 = new XMLHttpRequest();
 request2.open('GET', 'beers.json');
@@ -30,7 +18,7 @@ request2.onreadystatechange = function() {
 request2.send();
 
 var runQuery = function(query) {
-    var ast = parser.parse(query);
+    var ast = ra_parser.parse(query);
     return runAstNode(ast);
 };
 
