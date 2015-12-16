@@ -34,15 +34,33 @@
       return tuple[column] != v;
     };
   }
+
+  function getNotSelectFunc(selectFunc) {
+    return function(tuple) {
+      return !selectFunc(tuple);
+    };
+  }
+
+  function getAndSelectFunc(selectFunc1, selectFunc2) {
+    return function(tuple) {
+      return selectFunc1(tuple) && selectFunc2(tuple);
+    };
+  }
+
+  function getOrSelectFunc(selectFunc1, selectFunc2) {
+    return function(tuple) {
+      return selectFunc1(tuple) || selectFunc2(tuple);
+    };
+  }
 }
 
 start
   = WS* n:exp WS* { return n; }
 
 exp
-  = NOT WS* n1:exp_unit { return unary_bool(n1, "!"); }
-  / n1:exp_unit WS* AND WS* n2:exp_unit { return bin_bool(n1, "&&", n2); }
-  / n1:exp_unit WS* OR WS* n2:exp_unit { return bin_bool(n1, "||", n2); }
+  = NOT WS* n1:exp_unit { return {columns:n1.columns, select_func: getNotSelectFunc(n1.select_func)}; }
+  / n1:exp_unit WS* AND WS* n2:exp_unit { return {columns:n1.columns.concat(n2.columns), select_func: getAndSelectFunc(n1.select_func, n2.select_func)}; }
+  / n1:exp_unit WS* OR WS* n2:exp_unit { return {columns:n1.columns.concat(n2.columns), select_func: getOrSelectFunc(n1.select_func, n2.select_func)}; }
   / n:exp_unit { return n; }
 
 exp_unit
