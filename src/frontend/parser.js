@@ -17,6 +17,25 @@ request2.onreadystatechange = function() {
 };
 request2.send();
 
+var getSelectCondFunction = function(parsed_select_cond) {
+  if (parsed_select_cond.oper == "=") {
+    return function(tuple) { return tuple[parsed_select_cond.column] == parsed_select_cond.val };
+  } else if (parsed_select_cond.oper == "<") {
+    return function(tuple) { return [parsed_select_cond.column] < parsed_select_cond.val };
+  } else if (parsed_select_cond.oper == ">") {
+    return function(tuple) { return tuple[parsed_select_cond.column] > parsed_select_cond.val };
+  } else if (parsed_select_cond.oper == "<=") {
+    return function(tuple) { return tuple[parsed_select_cond.column] <= parsed_select_cond.val };
+  } else if (parsed_select_cond.oper == ">=") {
+    return function(tuple) { return tuple[parsed_select_cond.column] >= parsed_select_cond.val };
+  } else if (parsed_select_cond.oper == "<>") {
+    return function(tuple) { return tuple[parsed_select_cond.column] != parsed_select_cond.val };
+  } else {
+    isError = true;
+    error_message = "Select condition contains unknown operator."
+  }
+};
+
 var runQuery = function(query) {
   var ast = ra_parser.parse(query);
   return runAstNode(ast);
@@ -41,24 +60,7 @@ var runAstNode = function(node) {
       }
       else {
         columns = child_result.columns;
-        tuples = child_result.tuples.filter(function(tuple) {
-          if (parsed_select_cond.oper == "=") {
-            return tuple[parsed_select_cond.column] == parsed_select_cond.val;
-          } else if (parsed_select_cond.oper == "<") {
-            return tuple[parsed_select_cond.column] < parsed_select_cond.val;
-          } else if (parsed_select_cond.oper == ">") {
-            return tuple[parsed_select_cond.column] > parsed_select_cond.val;
-          } else if (parsed_select_cond.oper == "<=") {
-            return tuple[parsed_select_cond.column] <= parsed_select_cond.val;
-          } else if (parsed_select_cond.oper == ">=") {
-            return tuple[parsed_select_cond.column] >= parsed_select_cond.val;
-          } else if (parsed_select_cond.oper == "<>") {
-            return tuple[parsed_select_cond.column] != parsed_select_cond.val;
-          } else {
-            isError = true;
-            error_message = "Select condition contains unknown operator."
-          }
-        });
+        tuples = child_result.tuples.filter(getSelectCondFunction(parsed_select_cond));
       }
     } catch (e) {
       isError = true;
