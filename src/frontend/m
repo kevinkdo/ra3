@@ -10,9 +10,10 @@ jsx < globals.jsx > globals.js
 
 # Build parsers
 pegjs -e ra_parser ra.pegjs
+pegjs -e select_cond_parser select_cond.pegjs
 
 # Cat parsers into main.js
-cat globals.js ra.js > main.js
+cat globals.js ra.js select_cond.js > main.js
 
 # Clean
 rm ra.js globals.js
