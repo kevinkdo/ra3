@@ -1,8 +1,4 @@
 {
-  function makeInt(o) {
-    return parseInt(o.join(""), 10);
-  }
-
   function unit(column, oper, val) {
     return {
       column: column,
@@ -31,11 +27,13 @@ exp_unit
   / LEFT_PAREN WS* n:exp WS* RIGHT_PAREN { return n; }
 
 val
-  = i:NUMBER { return i; }
-  / QUOTE s:INSIDE_QUOTE./m QUOTE { return s; }
+  = QUOTE s:INSIDE_QUOTE QUOTE { return s; }
+  / f:FLOAT { return f; }
+  / i:INT { return i; }
 
 DIGIT = s:[0-9] { return s; }
-NUMBER = s:[0-9]+ { return makeInt(s); }
+INT = s:[0-9]+ { return parseInt(s.join(""), 10); }
+FLOAT = s1:(DIGIT*) s2:'.' s3:(DIGIT*) { return parseFloat(s1.join("") + s2 + s3.join("")); }
 ALPHA = s:([a-zA-Z]+) { return s.join(""); }
 COLUMN = s1:ALPHA s2:(ALPHA/DIGIT/'_')* { return s1 + s2.join(""); }
 INSIDE_QUOTE = s:([^'])+ { return s.join(""); }
