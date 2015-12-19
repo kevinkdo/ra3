@@ -112,6 +112,41 @@ var runAstNode = function(node) {
       result_tuples = deduplicate_tuples(result_columns, result_tuples);
     }
   } else if (node.name == "\u00d7") { // cross
+    var child_result0 = runAstNode(node.children[0]);
+    var child_result1 = runAstNode(node.children[1]);
+    if (child_result0.isError || child_result1.isError) {
+      result_isError = true;
+      result_error_message = child_result0.isError ?
+        child_result0.error_message : child_result1.error_message;
+    }
+
+    if (!result_isError) {
+      var column_set = {};
+      result_columns = child_result0.columns.concat(child_result1.columns);
+      result_columns.forEach(function(column) {
+        if (column in column_set) {
+          result_isError = true;
+          result_error_message = "\\cross contains duplicate columns: " + column;
+        } else {
+          column_set[column] = true;
+        }
+      });
+    }
+
+    if (!result_isError) {
+      child_result0.tuples.forEach(function(tuple0) {
+        child_result1.tuples.forEach(function(tuple1) {
+          var new_tuple = {};
+          child_result0.columns.forEach(function(column) {
+            new_tuple[column] = tuple0[column];
+          });
+          child_result1.columns.forEach(function(column) {
+            new_tuple[column] = tuple1[column];
+          });
+          result_tuples.push(new_tuple);
+        })
+      });
+    }
   } else if (node.name == "\u22c8") { // join
   } else if (node.name == "\u222a") { // union
   } else if (node.name == "\u2212") { // diff
