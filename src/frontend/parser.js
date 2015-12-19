@@ -71,7 +71,7 @@ var runAstNode = function(node) {
   } else if (node.name == "\u2229") { // intersection
   } else if (node.name == "\u03c1") { // rename
     try {
-      var new_columns = rename_attr_list_parser.parse(node.subscript);
+      var new_columns = attr_list_parser.parse(node.subscript);
     } catch (e) {
       isError = true;
       error_message = "Bad rename attribute list: " + e.message;
