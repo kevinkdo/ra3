@@ -94,6 +94,18 @@ var runAstNode = function(node) {
     }
 
     if (!isError) {
+      var column_set = {};
+      new_columns.forEach(function(new_column) {
+        if (new_column in column_set) {
+          isError = true;
+          error_message = "\\rename contains duplicate columns: " + new_column;
+        } else {
+          column_set[new_column] = true;
+        }
+      });
+    }
+
+    if (!isError) {
       columns = new_columns;
       tuples = child_result.tuples.map(function(old_tuple) {
         var new_tuple = {};
