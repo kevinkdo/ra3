@@ -237,7 +237,7 @@ var QueryResultPair = React.createClass({
       html = fallback;
     } else {
       if (result.isError) {
-        html = <span key={nodeId++}>{result.error.message}{"\n"}</span>;
+        html = <span key={nodeId++}>{result.error_message}{"\n"}</span>;
       } else {
         html = <span key={nodeId++}><ResultTable parsed={result}/></span>;
       }

@@ -23,7 +23,7 @@ var runQuery = function(query) {
   } catch (e) {
     return {
       isError: true,
-      error: e
+      error_message: e.message
     }
   }
   return runAstNode(ast);
@@ -33,30 +33,35 @@ var runAstNode = function(node) {
   var isError = false;
   var tuples = [];
   var columns = [];
-  var error = {};
+  var error_message = "";
   if (node.name == "\u03c3") { // select
     try {
-      var child_result = runAstNode(node.children[0]);
       var parsed_select_cond = select_cond_parser.parse(node.subscript);
+    } catch (e) {
+      isError = true;
+      error_message = "Bad \\select condition: " + e.message;
+    }
+
+    if (!isError) {
+      var child_result = runAstNode(node.children[0]);
       if (child_result.isError) {
         isError = true;
         error_message = child_result.error_message;
       }
+    }
 
+    if (!isError) {
       parsed_select_cond.columns.forEach(function(column) {
         if (child_result.columns.indexOf(column) == -1) {
           isError = true;
-          error_message = "Column does not exist: " + parsed_select_cond.column;
+          error_message = "Column does not exist: " + column;
         }
       });
+    }
 
-      if (!isError) {
-        columns = child_result.columns;
-        tuples = child_result.tuples.filter(parsed_select_cond.select_func);
-      }
-    } catch (e) {
-      isError = true;
-      error = e;
+    if (!isError) {
+      columns = child_result.columns;
+      tuples = child_result.tuples.filter(parsed_select_cond.select_func);
     }
   } else if (node.name == "\u03C0") { // project
   } else if (node.name == "\u00d7") { // cross
@@ -65,13 +70,46 @@ var runAstNode = function(node) {
   } else if (node.name == "\u2212") { // diff
   } else if (node.name == "\u2229") { // intersection
   } else if (node.name == "\u03c1") { // rename
+    try {
+      var new_columns = rename_attr_list_parser.parse(node.subscript);
+    } catch (e) {
+      isError = true;
+      error_message = "Bad rename attribute list: " + e.message;
+    }
+
+    if (!isError) {
+      var child_result = runAstNode(node.children[0]);
+      if (child_result.isError) {
+        isError = true;
+        error_message = child_result.error_message;
+      }
+    }
+
+    if (!isError) {
+      var old_columns = child_result.columns;
+      if (old_columns.length !== new_columns.length) {
+        isError = true;
+        error_message = "\\rename contains the wrong number of columns";
+      }
+    }
+
+    if (!isError) {
+      columns = new_columns;
+      tuples = child_result.tuples.map(function(old_tuple) {
+        var new_tuple = {};
+        for (var i = 0; i < new_columns.length; i++) {
+          new_tuple[new_columns[i]] = old_tuple[old_columns[i]];
+        }
+        return new_tuple;
+      });
+    }
   } else { // table name
     if (beers.table_names.indexOf(node.name) > -1) {
       tuples = beers.tables[node.name].tuples;
       columns = beers.tables[node.name].columns;
     } else {
       isError = true;
-      error_message = "Table does not exist";
+      error_message = "Table does not exist: " + node.name;
     }
   }
 
@@ -79,6 +117,6 @@ var runAstNode = function(node) {
     isError: isError,
     columns: columns,
     tuples: tuples,
-    error: error
+    error_message: error_message
   };
 };
