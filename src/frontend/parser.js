@@ -151,6 +151,7 @@ var runAstNode = function(node) {
   } else if (node.name == "\u222a") { // union
     var child_result0 = runAstNode(node.children[0]);
     var child_result1 = runAstNode(node.children[1]);
+    var done = false;
     if (child_result0.isError || child_result1.isError) {
       result_isError = true;
       result_error_message = child_result0.isError ?
@@ -167,20 +168,73 @@ var runAstNode = function(node) {
     if (child_result0.tuples.length === 0) {
       result_columns = child_result1.columns;
       result_tuples = child_result1.tuples;
+      done = true;
     }
 
     if (child_result1.tuples.length === 0) {
       result_columns = child_result0.columns;
       result_tuples = child_result0.tuples;
+      done = true;
     }
 
-    if (result_columns.length === 0 && !result_isError) {
+    if (!done && !result_isError) {
       for (var i = 0; i < child_result0.columns.length; i++) {
         var type0 = typeof child_result0.tuples[0][child_result0.columns[i]];
         var type1 = typeof child_result1.tuples[0][child_result1.columns[i]];
         if (type0 !== type1) {
           result_isError = true;
           result_error_message = "Children of \\union have different types: " + type0 + ", " + type1;
+        }
+      }
+    }
+
+    if (!done && !result_isError) {
+      result_columns = child_result0.columns;
+      var renamed_child1_tuples = child_result1.tuples.map(function(tuple) {
+        var new_tuple = {};
+        for (var i = 0; i < result_columns.length; i++) {
+          new_tuple[result_columns[i]] = tuple[child_result1.columns[i]];
+        }
+        return new_tuple;
+      });
+      result_tuples = deduplicate_tuples(result_columns, child_result0.tuples.concat(renamed_child1_tuples));
+    }
+  } else if (node.name == "\u2212") { // diff
+    var child_result0 = runAstNode(node.children[0]);
+    var child_result1 = runAstNode(node.children[1]);
+    var done = false;
+    if (child_result0.isError || child_result1.isError) {
+      result_isError = true;
+      result_error_message = child_result0.isError ?
+        child_result0.error_message : child_result1.error_message;
+    }
+
+    if (!result_isError) {
+      if (child_result0.columns.length !== child_result1.columns.length) {
+        result_isError = true;
+        result_error_message = "Can't diff tuples with different number of columns";
+      }
+    }
+
+    if (child_result0.tuples.length === 0) {
+      result_columns = child_result0.columns;
+      result_tuples = [];
+      done = true;
+    }
+
+    if (child_result1.tuples.length === 0) {
+      result_columns = child_result0.columns;
+      result_tuples = child_result0.tuples;
+      done = true;
+    }
+
+    if (!done && !result_isError) {
+      for (var i = 0; i < child_result0.columns.length; i++) {
+        var type0 = typeof child_result0.tuples[0][child_result0.columns[i]];
+        var type1 = typeof child_result1.tuples[0][child_result1.columns[i]];
+        if (type0 !== type1) {
+          result_isError = true;
+          result_error_message = "Children of \\diff have different types: " + type0 + ", " + type1;
         }
       }
     }
@@ -194,9 +248,18 @@ var runAstNode = function(node) {
         }
         return new_tuple;
       });
-      result_tuples = deduplicate_tuples(result_columns, child_result0.tuples.concat(renamed_child1_tuples));
+
+      child_result0.tuples.forEach(function(tuple0) {
+        var duplicate = renamed_child1_tuples.some(function(tuple1) {
+          return child_result0.columns.every(function(column) {
+            return (tuple0[column] === tuple1[column]);
+          });
+        });
+        if (!duplicate) {
+          result_tuples.push(tuple0);
+        }
+      });
     }
-  } else if (node.name == "\u2212") { // diff
   } else if (node.name == "\u2229") { // intersection
   } else if (node.name == "\u03c1") { // rename
     try {
