@@ -261,6 +261,66 @@ var runAstNode = function(node) {
       });
     }
   } else if (node.name == "\u2229") { // intersection
+    var child_result0 = runAstNode(node.children[0]);
+    var child_result1 = runAstNode(node.children[1]);
+    var done = false;
+    if (child_result0.isError || child_result1.isError) {
+      result_isError = true;
+      result_error_message = child_result0.isError ?
+        child_result0.error_message : child_result1.error_message;
+    }
+
+    if (!result_isError) {
+      if (child_result0.columns.length !== child_result1.columns.length) {
+        result_isError = true;
+        result_error_message = "Can't intersect tuples with different number of columns";
+      }
+    }
+
+    if (child_result0.tuples.length === 0) {
+      result_columns = child_result0.columns;
+      result_tuples = [];
+      done = true;
+    }
+
+    if (child_result1.tuples.length === 0) {
+      result_columns = child_result0.columns;
+      result_tuples = [];
+      done = true;
+    }
+
+    if (!done && !result_isError) {
+      for (var i = 0; i < child_result0.columns.length; i++) {
+        var type0 = typeof child_result0.tuples[0][child_result0.columns[i]];
+        var type1 = typeof child_result1.tuples[0][child_result1.columns[i]];
+        if (type0 !== type1) {
+          result_isError = true;
+          result_error_message = "Children of \\intersect have different types: " + type0 + ", " + type1;
+        }
+      }
+    }
+
+    if (result_columns.length === 0 && !result_isError) {
+      result_columns = child_result0.columns;
+      var renamed_child1_tuples = child_result1.tuples.map(function(tuple) {
+        var new_tuple = {};
+        for (var i = 0; i < result_columns.length; i++) {
+          new_tuple[result_columns[i]] = tuple[child_result1.columns[i]];
+        }
+        return new_tuple;
+      });
+
+      child_result0.tuples.forEach(function(tuple0) {
+        var duplicate = renamed_child1_tuples.some(function(tuple1) {
+          return child_result0.columns.every(function(column) {
+            return (tuple0[column] === tuple1[column]);
+          });
+        });
+        if (duplicate) {
+          result_tuples.push(tuple0);
+        }
+      });
+    }
   } else if (node.name == "\u03c1") { // rename
     try {
       var new_columns = attr_list_parser.parse(node.subscript);
