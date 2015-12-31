@@ -77,14 +77,15 @@ val
   / f:FLOAT { return f; }
   / i:INT { return i; }
 
-DIGIT = s:[0-9] { return s; }
-INT = s:[0-9]+ { return parseInt(s.join(""), 10); }
-FLOAT = s1:(DIGIT*) s2:'.' s3:(DIGIT*) { return parseFloat(s1.join("") + s2 + s3.join("")); }
-ALPHA = s:([a-zA-Z]+) { return s.join(""); }
-COLUMN = s1:ALPHA s2:(ALPHA/DIGIT/'_')* { return s1 + s2.join(""); }
-INSIDE_QUOTE = s:([^'])+ { return s.join(""); }
-
+DIGIT = [0-9]
+ALPHA = [a-zA-Z]
 WS = [ \t\r\n]
+
+INT = l:[0-9]+ { return parseInt(l.join(""), 10); }
+FLOAT = l1:(DIGIT*) s1:'.' l2:(DIGIT*) { return parseFloat(s1.join("") + s1 + l2.join("")); }
+COLUMN = s1:ALPHA l1:(ALPHA/DIGIT/'_')* { return s1 + l1.join(""); }
+INSIDE_QUOTE = l:([^'])+ { return l.join(""); }
+
 LEFT_PAREN = '('
 RIGHT_PAREN = ')'
 QUOTE = '\''

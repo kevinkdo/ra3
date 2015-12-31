@@ -28,14 +28,14 @@ exp_unit
   / n:TABLE_NAME { return n; }
 
 DIGIT = [0-9]
-ALPHA = s:([a-zA-Z]+) { return s.join(""); }
+ALPHA = [a-zA-Z]
 WS = [ \t\r\n]
 
 LEFT_PAREN = '('
 RIGHT_PAREN = ')'
 STATEMENT_TERMINATOR = ';'
 
-TABLE_NAME = s:(ALPHA (ALPHA/DIGIT/'_')*) { return astNode(s.join(""), "", []); }
+TABLE_NAME = s1:ALPHA l1:((ALPHA/DIGIT/'_')*) { return astNode(s1 + l1.join(""), "", []); }
 
 SELECT = '\\select'
 PROJECT = '\\project'
@@ -46,5 +46,5 @@ DIFF = '\\diff'
 INTERSECT = '\\intersect'
 RENAME = '\\rename'
 
-OPERATOR_OPTION = '_{' s:((INSIDE_OPERATOR_OPTION)*) '}' { return s.join(""); }
-INSIDE_OPERATOR_OPTION = s:([^}\n\r]) { return s; }
+OPERATOR_OPTION = '_{' l:((INSIDE_OPERATOR_OPTION)*) '}' { return l.join(""); }
+INSIDE_OPERATOR_OPTION = [^}\n\r]
