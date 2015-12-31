@@ -35,16 +35,16 @@ LEFT_PAREN = '('
 RIGHT_PAREN = ')'
 STATEMENT_TERMINATOR = ';'
 
-TABLE_NAME = s1:ALPHA l1:((ALPHA/DIGIT/'_')*) { return astNode(s1 + l1.join(""), "", []); }
+TABLE_NAME = s1:ALPHA l1:((ALPHA/DIGIT/'_')*) { return astNode((s1 + l1.join("")).toLowerCase(), "", []); }
 
-SELECT = '\\select'
-PROJECT = '\\project'
-JOIN = '\\join'
-CROSS = '\\cross'
-UNION = '\\union'
-DIFF = '\\diff'
-INTERSECT = '\\intersect'
-RENAME = '\\rename'
+SELECT = '\\select'i
+PROJECT = '\\project'i
+JOIN = '\\join'i
+CROSS = '\\cross'i
+UNION = '\\union'i
+DIFF = '\\diff'i
+INTERSECT = '\\intersect'i
+RENAME = '\\rename'i
 
 OPERATOR_OPTION = '_{' l:((INSIDE_OPERATOR_OPTION)*) '}' { return l.join(""); }
 INSIDE_OPERATOR_OPTION = [^}\n\r]
