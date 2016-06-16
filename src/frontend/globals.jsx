@@ -71,6 +71,12 @@ function numChildren(str) {
   }
 }
 
+function arrayContains(array, obj) {
+  return array.some(function(x) {
+    return x == obj;
+  });
+}
+
 // ===== React render statements =====
 var terminal = React.render(
   <TerminalEmulator />,

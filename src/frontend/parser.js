@@ -147,7 +147,99 @@ var runAstNode = function(node) {
         })
       });
     }
-  } else if (node.name == "\u22c8") { // join
+  } else if (node.name == "\u22c8" && node.subscript.length == 0) { // natural join
+    var child_result0 = runAstNode(node.children[0]);
+    var child_result1 = runAstNode(node.children[1]);
+    if (child_result0.isError || child_result1.isError) {
+      result_isError = true;
+      result_error_message = child_result0.isError ?
+        child_result0.error_message : child_result1.error_message;
+    }
+
+    var common_columns = [];
+    if (!result_isError) {
+      var column_set = {};
+      result_columns = child_result0.columns.concat(child_result1.columns);
+      result_columns.forEach(function(column) {
+        if (column in column_set) {
+          common_columns.push(column);
+        }
+        column_set[column] = true;
+      });
+    }
+
+    console.log(common_columns);
+    var left_only_columns = child_result0.columns.filter(function(column) {
+      return !arrayContains(common_columns, column);
+    });
+    console.log(child_result0.columns.filter(function(column) {
+      return false;
+    }));
+    var right_only_columns = child_result1.columns.filter(function(column) {
+      return !arrayContains(common_columns, column);
+    });
+    result_columns = common_columns.concat(left_only_columns).concat(right_only_columns);
+
+    if (!result_isError) {
+      child_result0.tuples.forEach(function(tuple0) {
+        child_result1.tuples.forEach(function(tuple1) {
+          var new_tuple = {};
+          child_result0.columns.forEach(function(column) {
+            new_tuple[column] = tuple0[column];
+          });
+          child_result1.columns.forEach(function(column) {
+            new_tuple[column] = tuple1[column];
+          });
+
+          var is_valid_join_tuple = true;
+          common_columns.forEach(function(common_column) {
+            if (tuple0[common_column] != tuple1[common_column]) {
+              is_valid_join_tuple = false;
+            }
+          });
+          if (is_valid_join_tuple) {
+            result_tuples.push(new_tuple);
+          }
+        })
+      });
+    }
+  } else if (node.name == "\u22c8" && node.subscript.length > 0) { // theta join
+    // TODO THIS IS NOT DONE
+    var child_result0 = runAstNode(node.children[0]);
+    var child_result1 = runAstNode(node.children[1]);
+    if (child_result0.isError || child_result1.isError) {
+      result_isError = true;
+      result_error_message = child_result0.isError ?
+        child_result0.error_message : child_result1.error_message;
+    }
+
+    if (!result_isError) {
+      var column_set = {};
+      result_columns = child_result0.columns.concat(child_result1.columns);
+      result_columns.forEach(function(column) {
+        if (column in column_set) {
+          result_isError = true;
+          result_error_message = "Theta \\join contains duplicate columns: " + column;
+        } else {
+          column_set[column] = true;
+        }
+      });
+    }
+
+    if (!result_isError) {
+      child_result0.tuples.forEach(function(tuple0) {
+        child_result1.tuples.forEach(function(tuple1) {
+          var new_tuple = {};
+          child_result0.columns.forEach(function(column) {
+            new_tuple[column] = tuple0[column];
+          });
+          child_result1.columns.forEach(function(column) {
+            new_tuple[column] = tuple1[column];
+          });
+          result_tuples.push(new_tuple);
+        })
+      });
+    }
   } else if (node.name == "\u222a") { // union
     var child_result0 = runAstNode(node.children[0]);
     var child_result1 = runAstNode(node.children[1]);

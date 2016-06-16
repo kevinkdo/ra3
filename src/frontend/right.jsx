@@ -379,7 +379,7 @@ var RaTree = React.createClass({
     var me = this;
     var text = this.props.getTerminalInput();
     if (text.length == 0) return;
-    var tree = parser.parse(text);
+    var tree = ra_parser.parse(text);
     me.setState({tree: me.postProcess(tree)});
   },
 
