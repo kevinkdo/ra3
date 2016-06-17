@@ -1,37 +1,73 @@
 {
-  function getEQSelectFunc(column, v) {
+  function getEQvalSelectFunc(column, v) {
     return function(tuple) {
       return tuple[column] == v;
     };
   }
 
-  function getLTSelectFunc(column, v) {
+  function getLTvalSelectFunc(column, v) {
     return function(tuple) {
       return tuple[column] < v;
     };
   }
 
-  function getLESelectFunc(column, v) {
+  function getLEvalSelectFunc(column, v) {
     return function(tuple) {
       return tuple[column] <= v;
     };
   }
 
-  function getGTSelectFunc(column, v) {
+  function getGTvalSelectFunc(column, v) {
     return function(tuple) {
       return tuple[column] > v;
     };
   }
 
-  function getGESelectFunc(column, v) {
+  function getGEvalSelectFunc(column, v) {
     return function(tuple) {
       return tuple[column] >= v;
     };
   }
 
-  function getNESelectFunc(column, v) {
+  function getNEvalSelectFunc(column, v) {
     return function(tuple) {
       return tuple[column] != v;
+    };
+  }
+
+  function getEQcolSelectFunc(column1, column2) {
+    return function(tuple) {
+      return tuple[column1] == tuple[column2];
+    };
+  }
+
+  function getLTcolSelectFunc(column1, column2) {
+    return function(tuple) {
+      return tuple[column1] < tuple[column2];
+    };
+  }
+
+  function getLEcolSelectFunc(column1, column2) {
+    return function(tuple) {
+      return tuple[column1] <= tuple[column2];
+    };
+  }
+
+  function getGTcolSelectFunc(column1, column2) {
+    return function(tuple) {
+      return tuple[column1] > tuple[column2];
+    };
+  }
+
+  function getGEcolSelectFunc(column1, column2) {
+    return function(tuple) {
+      return tuple[column1] >= tuple[column2];
+    };
+  }
+
+  function getNEcolSelectFunc(column1, column2) {
+    return function(tuple) {
+      return tuple[column1] != tuple[column2];
     };
   }
 
@@ -64,12 +100,18 @@ exp
   / n:exp_unit { return n; }
 
 exp_unit
-  = s:COLUMN WS* EQUAL WS* v:val { return {columns:[s], select_func: getEQSelectFunc(s, v)}; }
-  / s:COLUMN WS* LT WS* v:val { return {columns:[s], select_func: getLTSelectFunc(s, v)}; }
-  / s:COLUMN WS* LE WS* v:val { return {columns:[s], select_func: getLESelectFunc(s, v)}; }
-  / s:COLUMN WS* GT WS* v:val { return {columns:[s], select_func: getGTSelectFunc(s, v)}; }
-  / s:COLUMN WS* GE WS* v:val { return {columns:[s], select_func: getGESelectFunc(s, v)}; }
-  / s:COLUMN WS* NE WS* v:val { return {columns:[s], select_func: getNESelectFunc(s, v)}; }
+  = s:COLUMN WS* EQ WS* v:val { return {columns:[s], select_func: getEQvalSelectFunc(s, v)}; }
+  / s:COLUMN WS* LT WS* v:val { return {columns:[s], select_func: getLTvalSelectFunc(s, v)}; }
+  / s:COLUMN WS* LE WS* v:val { return {columns:[s], select_func: getLEvalSelectFunc(s, v)}; }
+  / s:COLUMN WS* GT WS* v:val { return {columns:[s], select_func: getGTvalSelectFunc(s, v)}; }
+  / s:COLUMN WS* GE WS* v:val { return {columns:[s], select_func: getGEvalSelectFunc(s, v)}; }
+  / s:COLUMN WS* NE WS* v:val { return {columns:[s], select_func: getNEvalSelectFunc(s, v)}; }
+  / s1:COLUMN WS* EQ WS* s2:COLUMN { return {columns:[s1, s2], select_func: getEQcolSelectFunc(s1, s2)}; }
+  / s1:COLUMN WS* LT WS* s2:COLUMN { return {columns:[s1, s2], select_func: getLTcolSelectFunc(s1, s2)}; }
+  / s1:COLUMN WS* LE WS* s2:COLUMN { return {columns:[s1, s2], select_func: getLEcolSelectFunc(s1, s2)}; }
+  / s1:COLUMN WS* GT WS* s2:COLUMN { return {columns:[s1, s2], select_func: getGTcolSelectFunc(s1, s2)}; }
+  / s1:COLUMN WS* GE WS* s2:COLUMN { return {columns:[s1, s2], select_func: getGEcolSelectFunc(s1, s2)}; }
+  / s1:COLUMN WS* NE WS* s2:COLUMN { return {columns:[s1, s2], select_func: getNEcolSelectFunc(s1, s2)}; }
   / LEFT_PAREN WS* n:exp WS* RIGHT_PAREN { return n; }
 
 val
@@ -92,7 +134,7 @@ QUOTE = '\''
 AND = 'and'i
 OR = 'or'i
 NOT = 'not'i
-EQUAL = '='
+EQ = '='
 LT = '<'
 LE = '<='
 GT = '>'

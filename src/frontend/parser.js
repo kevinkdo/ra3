@@ -168,13 +168,9 @@ var runAstNode = function(node) {
       });
     }
 
-    console.log(common_columns);
     var left_only_columns = child_result0.columns.filter(function(column) {
       return !arrayContains(common_columns, column);
     });
-    console.log(child_result0.columns.filter(function(column) {
-      return false;
-    }));
     var right_only_columns = child_result1.columns.filter(function(column) {
       return !arrayContains(common_columns, column);
     });
@@ -204,13 +200,21 @@ var runAstNode = function(node) {
       });
     }
   } else if (node.name == "\u22c8" && node.subscript.length > 0) { // theta join
-    // TODO THIS IS NOT DONE
     var child_result0 = runAstNode(node.children[0]);
     var child_result1 = runAstNode(node.children[1]);
-    if (child_result0.isError || child_result1.isError) {
+    try {
+      var parsed_select_cond = select_cond_parser.parse(node.subscript);
+    } catch (e) {
       result_isError = true;
-      result_error_message = child_result0.isError ?
-        child_result0.error_message : child_result1.error_message;
+      result_error_message = "Bad \\join condition: " + e.message;
+    }
+
+    if (!result_isError) {
+      if (child_result0.isError || child_result1.isError) {
+        result_isError = true;
+        result_error_message = child_result0.isError ?
+          child_result0.error_message : child_result1.error_message;
+      }
     }
 
     if (!result_isError) {
@@ -219,7 +223,7 @@ var runAstNode = function(node) {
       result_columns.forEach(function(column) {
         if (column in column_set) {
           result_isError = true;
-          result_error_message = "Theta \\join contains duplicate columns: " + column;
+          result_error_message = "Subscripted \\join may not contain duplicate columns: " + column;
         } else {
           column_set[column] = true;
         }
@@ -239,6 +243,7 @@ var runAstNode = function(node) {
           result_tuples.push(new_tuple);
         })
       });
+      result_tuples = result_tuples.filter(parsed_select_cond.select_func);
     }
   } else if (node.name == "\u222a") { // union
     var child_result0 = runAstNode(node.children[0]);
