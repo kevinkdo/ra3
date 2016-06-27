@@ -1,79 +1,63 @@
-// ----- TreeNode -----
-var TreeNode = React.createClass({
-  setBlueFill: function(evt) {
-    evt.target.setAttribute('fill', this.isValid() ? "#5bc0de" : "#d9534f");
-  },
+import * as React from "react";
+import * as ReactDOM from "react-dom";
+import { Globals } from "./globals.tsx";
+import { Const } from "./constants.tsx";
+import { TreeNode } from "./TreeNode.tsx";
+import { TreeLink } from "./TreeLink.tsx";
+import { Prenode } from "./Prenode.tsx";
 
-  setGreenFill: function(evt) {
-    evt.target.setAttribute('fill', '#5cb85c');
-  },
+var ra_parser = require("!pegjs!./ra.pegjs");
 
-  handleMouseOver: function(evt) {
-    this.setGreenFill(evt);
-    this.props.setTargetId(this.props.id);
-  },
+export interface RATreeProps {
+  setTerminalInput: (s:string)=>void,
+  getTerminalInput: ()=>string
+}
 
-  handleMouseOut: function(evt) {
-    this.setBlueFill(evt);
-    this.props.setTargetId(0);
-  },
+export interface RATreeState {
+  targetId: number,
+  sourceId: number,
+  xOffset: number,
+  yOffset: number,
+  selecting: boolean,
+  tree: RATreeNode,
+  prenodes: Array<PrenodeState>
+}
 
-  handleClick: function(evt) {
-    if (this.props.selecting) {
-      this.props.serializeId(this.props.id);
-    } else {
-      if (this.props.numChildren > 0) {
-        this.props.setText(this.props.id, prompt("Enter a new subscript: ", this.props.subscript) || this.props.subscript);
-      } else {
-        this.props.setText(this.props.id, prompt("Enter a new name: ", this.props.name) || this.props.name);
-      }
-    }
-  },
+export interface PrenodeState {
+  name: string,
+  id: number,
+  x0: number,
+  y0: number,
+  x: number,
+  y: number
+}
 
-  isValid: function() {
-    return !((this.props.numChildren == 0 && this.props.name.length == 0)
-      || (subscriptRequired(this.props.name) && this.props.subscript.length == 0));
-  },
+export interface RATreeNode {
+  name: string,
+  id: number,
+  subscript: string,
+  children: Array<RATreeNode>
+}
 
-  render: function() {
-    var marker = subscriptable(this.props.name) ?
-      <rect width="16" height="16" fill={this.isValid() ? "#5bc0de" : "#d9534f"} x={this.props.x} y={this.props.y} onClick={this.props.dragging ? null : this.handleClick} /> :
-      <circle r="8" fill={this.isValid() ? "#5bc0de" : "#d9534f"} cx={this.props.x+8} cy={this.props.y+8} onClick={(!this.props.dragging && this.props.numChildren == 0) || this.props.selecting ? this.handleClick : null} />;
-    var circle = <circle className={this.props.dragging ? "ghostCircle show" : "ghostCircle noshow"} r="30" cx={this.props.x + 8} cy={this.props.y + 8} opacity="0.4" fill={this.isValid() ? "#5bc0de" : "#d9534f"} onMouseOver={this.handleMouseOver} onMouseOut={this.setBlueFill} onMouseOut={this.handleMouseOut} />;
-    var text = <text className="nodelabel" x={this.props.x + 20} y={this.props.y + 13}>{this.props.name}</text>;
-    var subscript = <text className="nodesubscript" x={this.props.x + 28} y={this.props.y + 20}>{this.props.subscript}</text>;
-    return <g>{marker}{text}{subscript}{circle}</g>;
-  }
-});
+export interface D3Node {
+  name: string,
+  id: number,
+  subscript: string,
+  children: Array<RATreeNode>,
+  x: number,
+  y: number
+}
 
-// ----- TreeLink -----
-var TreeLink = React.createClass({
-  render: function() {
-    return <line className="link" x1={this.props.source.x+8} y1={this.props.source.y+16} x2={this.props.target.x+8} y2={this.props.target.y}></line>;
-  }
-});
+export interface DragState {
+  sourceId: number,
+  xOffset: number,
+  yOffset: number
+}
 
-// ----- Prenode -----
-var Prenode = React.createClass({
-  handleMouseDown: function(evt) {
-    this.props.startDrag({
-      sourceId: this.props.id,
-      xOffset: evt.clientX - this.props.x,
-      yOffset: evt.clientY - this.props.y
-    });
-  },
-
-  render: function() {
-    var rect = <rect width="16" height="16" fill="#5bc0de" x={this.props.x} y={this.props.y}></rect>;
-    var text = <text className="nodelabel" x={this.props.x + 20} y={this.props.y + 13}>{this.props.name}</text>;
-    return <g className={this.props.dragging ? "draggable nopointer" : "draggable yespointer"} onMouseDown={this.handleMouseDown}>{rect}{text}</g>;
-  }
-});
-
-// ----- RaTree -----
-var RaTree = React.createClass({
-  getInitialState: function() {
-    return {
+export class RATree extends React.Component<RATreeProps, RATreeState> {
+    constructor(props: any) {
+    super(props);
+    this.state = {
       targetId: 0,
       sourceId: 0,
       xOffset: 0,
@@ -116,7 +100,7 @@ var RaTree = React.createClass({
                         name: "Serves",
                         id: 7,
                         subscript: "",
-                        children: []
+                        children: [] as Array<RATreeNode>
                       }
                     ]
                   },
@@ -206,23 +190,25 @@ var RaTree = React.createClass({
         }
       ]
     };
-  },
+  }
 
-  setTargetId: function(targetId) {
-    this.setState({
-      targetId: targetId
+  setTargetId = (targetId: number) => {
+    this.setState(prevState => {
+      prevState.targetId = targetId;
+      return prevState;
     });
-  },
+  }
 
-  startDrag: function(dragState) {
-    this.setState({
-      sourceId: dragState.sourceId,
-      xOffset: dragState.xOffset,
-      yOffset: dragState.yOffset
+  startDrag = (dragState: DragState) => {
+    this.setState(prevState => {
+      prevState.sourceId = dragState.sourceId;
+      prevState.xOffset = dragState.xOffset;
+      prevState.yOffset = dragState.yOffset;
+      return prevState;
     });
-  },
+  }
 
-  handleMouseMove: function(evt) {
+  handleMouseMove = (evt: MouseEvent) => {
     var me = this;
     var clientX = evt.clientX;
     var clientY = evt.clientY;
@@ -235,9 +221,9 @@ var RaTree = React.createClass({
       });
       return state;
     });
-  },
+  }
 
-  handleMouseUp: function() {
+  handleMouseUp = () => {
     this.setState(function(state, props) {
       var newName = "";
       state.prenodes.forEach(function(prenode) {
@@ -248,20 +234,16 @@ var RaTree = React.createClass({
           }
       });
 
-      var traverse = function(node) {
+      var traverse = function(node: RATreeNode) {
         if (node.id == state.targetId) {
           node.name = newName;
           node.children = [];
-          node.subscriptable = subscriptable(newName);
-          node.subscriptRequired = subscriptRequired(newName);
           node.subscript = "";
-          for (var i = 0; i < numChildren(newName); i++) {
+          for (var i = 0; i < Globals.numChildren(newName); i++) {
             node.children.push({
               name: "",
-              id: nodeId++,
+              id: Globals.nodeId++,
               children: [],
-              subscriptable: false,
-              subscriptRequired: false,
               subscript: ""
             });
           }
@@ -276,17 +258,17 @@ var RaTree = React.createClass({
       state.targetId = 0;
       return state;
     });
-  },
+  }
 
-  setText: function(targetId, string) {
+  setText = (targetId: number, str: string) => {
     this.setState(function(state, props) {
-      var traverse = function(node) {
+      var traverse = function(node: RATreeNode) {
         if (node.id == targetId) {
           if (node.children && node.children.length > 0) {
-            node.subscript = string;
+            node.subscript = str;
           }
           else {
-            node.name = string;
+            node.name = str;
           }
         }
         else if (node.children) {
@@ -296,48 +278,38 @@ var RaTree = React.createClass({
       traverse(state.tree);
       return state;
     });
-  },
+  }
 
-  serialize: function(root) {
-    var mapping = {
-      "\u03c3": "\\select",
-      "\u03C0": "\\project",
-      "\u00d7": "\\cross",
-      "\u22c8": "\\join",
-      "\u222a": "\\union",
-      "\u2212": "\\diff",
-      "\u2229": "\\intersect",
-      "\u03c1": "\\rename"
-    };
-    var serializeNode = function(node) {
+  serialize = (root: RATreeNode) => {
+    var serializeNode = function(node: RATreeNode): string {
       if (!node.children || node.children.length == 0) {
         return node.name;
       }
 
       if (node.children.length == 1) {
-        return mapping[node.name]
-          + (subscriptable(node.name) && node.subscript ? "_{" + node.subscript + "}" : "")
+        return Const.mapping[node.name]
+          + (Globals.subscriptable(node.name) && node.subscript ? "_{" + node.subscript + "}" : "")
           + " (" + serializeNode(node.children[0]) + ")";
       }
 
       if (node.children.length == 2) {
-        return "(" + serializeNode(node.children[0]) + ") " + mapping[node.name]
-          + (subscriptable(node.name) && node.subscript ? "_{" + node.subscript + "}" : "")
+        return "(" + serializeNode(node.children[0]) + ") " + Const.mapping[node.name]
+          + (Globals.subscriptable(node.name) && node.subscript ? "_{" + node.subscript + "}" : "")
           + " (" + serializeNode(node.children[1]) + ")";
       }
     };
     return serializeNode(root) + ";";
-  },
+  }
 
-  getHelpText: function() {
+  getHelpText = () => {
     return this.state.sourceId != 0 ? "Drag onto a target circle" :
       this.state.selecting ? "Select a node to serialize" :
       "Drag pre-built nodes or click to edit";
-  },
+  }
 
-  serializeId: function(id) {
+  serializeId = (id: number) => {
     var me = this;
-    var traverse = function(node) {
+    var traverse = function(node: RATreeNode) {
       if (node.id == id) {
         me.props.setTerminalInput(me.serialize(node));
       }
@@ -346,25 +318,17 @@ var RaTree = React.createClass({
       }
     };
     traverse(me.state.tree);
-    this.setState({selecting: false});
-  },
+    this.setState(prevState => {
+      prevState.selecting = false;
+      return prevState;
+    });
+  }
 
-  postProcess: function(tree) {
-    var mapping = {
-      "\\select": "\u03c3",
-      "\\project": "\u03C0",
-      "\\cross": "\u00d7",
-      "\\join": "\u22c8",
-      "\\union": "\u222a",
-      "\\diff": "\u2212",
-      "\\intersect": "\u2229",
-      "\\rename": "\u03c1"
-    };
-
-    var traverse = function(node) {
-      node.id = nodeId++;
-      if (mapping[node.name] != undefined) {
-        node.name = mapping[node.name];
+  postProcess = (tree: RATreeNode) => {
+    var traverse = function(node: RATreeNode) {
+      node.id = Globals.nodeId++;
+      if (Const.mapping[node.name] != undefined) {
+        node.name = Const.mapping[node.name];
       }
       if (node.children) {
         node.children.forEach(traverse);
@@ -373,41 +337,51 @@ var RaTree = React.createClass({
 
     traverse(tree);
     return tree;
-  },
+  }
 
-  generateTree: function() {
+  generateTree = () => {
     var me = this;
     var text = this.props.getTerminalInput();
     if (text.length == 0) return;
     var tree = ra_parser.parse(text);
-    me.setState({tree: me.postProcess(tree)});
-  },
+    this.setState(prevState => {
+      prevState.tree = me.postProcess(tree);
+      return prevState;
+    });
+  }
 
-  render: function() {
+  setSelectingTrue = () => {
+    this.setState(prevState => {
+      prevState.selecting = true;
+      return prevState;
+    });
+  }
+
+  render() {
     var me = this;
     var width = document.getElementById('rightpane').clientWidth;
     var height = document.getElementById('rightpane').clientHeight - 150;
     var tree = d3.layout.tree().size([width*5/6, height*5/6]).separation(function(a, b) {return (a.parent == b.parent ? 2 : 1);});
-    var nodes = tree.nodes(this.state.tree);
+    var nodes = tree.nodes(this.state.tree) as Array<D3Node>;
     var links = tree.links(nodes);
 
     var renderedNodes = nodes.map(function(node) {
       return <TreeNode key={node.id} id={node.id} x={node.x} y={node.y} name={node.name} numChildren={node.children ? node.children.length : 0} setTargetId={me.setTargetId} setText={me.setText} dragging={me.state.sourceId != 0 ? true : false} selecting={me.state.selecting} subscript={node.subscript} serializeId={me.serializeId}/>;
     });
     var renderedLinks = links.map(function(link) {
-      return <TreeLink key={nodeId++} source={link.source} target={link.target} />;
+      return <TreeLink key={Globals.nodeId++} source={link.source} target={link.target} />;
     });
     var renderedPrenodes = this.state.prenodes.map(function(prenode) {
       return <Prenode id={prenode.id} key={prenode.id} name={prenode.name} x={prenode.x} y={prenode.y} startDrag={me.startDrag} dragging={me.state.sourceId != 0 ? true : false}/>;
     });
 
-    var button1 = <button key={nodeId++} type="button" className="btn btn-default" type="button" onClick={function() {me.props.setTerminalInput(me.serialize(me.state.tree))}}>Generate query</button>;
-    var button2 = <button key={nodeId++} type="button" className="btn btn-default" type="button" onClick={function() {me.setState({selecting: true});}}>Generate subquery</button>;
-    var button3 = <button key={nodeId++} type="button" className="btn btn-default" type="button" onClick={this.generateTree}>Generate tree</button>;
+    var button1 = <button key={Globals.nodeId++} type="button" className="btn btn-default" onClick={function() {me.props.setTerminalInput(me.serialize(me.state.tree))}}>Generate query</button>;
+    var button2 = <button key={Globals.nodeId++} type="button" className="btn btn-default" onClick={this.setSelectingTrue}>Generate subquery</button>;
+    var button3 = <button key={Globals.nodeId++} type="button" className="btn btn-default" onClick={this.generateTree}>Generate tree</button>;
     var toolbar = [button1, button2, button3];
     var helpText = <div className="helpText">{me.getHelpText()}</div>;
     var svg = <svg id="mysvg" width={width} height={height} onMouseMove={me.state.sourceId != 0 ? this.handleMouseMove : null} onMouseUp={me.state.sourceId != 0 ? this.handleMouseUp : null}>{renderedNodes}{renderedLinks}{renderedPrenodes}</svg>;
 
     return <div><div className="btn-group" id="toolbar">{toolbar}</div>{helpText}<br /><br />{svg}</div>;
   }
-});
+};

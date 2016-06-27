@@ -1,6 +1,43 @@
-var tab_options = ["\\project_{", "\\join", "\\select_{", "\\cross", "\\union", "\\diff", "\\intersect", "\\rename_{"];
+import { Globals } from "./globals.tsx";
 
-var beers;
+var tab_options = ["\\project_{", "\\join", "\\select_{", "\\cross", "\\union", "\\diff", "\\intersect", "\\rename_{"];
+var ra_parser = require("!pegjs!./ra.pegjs");
+var select_cond_parser = require("!pegjs!./select_cond.pegjs");
+var attr_list_parser = require("!pegjs!./attr_list.pegjs");
+
+export interface Tuple {
+  name: string,
+  [propName: string]: string | number
+}
+
+export interface Table {
+  columns: Array<string>,
+  tuples: Array<Tuple>
+}
+
+export interface Database {
+  table_names: Array<string>,
+  tables: { [s:string]: Table; }
+}
+
+export interface ASTNode {
+  name: string,
+  subscript: string,
+  children: Array<ASTNode>
+}
+
+export interface ASTRunResult {
+  isError: boolean,
+  columns: Array<string>,
+  tuples: Array<Tuple>,
+  error_message: string
+}
+
+/*export interface Parser {
+    parse: (query: string)=>ASTNode;
+}*/
+
+var beers: Database;
 var request2 = new XMLHttpRequest();
 request2.open('GET', 'beers.json');
 request2.onreadystatechange = function() {
@@ -17,22 +54,24 @@ request2.onreadystatechange = function() {
 };
 request2.send();
 
-var runQuery = function(query) {
+export function runQuery(query: string): ASTRunResult {
   try {
     var ast = ra_parser.parse(query);
   } catch (e) {
     return {
       isError: true,
-      error_message: e.message
+      error_message: e.message,
+      columns: [],
+      tuples: []
     }
   }
   return runAstNode(ast);
 };
 
-var runAstNode = function(node) {
+var runAstNode = function(node: ASTNode): ASTRunResult {
   var result_isError = false;
-  var result_tuples = [];
-  var result_columns = [];
+  var result_tuples: Array<Tuple> = [];
+  var result_columns: Array<string> = [];
   var result_error_message = "";
   if (node.name == "\u03c3") { // select
     try {
@@ -51,7 +90,7 @@ var runAstNode = function(node) {
     }
 
     if (!result_isError) {
-      parsed_select_cond.columns.forEach(function(column) {
+      parsed_select_cond.columns.forEach(function(column: string) {
         if (child_result.columns.indexOf(column) == -1) {
           result_isError = true;
           result_error_message = "Column does not exist: " + column;
@@ -80,8 +119,8 @@ var runAstNode = function(node) {
     }
 
     if (!result_isError) {
-      var column_set = {};
-      new_columns.forEach(function(new_column) {
+      var column_set: {[s:string]: boolean} = {};
+      new_columns.forEach(function(new_column: string) {
         if (new_column in column_set) {
           result_isError = true;
           result_error_message = "\\project contains duplicate columns: " + new_column;
@@ -92,7 +131,7 @@ var runAstNode = function(node) {
     }
 
     if (!result_isError) {
-      new_columns.forEach(function(column) {
+      new_columns.forEach(function(column: string) {
         if (child_result.columns.indexOf(column) == -1) {
           result_isError = true;
           result_error_message = "Column does not exist: " + column;
@@ -102,8 +141,8 @@ var runAstNode = function(node) {
 
     if (!result_isError) {
       result_columns = new_columns;
-      result_tuples = child_result.tuples.map(function(old_tuple) {
-        var new_tuple = {};
+      result_tuples = child_result.tuples.map(function(old_tuple:Tuple) {
+        var new_tuple:Tuple = {name: ""};
         for (var i = 0; i < new_columns.length; i++) {
           new_tuple[new_columns[i]] = old_tuple[new_columns[i]];
         }
@@ -121,7 +160,7 @@ var runAstNode = function(node) {
     }
 
     if (!result_isError) {
-      var column_set = {};
+      var column_set: { [s: string]: boolean } = {};
       result_columns = child_result0.columns.concat(child_result1.columns);
       result_columns.forEach(function(column) {
         if (column in column_set) {
@@ -136,7 +175,7 @@ var runAstNode = function(node) {
     if (!result_isError) {
       child_result0.tuples.forEach(function(tuple0) {
         child_result1.tuples.forEach(function(tuple1) {
-          var new_tuple = {};
+          var new_tuple: Tuple = { name: "" };
           child_result0.columns.forEach(function(column) {
             new_tuple[column] = tuple0[column];
           });
@@ -156,9 +195,9 @@ var runAstNode = function(node) {
         child_result0.error_message : child_result1.error_message;
     }
 
-    var common_columns = [];
+    var common_columns: Array<string> = [];
     if (!result_isError) {
-      var column_set = {};
+      var column_set: { [s: string]: boolean } = {};
       result_columns = child_result0.columns.concat(child_result1.columns);
       result_columns.forEach(function(column) {
         if (column in column_set) {
@@ -169,17 +208,17 @@ var runAstNode = function(node) {
     }
 
     var left_only_columns = child_result0.columns.filter(function(column) {
-      return !arrayContains(common_columns, column);
+      return !Globals.arrayContains(common_columns, column);
     });
     var right_only_columns = child_result1.columns.filter(function(column) {
-      return !arrayContains(common_columns, column);
+      return !Globals.arrayContains(common_columns, column);
     });
     result_columns = common_columns.concat(left_only_columns).concat(right_only_columns);
 
     if (!result_isError) {
       child_result0.tuples.forEach(function(tuple0) {
         child_result1.tuples.forEach(function(tuple1) {
-          var new_tuple = {};
+          var new_tuple: Tuple = { name: "" };
           child_result0.columns.forEach(function(column) {
             new_tuple[column] = tuple0[column];
           });
@@ -218,7 +257,7 @@ var runAstNode = function(node) {
     }
 
     if (!result_isError) {
-      var column_set = {};
+      var column_set: { [s: string]: boolean } = {};
       result_columns = child_result0.columns.concat(child_result1.columns);
       result_columns.forEach(function(column) {
         if (column in column_set) {
@@ -233,7 +272,7 @@ var runAstNode = function(node) {
     if (!result_isError) {
       child_result0.tuples.forEach(function(tuple0) {
         child_result1.tuples.forEach(function(tuple1) {
-          var new_tuple = {};
+          var new_tuple:Tuple = {name: ""};
           child_result0.columns.forEach(function(column) {
             new_tuple[column] = tuple0[column];
           });
@@ -288,7 +327,7 @@ var runAstNode = function(node) {
     if (!done && !result_isError) {
       result_columns = child_result0.columns;
       var renamed_child1_tuples = child_result1.tuples.map(function(tuple) {
-        var new_tuple = {};
+        var new_tuple: Tuple = { name: "" };
         for (var i = 0; i < result_columns.length; i++) {
           new_tuple[result_columns[i]] = tuple[child_result1.columns[i]];
         }
@@ -339,7 +378,7 @@ var runAstNode = function(node) {
     if (result_columns.length === 0 && !result_isError) {
       result_columns = child_result0.columns;
       var renamed_child1_tuples = child_result1.tuples.map(function(tuple) {
-        var new_tuple = {};
+      var new_tuple: Tuple = { name: "" };
         for (var i = 0; i < result_columns.length; i++) {
           new_tuple[result_columns[i]] = tuple[child_result1.columns[i]];
         }
@@ -400,7 +439,7 @@ var runAstNode = function(node) {
     if (result_columns.length === 0 && !result_isError) {
       result_columns = child_result0.columns;
       var renamed_child1_tuples = child_result1.tuples.map(function(tuple) {
-        var new_tuple = {};
+          var new_tuple: Tuple = { name: "" };
         for (var i = 0; i < result_columns.length; i++) {
           new_tuple[result_columns[i]] = tuple[child_result1.columns[i]];
         }
@@ -443,8 +482,8 @@ var runAstNode = function(node) {
     }
 
     if (!result_isError) {
-      var column_set = {};
-      new_columns.forEach(function(new_column) {
+      var column_set: { [s: string]: boolean } = {};
+      new_columns.forEach(function(new_column: string) {
         if (new_column in column_set) {
           result_isError = true;
           result_error_message = "\\rename contains duplicate columns: " + new_column;
@@ -457,7 +496,7 @@ var runAstNode = function(node) {
     if (!result_isError) {
       result_columns = new_columns;
       result_tuples = child_result.tuples.map(function(old_tuple) {
-        var new_tuple = {};
+          var new_tuple: Tuple = { name: "" };
         for (var i = 0; i < new_columns.length; i++) {
           new_tuple[new_columns[i]] = old_tuple[old_columns[i]];
         }
@@ -482,11 +521,11 @@ var runAstNode = function(node) {
   };
 };
 
-var deduplicate_tuples = function(columns, old_tuples) {
-  var new_tuples = [];
-  old_tuples.forEach(function(old_tuple) {
+var deduplicate_tuples = function(columns: Array<string>, old_tuples: Array<Tuple>) {
+  var new_tuples: Array<Tuple> = [];
+  old_tuples.forEach(function(old_tuple: Tuple) {
     var duplicate = new_tuples.some(function(new_tuple) {
-      return columns.every(function(column) {
+      return columns.every(function(column: string) {
         return (new_tuple[column] === old_tuple[column]);
       });
     });
