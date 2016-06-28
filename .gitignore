@@ -16,3 +16,7 @@ right.js
 main.js
 select_cond.js
 attr_list.js
+.DS_Store
+dist/
+node_modules/
+typings/

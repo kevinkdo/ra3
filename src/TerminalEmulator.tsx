@@ -59,31 +59,6 @@ export class TerminalEmulator extends React.Component<{}, TerminalEmulatorState>
     return answer;
   }
 
-  public colourNameToHex = (colour: string): string => {
-    var colours: { [s: string]: string; } = {
-        "black": "#000000", "blue": "#0000ff", "gold": "#ffd700", "gray": "#808080", "green": "#008000", "orange": "#ffa500",
-        "purple": "#800080", "red": "#ff0000", "white": "#ffffff", "yellow": "#ffff00", "ghost protocol": "#000000"
-    };
-
-    if (typeof colours[colour.toLowerCase()] != 'undefined') {
-        return colours[colour.toLowerCase()];
-    }
-
-    return "";
-  }
-
-  public findAutocompleteLocation = (s: string) => {
-    for (var i = s.length - 1; i >= 0; i--) {
-        if (s[i] == "\\") {
-            return i;
-        }
-        if (s[i] == " " || s[i] == "{") {
-            return i + 1;
-        }
-    }
-    return 0;
-  }
-
   public cleanQuery = (query: string) => {
     while (query.indexOf("\n>") != -1) {
         query = query.replace('\n>', '');
@@ -145,12 +120,6 @@ export class TerminalEmulator extends React.Component<{}, TerminalEmulatorState>
             prevState.currentInput = "";
             return prevState;
           });
-      } else if (this.colourNameToHex(this.state.currentInput).length > 0) {
-          this.setState(prevState => {
-            prevState.color = this.colourNameToHex(this.state.currentInput);
-            prevState.currentInput = "";
-            return prevState;
-          });
       } else if (this.state.currentInput.substring(0, 8) == "subquery") {
           var newHistory = this.state.history;
           newHistory.push(this.state.currentInput);
@@ -200,10 +169,7 @@ export class TerminalEmulator extends React.Component<{}, TerminalEmulatorState>
           }
       } else {
           if (this.state.currentInput[this.state.currentInput.length - 1] != ";") {
-              this.setState(prevState => {
-                prevState.currentInput = this.state.currentInput + "\n" + "> ";
-                return prevState;
-              });
+              this.setInput(this.state.currentInput + "\n" + "> ");
           } else {
               var newHistory = this.state.history;
               newHistory.push(this.state.currentInput);
@@ -226,23 +192,17 @@ export class TerminalEmulator extends React.Component<{}, TerminalEmulatorState>
           e.preventDefault();
           if (this.state.currentInput.length > 0) {
               newCurrentInput = this.state.currentInput.slice(0, -1);
-              this.setState(prevState => {
-                prevState.currentInput = newCurrentInput;
-                return prevState;
-              });
+              this.setInput(newCurrentInput);
           }
       } else if (e.keyCode == Const.ENTER) {
           this.handleEnter(e);
       } else if (e.keyCode == Const.TAB) {
           e.preventDefault();
-          var autocompleteIndex = this.findAutocompleteLocation(this.state.currentInput);
+          var autocompleteIndex = this.state.currentInput.lastIndexOf("\\");
           if (autocompleteIndex != -1) {
               var toBeCompleted = this.state.currentInput.substring(autocompleteIndex);
               var completion = this.autocomplete(toBeCompleted);
-              this.setState(prevState => {
-                prevState.currentInput = this.state.currentInput.substring(0, autocompleteIndex) + completion;
-                return prevState;
-              });
+              this.setInput(this.state.currentInput.substring(0, autocompleteIndex) + completion);
           }
       } else if (e.keyCode == Const.UP) {
           e.preventDefault();
@@ -272,7 +232,7 @@ export class TerminalEmulator extends React.Component<{}, TerminalEmulatorState>
           });
       }
 
-      Globals.scrollDown();
+      Globals.scrollDown(document.getElementById('leftpane'));
   }
 
   public handlePrintableKeys = (e: KeyboardEvent) => {
@@ -280,10 +240,7 @@ export class TerminalEmulator extends React.Component<{}, TerminalEmulatorState>
       if (e.keyCode >= 32 && e.keyCode <= 126) {
           var keyCode = e.keyCode;
           var newCurrentInput = this.state.currentInput + String.fromCharCode(keyCode);
-          this.setState(prevState => {
-            prevState.currentInput = newCurrentInput;
-            return prevState;
-          });
+          this.setInput(newCurrentInput);
       }
   }
 
@@ -292,10 +249,7 @@ export class TerminalEmulator extends React.Component<{}, TerminalEmulatorState>
       e.preventDefault();
       e.clipboardData.items[0].getAsString(function(s: string) {
           var newCurrentInput = me.state.currentInput + s;
-          this.setState((prevState: TerminalEmulatorState) => {
-            prevState.currentInput = newCurrentInput;
-            return prevState;
-          });
+          me.setInput(newCurrentInput);
       });
   }
 

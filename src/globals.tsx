@@ -1,8 +1,8 @@
 export namespace Globals {
   export var nodeId = 100;
 
-  export function scrollDown() {
-      document.getElementById('leftpane').scrollTop = document.getElementById('leftpane').scrollHeight;
+  export function scrollDown(element: HTMLElement) {
+      element.scrollTop = element.scrollHeight;
   }
 
   export function subscriptable(str: string): boolean {
