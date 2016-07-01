@@ -35,7 +35,7 @@ export namespace Const {
         + "Navigate the command history with the up and down arrow keys.\n";
     export var SUBQUERY_SUCCESS_MSG: string = "Successfully stored subquery.";
     export var SUBQUERY_NEST_FAIL_MSG: string = "Error: Subqueries can not be nested.";
-    export var SUBQUERY_FAIL_COLON_MSG: string = "Error: Subqueries must begin with a colon (:)";
+    export var SUBQUERY_FAIL_COLON_MSG: string = "Error: Subquery names must begin with a colon (:)";
     export var mapping: { [s: string]: string } = {
         "\u03c3": "\\select",
         "\u03C0": "\\project",

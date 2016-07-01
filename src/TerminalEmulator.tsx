@@ -67,12 +67,7 @@ export class TerminalEmulator extends React.Component<{}, TerminalEmulatorState>
   }
 
   public expandSubquery = (query: string) => {
-    var keys:Array<string> = [];
-    for (var key in this.state.subqueryList) {
-        if (this.state.subqueryList.hasOwnProperty(key)) {
-            keys.push(key);
-        }
-    }
+    var keys:Array<string> = Object.keys(this.state.subqueryList);
 
     for (var i = 0; i < keys.length; i++) {
         while (query.indexOf(keys[i]) != -1) {
@@ -80,16 +75,6 @@ export class TerminalEmulator extends React.Component<{}, TerminalEmulatorState>
         }
     }
     return query;
-  }
-
-  public verifyNoSubqueryCycle = (query: string) => {
-    var keyList = Object.keys(this.state.subqueryList);
-    for (var i = 0; i < keyList.length; i++) {
-        if (query.indexOf(keyList[i]) != -1) {
-            return false;
-        }
-    }
-    return true;
   }
 
   public handleEnter = (e: KeyboardEvent) => {
@@ -145,7 +130,7 @@ export class TerminalEmulator extends React.Component<{}, TerminalEmulatorState>
           if (subqueryDefinition[subqueryDefinition.length - 1] == ';') {
               subqueryDefinition = subqueryDefinition.substring(0, subqueryDefinition.length - 1);
           }
-          if (this.verifyNoSubqueryCycle(subqueryDefinition)) {
+          if (subqueryDefinition.indexOf(":") === -1) {
               var tempSubqueryList = this.state.subqueryList;
               tempSubqueryList[subqueryName] = subqueryDefinition;
               var newCommands = this.state.commands.concat([{ query: this.state.currentInput, result: Const.SUBQUERY_SUCCESS_MSG }]);
