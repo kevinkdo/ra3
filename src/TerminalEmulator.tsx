@@ -105,6 +105,24 @@ export class TerminalEmulator extends React.Component<{}, TerminalEmulatorState>
         prevState.currentInput = "";
         return prevState;
       });
+    } else if (this.state.currentInput.substring(0, Const.FIRST_SPACE_INDEX) == "subquery" && this.state.currentInput.length === 8) {
+      var me = this;
+      var keys = Object.keys(this.state.subqueryList);
+      var str_answer: string = "";
+      keys.forEach(function(key) {
+        str_answer += key + " => " + me.state.subqueryList[key] + "\n";
+      });
+
+      if (Object.keys(this.state.subqueryList).length === 0) {
+        str_answer = "No subqueries defined.";
+      }
+
+      var newCommands = this.state.commands.concat([{ query: this.state.currentInput, result: str_answer }]);
+      this.setState(prevState => {
+        prevState.commands = newCommands;
+        prevState.currentInput = "";
+        return prevState;
+      });
     } else if (this.state.currentInput.substring(0, Const.FIRST_SPACE_INDEX) == "subquery") {
       var newHistory = this.state.history;
       newHistory.push(this.state.currentInput);
