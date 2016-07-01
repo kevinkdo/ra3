@@ -22,6 +22,8 @@ drinkero;
 \select_{name<address} drinker;
 \select_{name>address} drinker;
 \select_{name<>address} drinker;
+\select_{price > 2} serves;
+\select_{price <= 2.75} serves;
 
 \project_{} likes;
 \project_{23} likes;
@@ -33,6 +35,7 @@ drinkero;
 frequentso \cross frequents;
 frequents \cross frequentso;
 frequents \cross frequents;
+frequents \cross frequents \cross frequents;
 bar \cross likes;
 
 frequentso \join frequents;
@@ -51,12 +54,13 @@ frequents \join_{name<'Ben'} drinker;
 frequents \join_{name>'Ben'} drinker;
 frequents \join_{name<>'Ben'} drinker;
 frequents \join_{nameo<>'Ben'} drinker;
-frequents \join_{name=address} drinker;
+frequents \join_{name<>address} drinker \join_{name<>col1} \rename_{col1,col2} drinker;
 
 likeso \union likes;
 likes \union likeso;
 likes \union frequents;
 likes \union likes;
+likes \union likes \union likes;
 likes \union drinker;
 
 likeso \diff likes;
@@ -68,7 +72,7 @@ likes \diff drinker;
 likeso \intersect likes;
 likes \intersect likeso;
 likes \intersect frequents;
-likes \intersect likes;
+likes \intersect likes \intersect likes;
 likes \intersect drinker;
 
 \rename_{23^} drinker;

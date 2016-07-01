@@ -12,12 +12,12 @@ start
   = WS* n:exp WS* STATEMENT_TERMINATOR+ WS* { return n; }
 
 exp
-  = n1:exp_unit WS* JOIN s:OPERATOR_OPTION WS* n2:exp_unit { return astNode("\u22c8", s, [n1, n2]); }
-  / n1:exp_unit WS* JOIN WS* n2:exp_unit { return astNode("\u22c8", "", [n1, n2]); }
-  / n1:exp_unit WS* CROSS WS* n2:exp_unit { return astNode("\u00d7", "", [n1, n2]); }
-  / n1:exp_unit WS* UNION WS* n2:exp_unit { return astNode("\u222a", "", [n1, n2]); }
+  = n1:exp_unit WS* JOIN s:OPERATOR_OPTION WS* n2:exp { return astNode("\u22c8", s, [n1, n2]); }
+  / n1:exp_unit WS* JOIN WS* n2:exp { return astNode("\u22c8", "", [n1, n2]); }
+  / n1:exp_unit WS* CROSS WS* n2:exp { return astNode("\u00d7", "", [n1, n2]); }
+  / n1:exp_unit WS* UNION WS* n2:exp { return astNode("\u222a", "", [n1, n2]); }
   / n1:exp_unit WS* DIFF WS* n2:exp_unit { return astNode("\u2212", "", [n1, n2]); }
-  / n1:exp_unit WS* INTERSECT WS* n2:exp_unit { return astNode("\u2229", "", [n1, n2]); }
+  / n1:exp_unit WS* INTERSECT WS* n2:exp { return astNode("\u2229", "", [n1, n2]); }
   / n:exp_unit { return n; }
 
 exp_unit
