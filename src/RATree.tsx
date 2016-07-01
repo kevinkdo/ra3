@@ -55,7 +55,7 @@ export interface DragState {
 }
 
 export class RATree extends React.Component<RATreeProps, RATreeState> {
-    constructor(props: any) {
+  constructor(props: any) {
     super(props);
     this.state = {
       targetId: 0,

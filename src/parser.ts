@@ -33,10 +33,6 @@ export interface ASTRunResult {
   error_message: string
 }
 
-/*export interface Parser {
-    parse: (query: string)=>ASTNode;
-}*/
-
 var beers: Database;
 var request2 = new XMLHttpRequest();
 request2.open('GET', 'beers.json');
