@@ -266,6 +266,15 @@ var runAstNode = function(node: ASTNode): ASTRunResult {
     }
 
     if (!result_isError) {
+      parsed_select_cond.columns.forEach(function(column: string) {
+        if (child_result0.columns.indexOf(column) == -1 && child_result1.columns.indexOf(column) == -1) {
+          result_isError = true;
+          result_error_message = "Column does not exist: " + column;
+        }
+      });
+    }
+
+    if (!result_isError) {
       child_result0.tuples.forEach(function(tuple0) {
         child_result1.tuples.forEach(function(tuple1) {
           var new_tuple:Tuple = {name: ""};
