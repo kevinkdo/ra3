@@ -1,0 +1,264 @@
+drinker
+drinker;
+drinker;;
+drinkero;
+123123;
+
+\select_{naoeu2} drinker;
+\select_{name='Ben'} drinkero;
+\select_{nameo='Ben'} drinker;
+\select_{name<>addresso} drinker;
+\select_{name='Ben'} drinker;
+\select_{name='BEN'} drinker;
+\select_{NAME='Ben'} drinker;
+\select_{name<='Ben'} drinker;
+\select_{name>='Ben'} drinker;
+\select_{name>'Ben'} drinker;
+\select_{name<'Ben'} drinker;
+\select_{name<>'Ben'} drinker;
+\select_{name=address} drinker;
+\select_{name<=address} drinker;
+\select_{name>=address} drinker;
+\select_{name<address} drinker;
+\select_{name>address} drinker;
+\select_{name<>address} drinker;
+
+\project_{} likes;
+\project_{23} likes;
+\project_{drinker} likeso;
+\project_{drinker,drinker} likes;
+\project_{drinkero} likes;
+\project_{drinker} likes;
+
+frequentso \cross frequents;
+frequents \cross frequentso;
+frequents \cross frequents;
+bar \cross likes;
+
+frequentso \join frequents;
+frequents \join frequentso;
+frequents \join frequents;
+frequents \join bar;
+bar \join drinker;
+
+frequents \join_{ouoeuoe} frequents;
+frequentso \join_{name=name} frequents;
+frequents \join_{name=name} frequentso;
+frequents \join_{name='Ben'} drinker;
+frequents \join_{name<='Ben'} drinker;
+frequents \join_{name>='Ben'} drinker;
+frequents \join_{name<'Ben'} drinker;
+frequents \join_{name>'Ben'} drinker;
+frequents \join_{name<>'Ben'} drinker;
+frequents \join_{nameo<>'Ben'} drinker;
+frequents \join_{name=address} drinker;
+
+likeso \union likes;
+likes \union likeso;
+likes \union frequents;
+likes \union likes;
+likes \union drinker;
+
+likeso \diff likes;
+likes \diff likeso;
+likes \diff frequents;
+likes \diff likes;
+likes \diff drinker;
+
+likeso \intersect likes;
+likes \intersect likeso;
+likes \intersect frequents;
+likes \intersect likes;
+likes \intersect drinker;
+
+\rename_{23^} drinker;
+\rename_{col1} drinkero;
+\rename_{col1} drinker;
+\rename_{col1, col1} drinker;
+\rename_{col1, col2} drinker;
+
+
+/* (a) Find names of all bars that Ben frequents. */
+\project_{bar} (
+    \select_{drinker = 'Ben'} Frequents
+);
+
+
+Output schema: (bar varchar)
+-----
+James Joyce Pub
+Satisfaction
+Talk of the Town
+-----
+Total number of rows: 3
+/*******************************************************************************/
+
+/* (b) Find names and addresses of drinkers who frequent James Joyce Pub more than once
+ * per week.
+ */
+\project_{name, address} (
+    (\select_{bar='James Joyce Pub' and times_a_week > 1} Frequents)
+    \join_{drinker=name} 
+    Drinker
+);
+
+Output schema: (name varchar, address varchar)
+-----
+Amy|100 W. Main Street
+Eve|100 W. Main Street
+-----
+Total number of rows: 2
+/*******************************************************************************/
+
+/* (c) Find names of bars serving some beer Eve likes for no more than $2.75. */
+\project_{bar} (
+    \select_{drinker='Eve'} Likes
+    \join
+    \select_{price<=2.75} Serves
+);
+
+Output schema: (bar varchar)
+-----
+Down Under Pub
+Satisfaction
+Talk of the Town
+The Edge
+-----
+Total number of rows: 4
+/*******************************************************************************/
+
+/* (d) Find names of all drinkers who like Amstel but not Corona. */
+\project_{drinker} (
+    \select_{beer='Amstel'} Likes   
+    )
+\diff
+\project_{drinker} (
+    \select_{beer='Corona'} Likes
+    )
+;
+
+Output schema: (drinker varchar)
+-----
+Ben
+-----
+Total number of rows: 1
+/*******************************************************************************/
+
+/* (e) For each beer that Dan likes, find the names of bars that serve it at the
+ * lowest price.
+ */
+\project_{bar, beer} (
+    (
+        \project_{bar, beer} Serves
+        \diff
+        \project_{bar1, beer1} (
+            \rename_{bar1, beer1, price1} Serves
+            \join_{beer1=beer2 and price1>price2}
+            \rename_{bar2, beer2, price2} Serves
+       )
+    )
+    \join
+    \select_{drinker='Dan'} Likes
+);
+
+Output schema: (bar varchar, beer varchar)
+-----
+James Joyce Pub|Erdinger
+Satisfaction|Corona
+Satisfaction|Dixie
+Talk of the Town|Amstel
+Talk of the Town|Budweiser
+-----
+Total number of rows: 5
+/*******************************************************************************/
+
+/* (f) Find the cheapest and second cheapest drinks in town and where
+ * they are served; i.e., return the Serves rows with the lowest and
+ * second lowest price.
+ */
+Serves
+\diff
+\project_{bar3,beer3,price3}
+  \select_{price1 < price2 and price2 < price3}
+    (\rename_{bar1, beer1, price1} Serves \cross
+     \rename_{bar2, beer2, price2} Serves \cross
+     \rename_{bar3, beer3, price3} Serves);
+
+
+Output schema: (bar varchar, beer varchar, price numeric)
+-----
+Satisfaction|Budweiser|2.25
+Down Under Pub|Budweiser|2.25
+Talk of the Town|Budweiser|2.20
+-----
+Total number of rows: 3
+/*******************************************************************************/
+
+/*
+ * (g) For each drinker, find names of bars frequented by the drinker
+ * that serve none of the beers liked by the drinker.
+ */
+\project_{drinker,bar} Frequents
+\diff
+\project_{drinker, bar}(
+    Likes
+    \join
+    Serves
+)
+;
+
+Output schema: (drinker varchar, bar varchar)
+-----
+Coy|The Edge
+Coy|Down Under Pub
+-----
+Total number of rows: 2
+/*******************************************************************************/
+
+/*
+ * (h) Find names of all drinkers who frequent only those bars that serve
+ * some beers they like.
+ */
+\project_{name} Drinker
+\diff
+\project_{drinker}
+(
+    \project_{drinker,bar} Frequents
+    \diff
+    \project_{drinker, bar}(
+        Likes
+        \join
+        Serves
+    )
+);
+
+Output schema: (name varchar)
+-----
+Ben
+Amy
+Eve
+Dan
+-----
+Total number of rows: 4
+/*******************************************************************************/
+
+/*
+ * (i)  Find names of all drinkers who frequent every bar that serves
+ * some beers they like.
+ */
+\project_{name} Drinker
+\diff
+\project_{drinker} (
+    \project_{drinker,bar} (Likes \join Serves)
+    \diff
+    \project_{drinker,bar} Frequents
+);
+
+Output schema: (name varchar)
+-----
+Dan
+-----
+Total number of rows: 1
+
+Bye!
+
