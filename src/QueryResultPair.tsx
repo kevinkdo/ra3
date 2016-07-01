@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import { ASTRunResult } from "./parser.ts";
+import { ASTRunResult } from "./ast_interpreter.ts";
 import { ResultTable } from "./ResultTable.tsx";
 import { Globals } from "./globals.tsx";
 

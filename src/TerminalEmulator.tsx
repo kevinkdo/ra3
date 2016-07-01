@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import { Const } from "./constants.tsx";
-import * as Parser from "./parser.ts";
+import * as AstInterpreter from "./ast_interpreter.ts";
 import { Globals } from "./globals.tsx";
 import { QueryStringPair } from "./QueryStringPair.tsx";
 import { QueryResultPair } from "./QueryResultPair.tsx";
@@ -9,7 +9,7 @@ import { CurrentInput } from "./CurrentInput.tsx";
 
 export interface QueryAndResult {
   query: string,
-  result: Parser.ASTRunResult | string
+  result: AstInterpreter.ASTRunResult | string
 }
 
 export interface TerminalEmulatorState {
@@ -159,7 +159,7 @@ export class TerminalEmulator extends React.Component<{}, TerminalEmulatorState>
         var newHistory = this.state.history;
         newHistory.push(this.state.currentInput);
         var newHistoryIndex = newHistory.length;
-        var result = Parser.runQuery(this.expandSubquery(this.cleanQuery(this.state.currentInput)));
+        var result = AstInterpreter.runQuery(this.expandSubquery(this.cleanQuery(this.state.currentInput)));
         var newCommands = this.state.commands.concat([{ query: this.cleanQuery(this.state.currentInput), result: result }]);
         this.setState(prevState => {
           prevState.commands = newCommands;
@@ -252,7 +252,7 @@ export class TerminalEmulator extends React.Component<{}, TerminalEmulatorState>
         var str_result = x.result as string;
         renderedLines.push(<QueryStringPair key={Globals.nodeId++} query={x.query} result={str_result} color={color} />);
       } else {
-        var ast_result = x.result as Parser.ASTRunResult;
+        var ast_result = x.result as AstInterpreter.ASTRunResult;
         renderedLines.push(<QueryResultPair key={Globals.nodeId++} query={x.query} result={ast_result} color={color} />);
       }
     });

@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import { ASTRunResult } from "./parser.ts";
+import { ASTRunResult } from "./ast_interpreter.ts";
 import { Globals } from "./globals.tsx";
 
 export class ResultTable extends React.Component<{ parsed: ASTRunResult }, {}> {
