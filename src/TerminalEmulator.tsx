@@ -105,14 +105,13 @@ export class TerminalEmulator extends React.Component<{}, TerminalEmulatorState>
         prevState.currentInput = "";
         return prevState;
       });
-    } else if (this.state.currentInput.substring(0, 8) == "subquery") {
+    } else if (this.state.currentInput.substring(0, Const.FIRST_SPACE_INDEX) == "subquery") {
       var newHistory = this.state.history;
       newHistory.push(this.state.currentInput);
       var newHistoryIndex = newHistory.length;
 
-      var firstSpaceIndex = 8;
-      var secondSpaceIndex = this.state.currentInput.substring(firstSpaceIndex + 1).indexOf(" ") + firstSpaceIndex + 1;
-      var subqueryName = this.state.currentInput.substring(firstSpaceIndex + 1, secondSpaceIndex);
+      var secondSpaceIndex = this.state.currentInput.substring(Const.FIRST_SPACE_INDEX + 1).indexOf(" ") + Const.FIRST_SPACE_INDEX + 1;
+      var subqueryName = this.state.currentInput.substring(Const.FIRST_SPACE_INDEX + 1, secondSpaceIndex);
       var subqueryDefinition = this.state.currentInput.substring(secondSpaceIndex + 1);
 
       if (subqueryName[0] != ":") {
@@ -130,6 +129,7 @@ export class TerminalEmulator extends React.Component<{}, TerminalEmulatorState>
       if (subqueryDefinition[subqueryDefinition.length - 1] == ';') {
         subqueryDefinition = subqueryDefinition.substring(0, subqueryDefinition.length - 1);
       }
+
       if (subqueryDefinition.indexOf(":") === -1) {
         var tempSubqueryList = this.state.subqueryList;
         tempSubqueryList[subqueryName] = subqueryDefinition;
@@ -153,7 +153,7 @@ export class TerminalEmulator extends React.Component<{}, TerminalEmulatorState>
         });
       }
     } else {
-      if (this.state.currentInput[this.state.currentInput.length - 1] != ";") {
+      if (this.state.currentInput.indexOf(";") === -1) {
         this.setInput(this.state.currentInput + "\n" + "> ");
       } else {
         var newHistory = this.state.history;

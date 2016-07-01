@@ -9,7 +9,7 @@
 }
 
 start
-  = WS* n:exp WS* STATEMENT_TERMINATOR WS* { return n; }
+  = WS* n:exp WS* STATEMENT_TERMINATOR+ WS* { return n; }
 
 exp
   = n1:exp_unit WS* JOIN s:OPERATOR_OPTION WS* n2:exp_unit { return astNode("\u22c8", s, [n1, n2]); }

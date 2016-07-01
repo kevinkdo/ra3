@@ -4,6 +4,7 @@ export namespace Const {
   export var TAB: number = 9;
   export var UP: number = 38;
   export var DOWN: number = 40;
+  export var FIRST_SPACE_INDEX = 8; // For use in command to define subqueries
   export var tab_options = ["\\project_{", "\\join", "\\select_{", "\\cross", "\\union", "\\diff", "\\intersect", "\\rename_{"];
   export var SHORT_HELP_MESSAGE: string = "Welcome to RA3\nJordan Ly, Jennie Ju, Michael Han, and Kevin Do\nPlease send bugs/comments to kevin.kydat.do |at| gmail.com\n"
   + "'help --verbose' for a list of commands\n";
