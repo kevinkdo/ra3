@@ -124,7 +124,7 @@ ALPHA = [a-zA-Z]
 WS = [ \t\r\n]
 
 INT = l:[0-9]+ { return parseInt(l.join(""), 10); }
-FLOAT = l1:(DIGIT*) s1:'.' l2:(DIGIT*) { return parseFloat(s1.join("") + s1 + l2.join("")); }
+FLOAT = l1:(DIGIT*) s1:'.' l2:(DIGIT*) { return parseFloat(l1.join("") + s1 + l2.join("")); }
 COLUMN = s1:ALPHA l1:(ALPHA/DIGIT/'_')* { return (s1 + l1.join("")).toLowerCase(); }
 INSIDE_QUOTE = l:([^'])+ { return l.join(""); }
 
