@@ -31,17 +31,19 @@ drinkero;
 \project_{drinker,drinker} likes;
 \project_{drinkero} likes;
 \project_{drinker} likes;
+\project_{bar} serves;
 
 frequentso \cross frequents;
 frequents \cross frequentso;
 frequents \cross frequents;
-frequents \cross frequents \cross frequents;
+bar \cross likes \cross \rename_{col1, col2} beer;
 bar \cross likes;
 
 frequentso \join frequents;
 frequents \join frequentso;
 frequents \join frequents;
 frequents \join bar;
+frequents \join bar \join serves;
 bar \join drinker;
 
 frequents \join_{ouoeuoe} frequents;
@@ -72,6 +74,7 @@ likes \diff drinker;
 likeso \intersect likes;
 likes \intersect likeso;
 likes \intersect frequents;
+likes \intersect likes;
 likes \intersect likes \intersect likes;
 likes \intersect drinker;
 

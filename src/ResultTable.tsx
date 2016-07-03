@@ -15,6 +15,6 @@ export class ResultTable extends React.Component<{ parsed: ASTRunResult }, {}> {
 
       renderedRows.push(<tr key={Globals.nodeId++}>{colNames.map(renderColVal)}</tr>);
     });
-    return <div><div>{this.props.parsed.tuples.length} rows</div><table className="resultTable"><tbody>{renderedRows}</tbody></table></div>
+    return <div><table className="resultTable"><tbody>{renderedRows}</tbody></table><div>{this.props.parsed.tuples.length} rows</div></div>
   }
 };
