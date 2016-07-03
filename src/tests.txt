@@ -63,6 +63,7 @@ likes \union likeso;
 likes \union frequents;
 likes \union likes;
 likes \union likes \union likes;
+likes \union \select_{drinker='Ben'} likes;
 likes \union drinker;
 
 likeso \diff likes;
@@ -76,6 +77,7 @@ likes \intersect likeso;
 likes \intersect frequents;
 likes \intersect likes;
 likes \intersect likes \intersect likes;
+likes \intersect \select_{drinker='Ben'} likes;
 likes \intersect drinker;
 
 \rename_{23^} drinker;
